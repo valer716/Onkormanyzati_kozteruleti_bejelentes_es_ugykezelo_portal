@@ -1,1 +1,1 @@
-# Onkormanyzati_kozteruleti_bejelentes_es_ugykezelo_portal
+# Önkormányzati közterületi bejelentés- és ügykezelő portál
