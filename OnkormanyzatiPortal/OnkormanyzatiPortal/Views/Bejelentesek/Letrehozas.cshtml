@@ -1,0 +1,30 @@
+﻿@model OnkormanyzatiPortal.Models.Bejelentes
+
+<h1>Új bejelentés</h1>
+
+@if (TempData["Siker"] is string uzenet)
+{
+    <div class="alert alert-success" role="status">@uzenet</div>
+}
+
+<form asp-controller="Bejelentesek" asp-action="Letrehozas" method="post">
+    <div class="mb-3">
+        <label asp-for="Cim" class="form-label">Rövid cím</label>
+        <input asp-for="Cim" class="form-control" />
+        <span asp-validation-for="Cim" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Leiras" class="form-label">Leírás</label>
+        <textarea asp-for="Leiras" class="form-control" rows="4"></textarea>
+        <span asp-validation-for="Leiras" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Helyszin" class="form-label">Helyszín</label>
+        <input asp-for="Helyszin" class="form-control" />
+        <span asp-validation-for="Helyszin" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Beküldés</button>
+</form>

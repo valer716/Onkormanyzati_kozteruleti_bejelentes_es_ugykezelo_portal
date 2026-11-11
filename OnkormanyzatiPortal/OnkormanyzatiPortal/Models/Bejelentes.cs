@@ -1,0 +1,22 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace OnkormanyzatiPortal.Models;
+
+public class Bejelentes
+{
+    public int Id { get; set; }
+
+    [Required]
+    [StringLength(120)]
+    public string Cim { get; set; } = string.Empty;
+
+    [Required]
+    [StringLength(2000)]
+    public string Leiras { get; set; } = string.Empty;
+
+    [Required]
+    [StringLength(200)]
+    public string Helyszin { get; set; } = string.Empty;
+
+    public DateTime LetrehozvaUtc { get; set; } = DateTime.UtcNow;
+}
