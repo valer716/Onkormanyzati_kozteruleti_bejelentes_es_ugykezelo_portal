@@ -240,6 +240,9 @@ namespace OnkormanyzatiPortal.Data.Migrations
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
 
+                    b.Property<DateTime?>("Hatarido")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Helyszin")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -259,6 +262,44 @@ namespace OnkormanyzatiPortal.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Bejelentesek");
+                });
+
+            modelBuilder.Entity("OnkormanyzatiPortal.Models.BejelentesNaplo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BejelentesId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ElozoAllapot")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FelhasznaloId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("Hatarido")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("IdopontUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Muvelet")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("UjAllapot")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BejelentesId");
+
+                    b.ToTable("BejelentesNaplok");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -310,6 +351,17 @@ namespace OnkormanyzatiPortal.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("OnkormanyzatiPortal.Models.BejelentesNaplo", b =>
+                {
+                    b.HasOne("OnkormanyzatiPortal.Models.Bejelentes", "Bejelentes")
+                        .WithMany()
+                        .HasForeignKey("BejelentesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Bejelentes");
                 });
 #pragma warning restore 612, 618
         }

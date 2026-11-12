@@ -24,6 +24,9 @@
     <dt class="col-sm-3">Helyszín</dt>
     <dd class="col-sm-9">@Model.Helyszin</dd>
 
+    <dt class="col-sm-3">Határidő</dt>
+    <dd class="col-sm-9">@(Model.Hatarido?.ToString("yyyy.MM.dd.") ?? "Nincs megadva")</dd>
+
     <dt class="col-sm-3">Beérkezés (UTC)</dt>
     <dd class="col-sm-9">@Model.LetrehozvaUtc.ToString("yyyy.MM.dd. HH:mm")</dd>
 </dl>
@@ -31,11 +34,35 @@
 <h2>Leírás</h2>
 <p style="white-space: pre-wrap">@Model.Leiras</p>
 
-@if (Model.Allapot == BejelentesAllapot.Uj)
+@if (Model.Allapot is BejelentesAllapot.Uj or BejelentesAllapot.Ellenorizve)
 {
+    <h2>Ellenőrzés és pontosítás</h2>
+
     <form asp-action="Ellenoriz" asp-route-id="@Model.Id" method="post">
-        <button type="submit" class="btn btn-primary">
-            Ellenőrzöttnek jelölöm
-        </button>
+        <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+
+        <div class="mb-3">
+            <label asp-for="Cim" class="form-label">Rövid cím</label>
+            <input asp-for="Cim" class="form-control" required maxlength="120" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Leiras" class="form-label">Leírás</label>
+            <textarea asp-for="Leiras" class="form-control"
+                      rows="4" required maxlength="2000"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Helyszin" class="form-label">Helyszín</label>
+            <input asp-for="Helyszin" class="form-control" required maxlength="200" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Hatarido" class="form-label">Ügyhatáridő</label>
+            <input asp-for="Hatarido" asp-format="{0:yyyy-MM-dd}"
+                   type="date" class="form-control" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Mentés ellenőrzöttként</button>
     </form>
 }

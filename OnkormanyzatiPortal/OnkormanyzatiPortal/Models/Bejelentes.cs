@@ -24,4 +24,5 @@ public class Bejelentes
     public BejelentesKategoria Kategoria { get; set; } = BejelentesKategoria.Egyeb;
 
     public BejelentesAllapot Allapot { get; set; } = BejelentesAllapot.Uj;
+    public DateTime? Hatarido { get; set; }
 }
