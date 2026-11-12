@@ -1,0 +1,34 @@
+﻿@model IReadOnlyList<OnkormanyzatiPortal.Models.Bejelentes>
+
+<h1>Beérkezett bejelentések</h1>
+
+@if (Model.Count == 0)
+{
+    <p>Még nem érkezett bejelentés.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Azonosító</th>
+                    <th>Cím</th>
+                    <th>Helyszín</th>
+                    <th>Beérkezés (UTC)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var bejelentes in Model)
+                {
+                    <tr>
+                        <td>@bejelentes.Id</td>
+                        <td>@bejelentes.Cim</td>
+                        <td>@bejelentes.Helyszin</td>
+                        <td>@bejelentes.LetrehozvaUtc.ToString("yyyy.MM.dd. HH:mm")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

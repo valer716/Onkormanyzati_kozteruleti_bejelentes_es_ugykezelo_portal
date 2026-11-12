@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OnkormanyzatiPortal.Data;
 using OnkormanyzatiPortal.Models;
-
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 namespace OnkormanyzatiPortal.Controllers;
 
 public class BejelentesekController : Controller
@@ -35,5 +36,17 @@ public class BejelentesekController : Controller
 
         TempData["Siker"] = $"A bejelentést mentettük. Azonosító: {bejelentes.Id}.";
         return RedirectToAction(nameof(Letrehozas));
+    }
+
+    [HttpGet]
+    [Authorize(Roles = "Ugyintezo")]
+    public async Task<IActionResult> Index()
+    {
+        var bejelentesek = await _db.Bejelentesek
+            .AsNoTracking()
+            .OrderByDescending(b => b.LetrehozvaUtc)
+            .ToListAsync();
+
+        return View(bejelentesek);
     }
 }
