@@ -60,7 +60,11 @@ else
                 {
                     <tr>
                         <td>@bejelentes.Id</td>
-                        <td>@bejelentes.Cim</td>
+                        <td>
+                            <a asp-action="Reszletek" asp-route-id="@bejelentes.Id">
+                                @bejelentes.Cim
+                            </a>
+                        </td>
                         <td>@bejelentes.Helyszin</td>
                         <td>@Html.DisplayFor(_ => bejelentes.Kategoria)</td>
                         <td>@Html.DisplayFor(_ => bejelentes.Allapot)</td>

@@ -65,4 +65,37 @@ public class BejelentesekController : Controller
             .OrderByDescending(b => b.LetrehozvaUtc)
             .ToListAsync());
     }
+    [HttpGet]
+    [Authorize(Roles = "Ugyintezo")]
+    public async Task<IActionResult> Reszletek(int id)
+    {
+        var bejelentes = await _db.Bejelentesek
+            .AsNoTracking()
+            .FirstOrDefaultAsync(b => b.Id == id);
+
+        if (bejelentes is null)
+            return NotFound();
+
+        return View(bejelentes);
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Ugyintezo")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Ellenoriz(int id)
+    {
+        var bejelentes = await _db.Bejelentesek.FindAsync(id);
+
+        if (bejelentes is null)
+            return NotFound();
+
+        if (bejelentes.Allapot == BejelentesAllapot.Uj)
+        {
+            bejelentes.Allapot = BejelentesAllapot.Ellenorizve;
+            await _db.SaveChangesAsync();
+            TempData["Siker"] = "A bejelentés állapota: Ellenőrizve.";
+        }
+
+        return RedirectToAction(nameof(Reszletek), new { id });
+    }
 }

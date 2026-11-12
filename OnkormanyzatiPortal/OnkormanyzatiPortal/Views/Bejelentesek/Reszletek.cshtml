@@ -1,0 +1,41 @@
+﻿@using OnkormanyzatiPortal.Models
+@model Bejelentes
+
+@{
+    ViewData["Title"] = "Bejelentés részletei";
+}
+
+<p><a asp-action="Index">Vissza az ügylistához</a></p>
+
+<h1>#@Model.Id – @Model.Cim</h1>
+
+@if (TempData["Siker"] is string uzenet)
+{
+    <div class="alert alert-success" role="status">@uzenet</div>
+}
+
+<dl class="row">
+    <dt class="col-sm-3">Kategória</dt>
+    <dd class="col-sm-9">@Html.DisplayFor(m => m.Kategoria)</dd>
+
+    <dt class="col-sm-3">Állapot</dt>
+    <dd class="col-sm-9">@Html.DisplayFor(m => m.Allapot)</dd>
+
+    <dt class="col-sm-3">Helyszín</dt>
+    <dd class="col-sm-9">@Model.Helyszin</dd>
+
+    <dt class="col-sm-3">Beérkezés (UTC)</dt>
+    <dd class="col-sm-9">@Model.LetrehozvaUtc.ToString("yyyy.MM.dd. HH:mm")</dd>
+</dl>
+
+<h2>Leírás</h2>
+<p style="white-space: pre-wrap">@Model.Leiras</p>
+
+@if (Model.Allapot == BejelentesAllapot.Uj)
+{
+    <form asp-action="Ellenoriz" asp-route-id="@Model.Id" method="post">
+        <button type="submit" class="btn btn-primary">
+            Ellenőrzöttnek jelölöm
+        </button>
+    </form>
+}
