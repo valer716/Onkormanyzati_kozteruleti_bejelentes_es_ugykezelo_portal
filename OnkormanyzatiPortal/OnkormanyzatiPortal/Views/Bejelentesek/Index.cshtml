@@ -1,10 +1,45 @@
-﻿@model IReadOnlyList<OnkormanyzatiPortal.Models.Bejelentes>
+﻿@using OnkormanyzatiPortal.Models
+@model IReadOnlyList<Bejelentes>
+
+@{
+    ViewData["Title"] = "Beérkezett bejelentések";
+}
 
 <h1>Beérkezett bejelentések</h1>
 
+<form asp-action="Index" method="get" class="row g-2 mb-3">
+    <div class="col-sm">
+        <label for="kereses" class="form-label">Keresés címre vagy helyszínre</label>
+        @Html.TextBox("kereses", null, new { @class = "form-control" })
+    </div>
+
+    <div class="col-sm">
+        <label for="kategoria" class="form-label">Kategória</label>
+        @Html.DropDownList(
+            "kategoria",
+            Html.GetEnumSelectList<BejelentesKategoria>(),
+            "Minden kategória",
+            new { @class = "form-select" })
+    </div>
+
+    <div class="col-sm">
+        <label for="allapot" class="form-label">Állapot</label>
+        @Html.DropDownList(
+            "allapot",
+            Html.GetEnumSelectList<BejelentesAllapot>(),
+            "Minden állapot",
+            new { @class = "form-select" })
+    </div>
+
+    <div class="col-sm-auto align-self-end">
+        <button class="btn btn-primary" type="submit">Szűrés</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Törlés</a>
+    </div>
+</form>
+
 @if (Model.Count == 0)
 {
-    <p>Még nem érkezett bejelentés.</p>
+    <p>Nincs találat.</p>
 }
 else
 {
@@ -15,6 +50,8 @@ else
                     <th>Azonosító</th>
                     <th>Cím</th>
                     <th>Helyszín</th>
+                    <th>Kategória</th>
+                    <th>Állapot</th>
                     <th>Beérkezés (UTC)</th>
                 </tr>
             </thead>
@@ -25,6 +62,8 @@ else
                         <td>@bejelentes.Id</td>
                         <td>@bejelentes.Cim</td>
                         <td>@bejelentes.Helyszin</td>
+                        <td>@Html.DisplayFor(_ => bejelentes.Kategoria)</td>
+                        <td>@Html.DisplayFor(_ => bejelentes.Allapot)</td>
                         <td>@bejelentes.LetrehozvaUtc.ToString("yyyy.MM.dd. HH:mm")</td>
                     </tr>
                 }

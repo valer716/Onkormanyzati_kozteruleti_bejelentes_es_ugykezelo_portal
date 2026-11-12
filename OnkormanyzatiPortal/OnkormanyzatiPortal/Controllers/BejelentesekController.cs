@@ -23,7 +23,7 @@ public class BejelentesekController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Letrehozas(
-        [Bind("Cim,Leiras,Helyszin")] Bejelentes bejelentes)
+        [Bind("Cim,Leiras,Helyszin,Kategoria")] Bejelentes bejelentes)
     {
         if (!ModelState.IsValid)
         {
@@ -31,6 +31,7 @@ public class BejelentesekController : Controller
         }
 
         bejelentes.LetrehozvaUtc = DateTime.UtcNow;
+        bejelentes.Allapot = BejelentesAllapot.Uj;
         _db.Bejelentesek.Add(bejelentes);
         await _db.SaveChangesAsync();
 
@@ -40,13 +41,28 @@ public class BejelentesekController : Controller
 
     [HttpGet]
     [Authorize(Roles = "Ugyintezo")]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(
+        string? kereses,
+        BejelentesKategoria? kategoria,
+        BejelentesAllapot? allapot)
     {
-        var bejelentesek = await _db.Bejelentesek
-            .AsNoTracking()
-            .OrderByDescending(b => b.LetrehozvaUtc)
-            .ToListAsync();
+        var lekerdezes = _db.Bejelentesek.AsNoTracking();
 
-        return View(bejelentesek);
+        if (!string.IsNullOrWhiteSpace(kereses))
+        {
+            var szo = kereses.Trim();
+            lekerdezes = lekerdezes.Where(b =>
+                b.Cim.Contains(szo) || b.Helyszin.Contains(szo));
+        }
+
+        if (kategoria.HasValue)
+            lekerdezes = lekerdezes.Where(b => b.Kategoria == kategoria.Value);
+
+        if (allapot.HasValue)
+            lekerdezes = lekerdezes.Where(b => b.Allapot == allapot.Value);
+
+        return View(await lekerdezes
+            .OrderByDescending(b => b.LetrehozvaUtc)
+            .ToListAsync());
     }
 }

@@ -26,5 +26,14 @@
         <span asp-validation-for="Helyszin" class="text-danger"></span>
     </div>
 
+    <div class="mb-3">
+        <label asp-for="Kategoria" class="form-label">Kategória</label>
+        <select asp-for="Kategoria"
+                asp-items="Html.GetEnumSelectList<OnkormanyzatiPortal.Models.BejelentesKategoria>()"
+                class="form-select">
+        </select>
+        <span asp-validation-for="Kategoria" class="text-danger"></span>
+    </div>
+
     <button type="submit" class="btn btn-primary">Beküldés</button>
 </form>

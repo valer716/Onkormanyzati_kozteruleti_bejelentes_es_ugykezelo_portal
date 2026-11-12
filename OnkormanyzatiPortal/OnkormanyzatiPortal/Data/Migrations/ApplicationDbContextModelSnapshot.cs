@@ -232,6 +232,9 @@ namespace OnkormanyzatiPortal.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("Allapot")
+                        .HasColumnType("int");
+
                     b.Property<string>("Cim")
                         .IsRequired()
                         .HasMaxLength(120)
@@ -241,6 +244,9 @@ namespace OnkormanyzatiPortal.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("Kategoria")
+                        .HasColumnType("int");
 
                     b.Property<string>("Leiras")
                         .IsRequired()

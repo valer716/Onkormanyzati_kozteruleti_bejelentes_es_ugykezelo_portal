@@ -19,4 +19,9 @@ public class Bejelentes
     public string Helyszin { get; set; } = string.Empty;
 
     public DateTime LetrehozvaUtc { get; set; } = DateTime.UtcNow;
+
+    [EnumDataType(typeof(BejelentesKategoria))]
+    public BejelentesKategoria Kategoria { get; set; } = BejelentesKategoria.Egyeb;
+
+    public BejelentesAllapot Allapot { get; set; } = BejelentesAllapot.Uj;
 }
