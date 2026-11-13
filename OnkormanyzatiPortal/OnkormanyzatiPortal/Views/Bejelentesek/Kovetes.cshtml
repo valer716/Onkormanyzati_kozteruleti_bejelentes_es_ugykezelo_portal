@@ -1,0 +1,61 @@
+﻿@using OnkormanyzatiPortal.Models
+@model BejelentesKovetesNezet
+
+@{
+    ViewData["Title"] = "Ügykövetés";
+    var ujKod = TempData["Kovetokod"]?.ToString();
+    var mezoErtek = Model?.Kovetokod.ToString() ?? ujKod ?? "";
+}
+
+<h1>Ügykövetés</h1>
+
+@if (!string.IsNullOrEmpty(ujKod))
+{
+    <div class="alert alert-success" role="status">
+        A bejelentést mentettük. Tedd el a követőkódot:
+        <strong class="text-break">@ujKod</strong>
+    </div>
+}
+
+<form asp-action="Kovetes" method="post" class="mb-4">
+    <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+
+    <div class="mb-3">
+        <label for="kovetokod" class="form-label">Követőkód</label>
+        <input id="kovetokod" name="kovetokod" value="@mezoErtek"
+               class="form-control" maxlength="36" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Állapot lekérése</button>
+</form>
+
+@if (Model is not null)
+{
+    <h2>Bejelentés #@Model.Id</h2>
+    <p>Állapot: <strong>@Html.DisplayFor(m => m.Allapot)</strong></p>
+    <p>Határidő: @(Model.Hatarido?.ToString("yyyy.MM.dd.") ?? "Nincs megadva")</p>
+
+    @if (Model.Ertekeles is int ertekeles)
+    {
+        <p>Köszönjük a visszajelzést! Értékelés: @ertekeles / 5.</p>
+    }
+    else if (Model.Allapot == BejelentesAllapot.Lezart)
+    {
+        <form asp-action="Ertekel" method="post">
+            <input type="hidden" name="kovetokod" value="@Model.Kovetokod" />
+
+            <div class="mb-3">
+                <label for="pont" class="form-label">Értékelés (1–5)</label>
+                <select id="pont" name="pont" class="form-select" required>
+                    <option value="">Válassz pontszámot</option>
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <option value="@i">@i</option>
+                    }
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Értékelés mentése</button>
+        </form>
+    }
+}

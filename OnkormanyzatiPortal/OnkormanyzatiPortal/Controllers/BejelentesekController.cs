@@ -33,6 +33,10 @@ public class BejelentesekController : Controller
 
         bejelentes.LetrehozvaUtc = DateTime.UtcNow;
         bejelentes.Allapot = BejelentesAllapot.Uj;
+
+        var kod = Guid.NewGuid();
+        bejelentes.Kovetokod = kod;
+
         _db.Bejelentesek.Add(bejelentes);
         _db.BejelentesNaplok.Add(new BejelentesNaplo
         {
@@ -43,8 +47,8 @@ public class BejelentesekController : Controller
         });
         await _db.SaveChangesAsync();
 
-        TempData["Siker"] = $"A bejelentést mentettük. Azonosító: {bejelentes.Id}.";
-        return RedirectToAction(nameof(Letrehozas));
+        TempData["Kovetokod"] = kod.ToString();
+        return RedirectToAction(nameof(Kovetes));
     }
 
     [HttpGet]
@@ -298,5 +302,91 @@ public class BejelentesekController : Controller
 
         TempData["Siker"] = "Az ügyet lezártuk.";
         return RedirectToAction(nameof(Reszletek), new { id });
+    }
+    [HttpGet]
+    [AllowAnonymous]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+    public IActionResult Kovetes()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [AllowAnonymous]
+    [ValidateAntiForgeryToken]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+    public async Task<IActionResult> Kovetes(Guid? kovetokod)
+    {
+        if (!ModelState.IsValid || kovetokod is null || kovetokod == Guid.Empty)
+        {
+            ModelState.AddModelError("", "Adj meg érvényes követőkódot.");
+            return View();
+        }
+
+        var kod = kovetokod.Value;
+
+        var eredmeny = await _db.Bejelentesek
+            .AsNoTracking()
+            .Where(b => b.Kovetokod == kod)
+            .Select(b => new BejelentesKovetesNezet(
+                b.Id, kod, b.Allapot, b.Hatarido, b.Ertekeles))
+            .SingleOrDefaultAsync();
+
+        if (eredmeny is null)
+            ModelState.AddModelError("", "Nem található bejelentés ezzel a kóddal.");
+
+        return View(eredmeny);
+    }
+
+    [HttpPost]
+    [AllowAnonymous]
+    [ValidateAntiForgeryToken]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+    public async Task<IActionResult> Ertekel(Guid? kovetokod, int pont)
+    {
+        if (!ModelState.IsValid || kovetokod is null
+            || kovetokod == Guid.Empty || pont is < 1 or > 5)
+        {
+            return BadRequest("Érvényes követőkód és 1–5 közötti pontszám szükséges.");
+        }
+
+        var kod = kovetokod.Value;
+        var bejelentes = await _db.Bejelentesek
+            .SingleOrDefaultAsync(b => b.Kovetokod == kod);
+
+        if (bejelentes is null)
+            return NotFound();
+
+        if (bejelentes.Allapot != BejelentesAllapot.Lezart
+            || bejelentes.Ertekeles.HasValue)
+        {
+            return BadRequest("Csak lezárt ügy értékelhető, és csak egyszer.");
+        }
+
+        bejelentes.Ertekeles = pont;
+        bejelentes.Verzio = Guid.NewGuid();
+
+        _db.BejelentesNaplok.Add(new BejelentesNaplo
+        {
+            BejelentesId = bejelentes.Id,
+            Muvelet = $"Lakossági értékelés: {pont}/5",
+            ElozoAllapot = bejelentes.Allapot,
+            UjAllapot = bejelentes.Allapot,
+            Hatarido = bejelentes.Hatarido,
+            FelhasznaloId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+        });
+
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return Conflict("Az ügy közben megváltozott. Kérd le újra az állapotát.");
+        }
+
+        return View(nameof(Kovetes), new BejelentesKovetesNezet(
+            bejelentes.Id, kod, bejelentes.Allapot,
+            bejelentes.Hatarido, bejelentes.Ertekeles));
     }
 }

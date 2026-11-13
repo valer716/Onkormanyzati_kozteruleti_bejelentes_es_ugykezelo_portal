@@ -19,6 +19,11 @@ namespace OnkormanyzatiPortal.Data
                 new Szervezet { Id = 2, Nev = "Köztisztaság" },
                 new Szervezet { Id = 3, Nev = "Közvilágítás" }
             );
+
+            builder.Entity<Bejelentes>()
+                .HasIndex(b => b.Kovetokod)
+                .IsUnique()
+                .HasFilter("[Kovetokod] IS NOT NULL");
         }
         public DbSet<SzervezetiTag> SzervezetiTagok { get; set; } = null!;
     }

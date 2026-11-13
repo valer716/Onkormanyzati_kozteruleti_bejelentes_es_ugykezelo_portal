@@ -240,6 +240,9 @@ namespace OnkormanyzatiPortal.Data.Migrations
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
 
+                    b.Property<int?>("Ertekeles")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("Hatarido")
                         .HasColumnType("datetime2");
 
@@ -250,6 +253,9 @@ namespace OnkormanyzatiPortal.Data.Migrations
 
                     b.Property<int>("Kategoria")
                         .HasColumnType("int");
+
+                    b.Property<Guid?>("Kovetokod")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Leiras")
                         .IsRequired()
@@ -267,6 +273,10 @@ namespace OnkormanyzatiPortal.Data.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Kovetokod")
+                        .IsUnique()
+                        .HasFilter("[Kovetokod] IS NOT NULL");
 
                     b.ToTable("Bejelentesek");
                 });
