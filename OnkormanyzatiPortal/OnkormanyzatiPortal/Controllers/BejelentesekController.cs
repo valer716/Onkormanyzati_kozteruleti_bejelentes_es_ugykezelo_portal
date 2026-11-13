@@ -84,7 +84,7 @@ public class BejelentesekController : Controller
         if (bejelentes is null)
             return NotFound();
 
-        return View(bejelentes);
+        return await ReszletekNezet(bejelentes);
     }
 
     [HttpPost]
@@ -121,7 +121,7 @@ public class BejelentesekController : Controller
             ModelState.AddModelError("Hatarido", "A határidő ma vagy később legyen.");
 
         if (!ModelState.IsValid)
-            return View(nameof(Reszletek), bejelentes);
+            return await ReszletekNezet(bejelentes);
 
         var elozoAllapot = bejelentes.Allapot;
 
@@ -143,9 +143,160 @@ public class BejelentesekController : Controller
             FelhasznaloId = User.FindFirstValue(ClaimTypes.NameIdentifier)
         });
 
-        await _db.SaveChangesAsync();
+        bejelentes.Verzio = Guid.NewGuid();
 
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            TempData["Hiba"] = "Az ügy közben megváltozott. Nézd át, majd próbáld újra.";
+            return RedirectToAction(nameof(Reszletek), new { id });
+        }
         TempData["Siker"] = "Az ellenőrzött ügy adatait mentettük.";
+        return RedirectToAction(nameof(Reszletek), new { id });
+    }
+    private async Task<IActionResult> ReszletekNezet(Bejelentes bejelentes)
+    {
+        ViewBag.Reszfeladatok = await _db.Reszfeladatok
+            .AsNoTracking()
+            .Include(f => f.Szervezet)
+            .Where(f => f.BejelentesId == bejelentes.Id)
+            .OrderBy(f => f.Id)
+            .ToListAsync();
+
+        ViewBag.Szervezetek = await _db.Szervezetek
+            .AsNoTracking()
+            .OrderBy(s => s.Nev)
+            .ToListAsync();
+
+        return View(nameof(Reszletek), bejelentes);
+    }
+
+
+
+    [HttpPost]
+    [Authorize(Roles = "Ugyintezo")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Kioszt(
+    int id, int szervezetId, string? feladatCim, DateTime? feladatHatarido)
+    {
+        var bejelentes = await _db.Bejelentesek.FindAsync(id);
+
+        if (bejelentes is null)
+            return NotFound();
+
+        if (bejelentes.Allapot is not
+            (BejelentesAllapot.Ellenorizve or BejelentesAllapot.Folyamatban)
+            || bejelentes.Hatarido is null)
+        {
+            return BadRequest("Csak ellenőrzött, határidővel rendelkező ügyhöz osztható ki feladat.");
+        }
+
+        feladatCim = feladatCim?.Trim();
+
+        if (!ModelState.IsValid
+            || string.IsNullOrEmpty(feladatCim)
+            || feladatCim.Length > 160
+            || feladatHatarido is null
+            || feladatHatarido.Value.Date < DateTime.Today
+            || feladatHatarido.Value.Date > bejelentes.Hatarido.Value.Date
+            || !await _db.Szervezetek.AnyAsync(s => s.Id == szervezetId))
+        {
+            TempData["Hiba"] = "Adj meg feladatcímet, szervezetet és érvényes határidőt. "
+                + "A feladat határideje nem lehet múltbeli vagy későbbi az ügy határidejénél.";
+
+            return RedirectToAction(nameof(Reszletek), new { id });
+        }
+
+        var elozoAllapot = bejelentes.Allapot;
+        var hatarido = feladatHatarido.Value.Date;
+
+        _db.Reszfeladatok.Add(new Reszfeladat
+        {
+            BejelentesId = id,
+            SzervezetId = szervezetId,
+            Cim = feladatCim,
+            Hatarido = hatarido
+        });
+
+        bejelentes.Allapot = BejelentesAllapot.Folyamatban;
+
+        _db.BejelentesNaplok.Add(new BejelentesNaplo
+        {
+            BejelentesId = id,
+            Muvelet = $"Feladat kiosztva: szervezet #{szervezetId}, határidő {hatarido:yyyy-MM-dd}",
+            ElozoAllapot = elozoAllapot,
+            UjAllapot = bejelentes.Allapot,
+            Hatarido = bejelentes.Hatarido,
+            FelhasznaloId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+        });
+
+        bejelentes.Verzio = Guid.NewGuid();
+
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            TempData["Hiba"] = "Az ügy közben megváltozott. Nézd át, majd próbáld újra.";
+            return RedirectToAction(nameof(Reszletek), new { id });
+        }
+        TempData["Siker"] = "A részfeladatot kiosztottuk.";
+        return RedirectToAction(nameof(Reszletek), new { id });
+    }
+    [HttpPost]
+    [Authorize(Roles = "Ugyintezo")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Lezar(int id)
+    {
+        var bejelentes = await _db.Bejelentesek.FindAsync(id);
+
+        if (bejelentes is null)
+            return NotFound();
+
+        var teljesitesek = await _db.Reszfeladatok
+            .Where(f => f.BejelentesId == id)
+            .Select(f => f.Elkeszult)
+            .ToListAsync();
+
+        if (bejelentes.Allapot != BejelentesAllapot.LezarasraVar
+            || teljesitesek.Count == 0
+            || teljesitesek.Any(elkeszult => !elkeszult))
+        {
+            TempData["Hiba"] = "Az ügy csak akkor zárható le, ha minden részfeladat elkészült.";
+            return RedirectToAction(nameof(Reszletek), new { id });
+        }
+
+        var lezarasIdeje = DateTime.UtcNow;
+        bejelentes.Allapot = BejelentesAllapot.Lezart;
+        bejelentes.LezarvaUtc = lezarasIdeje;
+        bejelentes.Verzio = Guid.NewGuid();
+
+        _db.BejelentesNaplok.Add(new BejelentesNaplo
+        {
+            BejelentesId = id,
+            Muvelet = "Ügyintéző ellenőrizte és lezárta az ügyet",
+            ElozoAllapot = BejelentesAllapot.LezarasraVar,
+            UjAllapot = BejelentesAllapot.Lezart,
+            Hatarido = bejelentes.Hatarido,
+            IdopontUtc = lezarasIdeje,
+            FelhasznaloId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+        });
+
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            TempData["Hiba"] = "Az ügy közben megváltozott. Nézd át újra a részleteket.";
+            return RedirectToAction(nameof(Reszletek), new { id });
+        }
+
+        TempData["Siker"] = "Az ügyet lezártuk.";
         return RedirectToAction(nameof(Reszletek), new { id });
     }
 }

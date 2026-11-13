@@ -259,6 +259,13 @@ namespace OnkormanyzatiPortal.Data.Migrations
                     b.Property<DateTime>("LetrehozvaUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("LezarvaUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("Verzio")
+                        .IsConcurrencyToken()
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.ToTable("Bejelentesek");
@@ -300,6 +307,99 @@ namespace OnkormanyzatiPortal.Data.Migrations
                     b.HasIndex("BejelentesId");
 
                     b.ToTable("BejelentesNaplok");
+                });
+
+            modelBuilder.Entity("OnkormanyzatiPortal.Models.Reszfeladat", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BejelentesId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Cim")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("nvarchar(160)");
+
+                    b.Property<bool>("Elkeszult")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("Hatarido")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Megjegyzes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("SzervezetId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BejelentesId");
+
+                    b.HasIndex("SzervezetId");
+
+                    b.ToTable("Reszfeladatok");
+                });
+
+            modelBuilder.Entity("OnkormanyzatiPortal.Models.Szervezet", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Nev")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Szervezetek");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Nev = "Útfenntartás"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Nev = "Köztisztaság"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Nev = "Közvilágítás"
+                        });
+                });
+
+            modelBuilder.Entity("OnkormanyzatiPortal.Models.SzervezetiTag", b =>
+                {
+                    b.Property<string>("FelhasznaloId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("FelhasznaloId1")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("SzervezetId")
+                        .HasColumnType("int");
+
+                    b.HasKey("FelhasznaloId");
+
+                    b.HasIndex("FelhasznaloId1");
+
+                    b.HasIndex("SzervezetId");
+
+                    b.ToTable("SzervezetiTagok");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -362,6 +462,42 @@ namespace OnkormanyzatiPortal.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Bejelentes");
+                });
+
+            modelBuilder.Entity("OnkormanyzatiPortal.Models.Reszfeladat", b =>
+                {
+                    b.HasOne("OnkormanyzatiPortal.Models.Bejelentes", "Bejelentes")
+                        .WithMany()
+                        .HasForeignKey("BejelentesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OnkormanyzatiPortal.Models.Szervezet", "Szervezet")
+                        .WithMany()
+                        .HasForeignKey("SzervezetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Bejelentes");
+
+                    b.Navigation("Szervezet");
+                });
+
+            modelBuilder.Entity("OnkormanyzatiPortal.Models.SzervezetiTag", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Felhasznalo")
+                        .WithMany()
+                        .HasForeignKey("FelhasznaloId1");
+
+                    b.HasOne("OnkormanyzatiPortal.Models.Szervezet", "Szervezet")
+                        .WithMany()
+                        .HasForeignKey("SzervezetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Felhasznalo");
+
+                    b.Navigation("Szervezet");
                 });
 #pragma warning restore 612, 618
         }

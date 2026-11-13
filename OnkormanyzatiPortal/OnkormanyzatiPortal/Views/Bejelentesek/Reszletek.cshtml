@@ -3,15 +3,22 @@
 
 @{
     ViewData["Title"] = "Bejelentés részletei";
+    var feladatok = (IReadOnlyList<Reszfeladat>)ViewBag.Reszfeladatok;
+    var szervezetek = (IReadOnlyList<Szervezet>)ViewBag.Szervezetek;
 }
 
 <p><a asp-action="Index">Vissza az ügylistához</a></p>
 
 <h1>#@Model.Id – @Model.Cim</h1>
 
-@if (TempData["Siker"] is string uzenet)
+@if (TempData["Siker"] is string siker)
 {
-    <div class="alert alert-success" role="status">@uzenet</div>
+    <div class="alert alert-success" role="status">@siker</div>
+}
+
+@if (TempData["Hiba"] is string hiba)
+{
+    <div class="alert alert-danger" role="alert">@hiba</div>
 }
 
 <dl class="row">
@@ -24,8 +31,10 @@
     <dt class="col-sm-3">Helyszín</dt>
     <dd class="col-sm-9">@Model.Helyszin</dd>
 
-    <dt class="col-sm-3">Határidő</dt>
-    <dd class="col-sm-9">@(Model.Hatarido?.ToString("yyyy.MM.dd.") ?? "Nincs megadva")</dd>
+    <dt class="col-sm-3">Ügyhatáridő</dt>
+    <dd class="col-sm-9">
+        @(Model.Hatarido?.ToString("yyyy.MM.dd.") ?? "Nincs megadva")
+    </dd>
 
     <dt class="col-sm-3">Beérkezés (UTC)</dt>
     <dd class="col-sm-9">@Model.LetrehozvaUtc.ToString("yyyy.MM.dd. HH:mm")</dd>
@@ -38,7 +47,7 @@
 {
     <h2>Ellenőrzés és pontosítás</h2>
 
-    <form asp-action="Ellenoriz" asp-route-id="@Model.Id" method="post">
+    <form asp-action="Ellenoriz" asp-route-id="@Model.Id" method="post" class="mb-4">
         <div asp-validation-summary="All" class="text-danger" role="alert"></div>
 
         <div class="mb-3">
@@ -48,8 +57,8 @@
 
         <div class="mb-3">
             <label asp-for="Leiras" class="form-label">Leírás</label>
-            <textarea asp-for="Leiras" class="form-control"
-                      rows="4" required maxlength="2000"></textarea>
+            <textarea asp-for="Leiras" class="form-control" rows="4"
+                      required maxlength="2000"></textarea>
         </div>
 
         <div class="mb-3">
@@ -65,4 +74,91 @@
 
         <button type="submit" class="btn btn-primary">Mentés ellenőrzöttként</button>
     </form>
+}
+
+<h2>Részfeladatok</h2>
+
+@if (feladatok.Count == 0)
+{
+    <p>Még nincs kiosztott részfeladat.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Feladat</th>
+                    <th>Szervezet</th>
+                    <th>Határidő</th>
+                    <th>Állapot</th>
+                    <th>Megjegyzés</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var feladat in feladatok)
+                {
+                    <tr>
+                        <td>@feladat.Cim</td>
+                        <td>@feladat.Szervezet.Nev</td>
+                        <td>@feladat.Hatarido.ToString("yyyy.MM.dd.")</td>
+                        <td>@(feladat.Elkeszult ? "Kész" : "Kiosztva")</td>
+                        <td>@feladat.Megjegyzes</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@if (Model.Hatarido.HasValue &&
+    (Model.Allapot is BejelentesAllapot.Ellenorizve or BejelentesAllapot.Folyamatban))
+{
+    <h3>Új részfeladat</h3>
+
+    <form asp-action="Kioszt" asp-route-id="@Model.Id" method="post">
+        <div class="mb-3">
+            <label for="feladatCim" class="form-label">Feladat címe</label>
+            <input id="feladatCim" name="feladatCim" class="form-control"
+                   required maxlength="160" />
+        </div>
+
+        <div class="mb-3">
+            <label for="szervezetId" class="form-label">Felelős szervezet</label>
+            <select id="szervezetId" name="szervezetId" class="form-select" required>
+                <option value="">Válassz szervezetet</option>
+                @foreach (var szervezet in szervezetek)
+                {
+                    <option value="@szervezet.Id">@szervezet.Nev</option>
+                }
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="feladatHatarido" class="form-label">Feladathatáridő</label>
+            <input id="feladatHatarido" name="feladatHatarido"
+                   type="date" class="form-control" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Feladat kiosztása</button>
+    </form>
+
+}
+
+@if (Model.Allapot == BejelentesAllapot.LezarasraVar
+    && feladatok.Count > 0
+    && feladatok.All(f => f.Elkeszult))
+{
+    <h2>Ügy lezárása</h2>
+    <p>Minden részfeladat elkészült. Lezárás előtt nézd át a megjegyzéseket.</p>
+
+    <form asp-action="Lezar" asp-route-id="@Model.Id" method="post">
+        <button type="submit" class="btn btn-success">
+            Ellenőriztem, lezárom
+        </button>
+    </form>
+}
+else if (Model.LezarvaUtc is DateTime lezarvaUtc)
+{
+    <p>Lezárás ideje (UTC): @lezarvaUtc.ToString("yyyy.MM.dd. HH:mm")</p>
 }

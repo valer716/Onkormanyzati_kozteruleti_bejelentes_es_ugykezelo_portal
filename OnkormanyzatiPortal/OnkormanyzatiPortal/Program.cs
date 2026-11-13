@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OnkormanyzatiPortal.Data;
+using OnkormanyzatiPortal.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -72,6 +73,50 @@ using (var scope = app.Services.CreateScope())
             var eredmeny = await felhasznaloKezelo.AddToRoleAsync(fiok, "Ugyintezo");
             if (!eredmeny.Succeeded)
                 throw new InvalidOperationException("Nem sikerült kiosztani az ügyintézői szerepkört.");
+        }
+    }
+
+    if (app.Environment.IsDevelopment())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var felhasznalok = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+
+        foreach (var beallitas in app.Configuration.GetSection("Fejlesztes:Vegrehajtok").GetChildren())
+        {
+            var vegrehajtoEmail = beallitas["Email"];
+            if (string.IsNullOrWhiteSpace(vegrehajtoEmail))
+                continue;
+
+            var vegrehajto = await felhasznalok.FindByEmailAsync(vegrehajtoEmail);
+            if (vegrehajto is null)
+                continue;
+
+            var szervezetId = beallitas.GetValue<int>("SzervezetId");
+            if (!await db.Szervezetek.AnyAsync(s => s.Id == szervezetId))
+                throw new InvalidOperationException($"Nem létezik a(z) {szervezetId} szervezet.");
+
+            var tag = await db.SzervezetiTagok.FindAsync(vegrehajto.Id);
+            if (tag is null)
+            {
+                db.SzervezetiTagok.Add(new SzervezetiTag
+                {
+                    FelhasznaloId = vegrehajto.Id,
+                    SzervezetId = szervezetId
+                });
+            }
+            else
+            {
+                tag.SzervezetId = szervezetId;
+            }
+
+            await db.SaveChangesAsync();
+
+            if (!await felhasznalok.IsInRoleAsync(vegrehajto, "Vegrehajto"))
+            {
+                var eredmeny = await felhasznalok.AddToRoleAsync(vegrehajto, "Vegrehajto");
+                if (!eredmeny.Succeeded)
+                    throw new InvalidOperationException("Nem sikerült kiosztani a végrehajtói szerepkört.");
+            }
         }
     }
 }

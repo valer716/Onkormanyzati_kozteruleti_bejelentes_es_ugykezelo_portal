@@ -1,0 +1,61 @@
+﻿@using OnkormanyzatiPortal.Models
+@model IReadOnlyList<Reszfeladat>
+
+@{
+    ViewData["Title"] = "Munkafeladatok";
+}
+
+<h1>Saját szervezet munkafeladatai</h1>
+
+@if (TempData["Siker"] is string siker)
+{
+    <div class="alert alert-success" role="status">@siker</div>
+}
+@if (TempData["Hiba"] is string hiba)
+{
+    <div class="alert alert-danger" role="alert">@hiba</div>
+}
+
+@if (Model.Count == 0)
+{
+    <p>Még nincs kiosztott feladat a szervezetednél.</p>
+}
+
+@foreach (var feladat in Model)
+{
+    <section class="border rounded p-3 mb-3">
+        <h2 class="h5">@feladat.Cim</h2>
+        <p>
+            Ügy: #@feladat.BejelentesId – @feladat.Bejelentes.Cim<br />
+            Helyszín: @feladat.Bejelentes.Helyszin<br />
+            Határidő: @feladat.Hatarido.ToString("yyyy.MM.dd.")<br />
+            Állapot: @(feladat.Elkeszult ? "Kész" : "Kiosztva")
+        </p>
+
+        @if (!feladat.Elkeszult &&
+             feladat.Bejelentes.Allapot == BejelentesAllapot.Folyamatban)
+        {
+            <form asp-action="Rogzit" asp-route-id="@feladat.Id" method="post">
+                <label for="megjegyzes-@feladat.Id" class="form-label">
+                    Helyszíni megjegyzés
+                </label>
+                <textarea id="megjegyzes-@feladat.Id" name="megjegyzes"
+                          class="form-control mb-2" rows="3"
+                          maxlength="1000" required>@feladat.Megjegyzes</textarea>
+
+                <button type="submit" name="kesz" value="false"
+                        class="btn btn-outline-secondary">
+                    Megjegyzés mentése
+                </button>
+                <button type="submit" name="kesz" value="true"
+                        class="btn btn-primary">
+                    Készre jelentés
+                </button>
+            </form>
+        }
+        else if (!string.IsNullOrEmpty(feladat.Megjegyzes))
+        {
+            <p>Megjegyzés: @feladat.Megjegyzes</p>
+        }
+    </section>
+}

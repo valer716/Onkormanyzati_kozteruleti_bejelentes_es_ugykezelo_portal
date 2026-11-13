@@ -25,4 +25,7 @@ public class Bejelentes
 
     public BejelentesAllapot Allapot { get; set; } = BejelentesAllapot.Uj;
     public DateTime? Hatarido { get; set; }
+    [ConcurrencyCheck]
+    public Guid Verzio { get; set; } = Guid.NewGuid();
+    public DateTime? LezarvaUtc { get; set; }
 }
