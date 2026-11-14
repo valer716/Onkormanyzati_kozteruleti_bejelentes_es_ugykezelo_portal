@@ -1,41 +1,120 @@
-﻿@model OnkormanyzatiPortal.Models.Bejelentes
+﻿@using OnkormanyzatiPortal.Models
+@model Bejelentes
+
+@{
+    ViewData["Title"] = "Új bejelentés";
+}
 
 <h1>Új bejelentés</h1>
 
-@if (TempData["Siker"] is string uzenet)
-{
-    <div class="alert alert-success" role="status">@uzenet</div>
-}
+<link rel="stylesheet"
+      href="https://unpkg.com/leaflet@@1.9.4/dist/leaflet.css" />
 
-<form asp-controller="Bejelentesek" asp-action="Letrehozas" method="post">
+<form asp-action="Letrehozas" method="post">
+    <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+
     <div class="mb-3">
         <label asp-for="Cim" class="form-label">Rövid cím</label>
-        <input asp-for="Cim" class="form-control" />
-        <span asp-validation-for="Cim" class="text-danger"></span>
+        <input asp-for="Cim" class="form-control" required maxlength="120" />
     </div>
 
     <div class="mb-3">
         <label asp-for="Leiras" class="form-label">Leírás</label>
-        <textarea asp-for="Leiras" class="form-control" rows="4"></textarea>
-        <span asp-validation-for="Leiras" class="text-danger"></span>
+        <textarea asp-for="Leiras" class="form-control" rows="4"
+                  required maxlength="2000"></textarea>
     </div>
 
     <div class="mb-3">
         <label asp-for="Helyszin" class="form-label">Helyszín</label>
-        <input asp-for="Helyszin" class="form-control" />
-        <span asp-validation-for="Helyszin" class="text-danger"></span>
+        <input asp-for="Helyszin" class="form-control" required maxlength="200" />
     </div>
 
     <div class="mb-3">
         <label asp-for="Kategoria" class="form-label">Kategória</label>
         <select asp-for="Kategoria"
-                asp-items="Html.GetEnumSelectList<OnkormanyzatiPortal.Models.BejelentesKategoria>()"
-                class="form-select">
-        </select>
-        <span asp-validation-for="Kategoria" class="text-danger"></span>
+                asp-items="Html.GetEnumSelectList<BejelentesKategoria>()"
+                class="form-select"></select>
+    </div>
+
+    <p>Kattints a térképen a hiba helyére, vagy add meg kézzel a koordinátákat.</p>
+
+    <div id="terkep" class="mb-3" style="height: 300px;"
+         aria-label="Helyszín kiválasztása a térképen"></div>
+
+    <div class="row g-2 mb-3">
+        <div class="col-sm">
+            <label for="szelesseg" class="form-label">Szélesség</label>
+            @Html.TextBox("szelesseg", null, new
+            {
+                @class = "form-control",
+                inputmode = "decimal",
+                maxlength = 32,
+                required = "required"
+            })
+        </div>
+        <div class="col-sm">
+            <label for="hosszusag" class="form-label">Hosszúság</label>
+            @Html.TextBox("hosszusag", null, new
+            {
+                @class = "form-control",
+                inputmode = "decimal",
+                maxlength = 32,
+                required = "required"
+            })
+        </div>
     </div>
 
     <button type="submit" class="btn btn-primary">Beküldés</button>
 </form>
 
 <p class="mt-3"><a asp-action="Kovetes">Meglévő bejelentés követése</a></p>
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@@1.9.4/dist/leaflet.js"></script>
+    <script>
+        if (window.L) {
+            const szelesseg = document.getElementById("szelesseg");
+            const hosszusag = document.getElementById("hosszusag");
+            const terkep = L.map("terkep").setView([47.498, 19.055], 13);
+
+            L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(terkep);
+
+            let jelolo;
+
+            function jeloles(lat, lon) {
+                if (jelolo) {
+                    jelolo.setLatLng([lat, lon]);
+                } else {
+                    jelolo = L.circleMarker([lat, lon]).addTo(terkep);
+                }
+            }
+
+            function jelolesMezokbol() {
+                const lat = parseFloat(szelesseg.value.replace(",", "."));
+                const lon = parseFloat(hosszusag.value.replace(",", "."));
+
+                if (Number.isFinite(lat) && Math.abs(lat) <= 90
+                    && Number.isFinite(lon) && Math.abs(lon) <= 180) {
+                    jeloles(lat, lon);
+                }
+            }
+
+            terkep.on("click", function (esemeny) {
+                const pont = esemeny.latlng.wrap();
+                szelesseg.value = pont.lat.toFixed(6);
+                hosszusag.value = pont.lng.toFixed(6);
+                jeloles(pont.lat, pont.lng);
+            });
+
+            szelesseg.addEventListener("change", jelolesMezokbol);
+            hosszusag.addEventListener("change", jelolesMezokbol);
+            jelolesMezokbol();
+        } else {
+            document.getElementById("terkep").textContent =
+                "A térkép nem töltődött be. A koordinátákat kézzel is megadhatod.";
+        }
+    </script>
+}

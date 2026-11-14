@@ -251,6 +251,9 @@ namespace OnkormanyzatiPortal.Data.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<double?>("Hosszusag")
+                        .HasColumnType("float");
+
                     b.Property<int>("Kategoria")
                         .HasColumnType("int");
 
@@ -267,6 +270,9 @@ namespace OnkormanyzatiPortal.Data.Migrations
 
                     b.Property<DateTime?>("LezarvaUtc")
                         .HasColumnType("datetime2");
+
+                    b.Property<double?>("Szelesseg")
+                        .HasColumnType("float");
 
                     b.Property<Guid>("Verzio")
                         .IsConcurrencyToken()

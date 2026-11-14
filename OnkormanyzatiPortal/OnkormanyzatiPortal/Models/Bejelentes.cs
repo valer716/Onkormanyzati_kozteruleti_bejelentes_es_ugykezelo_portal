@@ -30,4 +30,6 @@ public class Bejelentes
     public DateTime? LezarvaUtc { get; set; }
     public Guid? Kovetokod { get; set; }
     public int? Ertekeles { get; set; }
+    public double? Szelesseg { get; set; }
+    public double? Hosszusag { get; set; }
 }

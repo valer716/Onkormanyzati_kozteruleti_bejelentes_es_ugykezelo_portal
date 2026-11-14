@@ -21,11 +21,33 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-area=""
+                               asp-controller="Home" asp-action="Index">Kezdőlap</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-dark" asp-area=""
+                               asp-controller="Bejelentesek" asp-action="Letrehozas">Új bejelentés</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area=""
+                               asp-controller="Bejelentesek" asp-action="Kovetes">Ügykövetés</a>
+                        </li>
+
+                        @if (User.IsInRole("Ugyintezo"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area=""
+                                   asp-controller="Bejelentesek" asp-action="Index">Ügyintézés</a>
+                            </li>
+                        }
+
+                        @if (User.IsInRole("Vegrehajto"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area=""
+                                   asp-controller="Munkafeladatok" asp-action="Index">Munkafeladatok</a>
+                            </li>
+                        }
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>

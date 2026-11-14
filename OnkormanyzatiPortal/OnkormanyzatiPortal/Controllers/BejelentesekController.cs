@@ -24,8 +24,14 @@ public class BejelentesekController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Letrehozas(
-        [Bind("Cim,Leiras,Helyszin,Kategoria")] Bejelentes bejelentes)
+    [Bind("Cim,Leiras,Helyszin,Kategoria")] Bejelentes bejelentes, string? szelesseg, string? hosszusag)
     {
+        if (!KoordinataErvenyes(szelesseg, 90, out var lat))
+            ModelState.AddModelError("szelesseg", "A szélesség −90 és 90 közé essen.");
+
+        if (!KoordinataErvenyes(hosszusag, 180, out var lon))
+            ModelState.AddModelError("hosszusag", "A hosszúság −180 és 180 közé essen.");
+
         if (!ModelState.IsValid)
         {
             return View(bejelentes);
@@ -36,6 +42,8 @@ public class BejelentesekController : Controller
 
         var kod = Guid.NewGuid();
         bejelentes.Kovetokod = kod;
+        bejelentes.Szelesseg = lat;
+        bejelentes.Hosszusag = lon;
 
         _db.Bejelentesek.Add(bejelentes);
         _db.BejelentesNaplok.Add(new BejelentesNaplo
@@ -49,6 +57,16 @@ public class BejelentesekController : Controller
 
         TempData["Kovetokod"] = kod.ToString();
         return RedirectToAction(nameof(Kovetes));
+    }
+    private static bool KoordinataErvenyes(string? szoveg, double hatar, out double ertek)
+    {
+        return double.TryParse(
+            szoveg?.Trim().Replace(',', '.'),
+            System.Globalization.NumberStyles.Float,
+            System.Globalization.CultureInfo.InvariantCulture,
+            out ertek)
+            && double.IsFinite(ertek)
+            && Math.Abs(ertek) <= hatar;
     }
 
     [HttpGet]
