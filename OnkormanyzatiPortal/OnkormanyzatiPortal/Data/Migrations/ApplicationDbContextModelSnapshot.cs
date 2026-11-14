@@ -287,6 +287,41 @@ namespace OnkormanyzatiPortal.Data.Migrations
                     b.ToTable("Bejelentesek");
                 });
 
+            modelBuilder.Entity("OnkormanyzatiPortal.Models.BejelentesFoto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BejelentesId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ReszfeladatId")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("Tartalom")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("TartalomTipus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("Tipus")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BejelentesId");
+
+                    b.HasIndex("ReszfeladatId");
+
+                    b.ToTable("BejelentesFotok");
+                });
+
             modelBuilder.Entity("OnkormanyzatiPortal.Models.BejelentesNaplo", b =>
                 {
                     b.Property<int>("Id")
@@ -403,15 +438,10 @@ namespace OnkormanyzatiPortal.Data.Migrations
                     b.Property<string>("FelhasznaloId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("FelhasznaloId1")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<int>("SzervezetId")
                         .HasColumnType("int");
 
                     b.HasKey("FelhasznaloId");
-
-                    b.HasIndex("FelhasznaloId1");
 
                     b.HasIndex("SzervezetId");
 
@@ -469,6 +499,24 @@ namespace OnkormanyzatiPortal.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("OnkormanyzatiPortal.Models.BejelentesFoto", b =>
+                {
+                    b.HasOne("OnkormanyzatiPortal.Models.Bejelentes", "Bejelentes")
+                        .WithMany()
+                        .HasForeignKey("BejelentesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OnkormanyzatiPortal.Models.Reszfeladat", "Reszfeladat")
+                        .WithMany()
+                        .HasForeignKey("ReszfeladatId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("Bejelentes");
+
+                    b.Navigation("Reszfeladat");
+                });
+
             modelBuilder.Entity("OnkormanyzatiPortal.Models.BejelentesNaplo", b =>
                 {
                     b.HasOne("OnkormanyzatiPortal.Models.Bejelentes", "Bejelentes")
@@ -502,8 +550,10 @@ namespace OnkormanyzatiPortal.Data.Migrations
             modelBuilder.Entity("OnkormanyzatiPortal.Models.SzervezetiTag", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Felhasznalo")
-                        .WithMany()
-                        .HasForeignKey("FelhasznaloId1");
+                        .WithOne()
+                        .HasForeignKey("OnkormanyzatiPortal.Models.SzervezetiTag", "FelhasznaloId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("OnkormanyzatiPortal.Models.Szervezet", "Szervezet")
                         .WithMany()

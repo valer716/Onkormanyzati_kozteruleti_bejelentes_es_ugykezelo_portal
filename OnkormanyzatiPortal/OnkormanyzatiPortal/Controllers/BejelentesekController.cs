@@ -23,8 +23,9 @@ public class BejelentesekController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [RequestSizeLimit(6 * 1024 * 1024)]
     public async Task<IActionResult> Letrehozas(
-    [Bind("Cim,Leiras,Helyszin,Kategoria")] Bejelentes bejelentes, string? szelesseg, string? hosszusag)
+    [Bind("Cim,Leiras,Helyszin,Kategoria")] Bejelentes bejelentes, string? szelesseg, string? hosszusag, IFormFile? foto)
     {
         if (!KoordinataErvenyes(szelesseg, 90, out var lat))
             ModelState.AddModelError("szelesseg", "A szélesség −90 és 90 közé essen.");
@@ -37,6 +38,17 @@ public class BejelentesekController : Controller
             return View(bejelentes);
         }
 
+        BejelentesFoto? kep;
+        try
+        {
+            kep = await FotoFeltoltes.BeolvasAsync(foto, BejelentesFotoTipus.Bejelentes);
+        }
+        catch (ArgumentException e)
+        {
+            ModelState.AddModelError("foto", e.Message);
+            return View(bejelentes);
+        }
+
         bejelentes.LetrehozvaUtc = DateTime.UtcNow;
         bejelentes.Allapot = BejelentesAllapot.Uj;
 
@@ -46,6 +58,13 @@ public class BejelentesekController : Controller
         bejelentes.Hosszusag = lon;
 
         _db.Bejelentesek.Add(bejelentes);
+
+        if (kep is not null)
+        {
+            kep.Bejelentes = bejelentes;
+            _db.BejelentesFotok.Add(kep);
+        }
+
         _db.BejelentesNaplok.Add(new BejelentesNaplo
         {
             Bejelentes = bejelentes,
@@ -193,10 +212,14 @@ public class BejelentesekController : Controller
             .OrderBy(s => s.Nev)
             .ToListAsync();
 
+        ViewBag.Fotok = await _db.BejelentesFotok
+            .Where(f => f.BejelentesId == bejelentes.Id)
+            .OrderBy(f => f.Id)
+            .Select(f => new FotoListaSor(f.Id, f.Tipus, f.ReszfeladatId))
+            .ToListAsync();
+
         return View(nameof(Reszletek), bejelentes);
     }
-
-
 
     [HttpPost]
     [Authorize(Roles = "Ugyintezo")]
@@ -406,5 +429,20 @@ public class BejelentesekController : Controller
         return View(nameof(Kovetes), new BejelentesKovetesNezet(
             bejelentes.Id, kod, bejelentes.Allapot,
             bejelentes.Hatarido, bejelentes.Ertekeles));
+    }
+
+    [HttpGet]
+    [Authorize(Roles = "Ugyintezo")]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+    public async Task<IActionResult> Foto(int id)
+    {
+        var foto = await _db.BejelentesFotok.AsNoTracking()
+            .SingleOrDefaultAsync(f => f.Id == id);
+
+        if (foto is null)
+            return NotFound();
+
+        Response.Headers["X-Content-Type-Options"] = "nosniff";
+        return File(foto.Tartalom, foto.TartalomTipus);
     }
 }

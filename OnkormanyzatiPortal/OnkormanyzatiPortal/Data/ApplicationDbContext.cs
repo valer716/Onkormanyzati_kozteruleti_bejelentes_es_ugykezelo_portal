@@ -14,6 +14,11 @@ namespace OnkormanyzatiPortal.Data
         {
             base.OnModelCreating(builder);
 
+            builder.Entity<SzervezetiTag>()
+                .HasOne(t => t.Felhasznalo)
+                .WithOne()
+                .HasForeignKey<SzervezetiTag>(t => t.FelhasznaloId);
+
             builder.Entity<Szervezet>().HasData(
                 new Szervezet { Id = 1, Nev = "Útfenntartás" },
                 new Szervezet { Id = 2, Nev = "Köztisztaság" },
@@ -24,7 +29,14 @@ namespace OnkormanyzatiPortal.Data
                 .HasIndex(b => b.Kovetokod)
                 .IsUnique()
                 .HasFilter("[Kovetokod] IS NOT NULL");
+
+            builder.Entity<BejelentesFoto>()
+                .HasOne(f => f.Reszfeladat)
+                .WithMany()
+                .HasForeignKey(f => f.ReszfeladatId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
         public DbSet<SzervezetiTag> SzervezetiTagok { get; set; } = null!;
+        public DbSet<BejelentesFoto> BejelentesFotok { get; set; } = null!;
     }
 }

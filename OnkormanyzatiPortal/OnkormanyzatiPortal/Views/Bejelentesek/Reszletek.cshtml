@@ -43,6 +43,30 @@
 <h2>Leírás</h2>
 <p style="white-space: pre-wrap">@Model.Leiras</p>
 
+@if (ViewBag.Fotok is IReadOnlyList<FotoListaSor> fotok && fotok.Count > 0)
+{
+    <h2>Fényképek</h2>
+    <ul>
+        @foreach (var foto in fotok)
+        {
+            var cimke = foto.Tipus switch
+            {
+                BejelentesFotoTipus.Elotte => "Előtte",
+                BejelentesFotoTipus.Utana => "Utána",
+                _ => "Bejelentői fotó"
+            };
+
+            <li>
+                <a asp-action="Foto" asp-route-id="@foto.Id">@cimke</a>
+                @if (foto.ReszfeladatId is int feladatId)
+                {
+                    <span>– részfeladat #@feladatId</span>
+                }
+            </li>
+        }
+    </ul>
+}
+
 @if (Model.Allapot is BejelentesAllapot.Uj or BejelentesAllapot.Ellenorizve)
 {
     <h2>Ellenőrzés és pontosítás</h2>

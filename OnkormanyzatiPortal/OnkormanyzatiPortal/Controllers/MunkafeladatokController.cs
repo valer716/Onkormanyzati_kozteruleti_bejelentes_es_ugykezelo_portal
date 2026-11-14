@@ -25,7 +25,8 @@ public class MunkafeladatokController(ApplicationDbContext db) : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Rogzit(int id, string? megjegyzes, bool kesz)
+    [RequestSizeLimit(12 * 1024 * 1024)]
+    public async Task<IActionResult> Rogzit(int id, string? megjegyzes, bool kesz, IFormFile? elotte, IFormFile? utana)
     {
         var feladat = await SajatFeladatok()
             .Include(f => f.Bejelentes)
@@ -47,6 +48,36 @@ public class MunkafeladatokController(ApplicationDbContext db) : Controller
             return RedirectToAction(nameof(Index));
         }
 
+        BejelentesFoto? elotteKep;
+        BejelentesFoto? utanaKep;
+
+        try
+        {
+            elotteKep = await FotoFeltoltes.BeolvasAsync(elotte, BejelentesFotoTipus.Elotte);
+            utanaKep = await FotoFeltoltes.BeolvasAsync(utana, BejelentesFotoTipus.Utana);
+        }
+        catch (ArgumentException e)
+        {
+            TempData["Hiba"] = e.Message;
+            return RedirectToAction(nameof(Index));
+        }
+
+        foreach (var kep in new[] { elotteKep, utanaKep })
+        {
+            if (kep is null)
+                continue;
+
+            var regi = await db.BejelentesFotok.SingleOrDefaultAsync(f =>
+                f.ReszfeladatId == id && f.Tipus == kep.Tipus);
+
+            if (regi is not null)
+                db.BejelentesFotok.Remove(regi);
+
+            kep.BejelentesId = ugy.Id;
+            kep.ReszfeladatId = id;
+            db.BejelentesFotok.Add(kep);
+        }
+
         var elozoAllapot = ugy.Allapot;
         feladat.Megjegyzes = megjegyzes;
 
@@ -66,8 +97,7 @@ public class MunkafeladatokController(ApplicationDbContext db) : Controller
         db.BejelentesNaplok.Add(new BejelentesNaplo
         {
             BejelentesId = ugy.Id,
-            Muvelet = kesz ? $"Részfeladat elkészült: #{id}" : $"Megjegyzés mentve: #{id}",
-            ElozoAllapot = elozoAllapot,
+            Muvelet = $"{(kesz ? "Részfeladat elkészült" : "Megjegyzés mentve")}: #{id}; " + $"fotók: {(elotteKep is null ? 0 : 1) + (utanaKep is null ? 0 : 1)}",            ElozoAllapot = elozoAllapot,
             UjAllapot = ugy.Allapot,
             Hatarido = ugy.Hatarido,
             FelhasznaloId = User.FindFirstValue(ClaimTypes.NameIdentifier)

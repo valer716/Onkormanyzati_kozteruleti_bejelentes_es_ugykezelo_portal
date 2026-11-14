@@ -35,13 +35,26 @@
         @if (!feladat.Elkeszult &&
              feladat.Bejelentes.Allapot == BejelentesAllapot.Folyamatban)
         {
-            <form asp-action="Rogzit" asp-route-id="@feladat.Id" method="post">
+            <form asp-action="Rogzit" asp-route-id="@feladat.Id" method="post"
+                  enctype="multipart/form-data">
                 <label for="megjegyzes-@feladat.Id" class="form-label">
                     Helyszíni megjegyzés
                 </label>
                 <textarea id="megjegyzes-@feladat.Id" name="megjegyzes"
                           class="form-control mb-2" rows="3"
                           maxlength="1000" required>@feladat.Megjegyzes</textarea>
+
+                <div class="mb-2">
+                    <label for="elotte-@feladat.Id" class="form-label">Előtte fotó</label>
+                    <input id="elotte-@feladat.Id" name="elotte" type="file"
+                           accept="image/jpeg,image/png" class="form-control" />
+                </div>
+
+                <div class="mb-2">
+                    <label for="utana-@feladat.Id" class="form-label">Utána fotó</label>
+                    <input id="utana-@feladat.Id" name="utana" type="file"
+                           accept="image/jpeg,image/png" class="form-control" />
+                </div>
 
                 <button type="submit" name="kesz" value="false"
                         class="btn btn-outline-secondary">
