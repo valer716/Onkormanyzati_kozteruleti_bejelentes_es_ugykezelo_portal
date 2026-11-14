@@ -35,6 +35,13 @@ namespace OnkormanyzatiPortal.Data
                 .WithMany()
                 .HasForeignKey(f => f.ReszfeladatId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<Bejelentes>()
+                .HasOne(b => b.FoBejelentes)
+                .WithMany()
+                .HasForeignKey(b => b.FoBejelentesId)
+                .OnDelete(DeleteBehavior.NoAction);
+
         }
         public DbSet<SzervezetiTag> SzervezetiTagok { get; set; } = null!;
         public DbSet<BejelentesFoto> BejelentesFotok { get; set; } = null!;

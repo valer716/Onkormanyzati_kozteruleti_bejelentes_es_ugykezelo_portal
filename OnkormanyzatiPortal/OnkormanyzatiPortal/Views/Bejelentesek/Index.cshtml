@@ -33,7 +33,7 @@
 
     <div class="col-sm-auto align-self-end">
         <button class="btn btn-primary" type="submit">Szűrés</button>
-        <a asp-action="Index" class="btn btn-outline-secondary">Törlés</a>
+        <a asp-action="Index" class="btn btn-outline-secondary">Szűrők törlése</a>
     </div>
 </form>
 
@@ -64,6 +64,10 @@ else
                             <a asp-action="Reszletek" asp-route-id="@bejelentes.Id">
                                 @bejelentes.Cim
                             </a>
+                            @if (bejelentes.Veszelyes)
+                            {
+                                <strong class="text-danger ms-2">Veszélyes</strong>
+                            }
                         </td>
                         <td>@bejelentes.Helyszin</td>
                         <td>@Html.DisplayFor(_ => bejelentes.Kategoria)</td>

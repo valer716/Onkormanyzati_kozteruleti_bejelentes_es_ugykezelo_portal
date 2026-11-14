@@ -111,7 +111,8 @@ public class BejelentesekController : Controller
             lekerdezes = lekerdezes.Where(b => b.Allapot == allapot.Value);
 
         return View(await lekerdezes
-            .OrderByDescending(b => b.LetrehozvaUtc)
+            .OrderByDescending(b => b.Veszelyes)
+            .ThenByDescending(b => b.LetrehozvaUtc)
             .ToListAsync());
     }
     [HttpGet]
@@ -217,6 +218,9 @@ public class BejelentesekController : Controller
             .OrderBy(f => f.Id)
             .Select(f => new FotoListaSor(f.Id, f.Tipus, f.ReszfeladatId))
             .ToListAsync();
+
+        ViewBag.JelzesekSzama = 1 + await _db.Bejelentesek
+            .CountAsync(b => b.FoBejelentesId == bejelentes.Id);
 
         return View(nameof(Reszletek), bejelentes);
     }
@@ -370,7 +374,11 @@ public class BejelentesekController : Controller
             .AsNoTracking()
             .Where(b => b.Kovetokod == kod)
             .Select(b => new BejelentesKovetesNezet(
-                b.Id, kod, b.Allapot, b.Hatarido, b.Ertekeles))
+                b.Id,
+                kod,
+                b.FoBejelentes == null ? b.Allapot : b.FoBejelentes.Allapot,
+                b.FoBejelentes == null ? b.Hatarido : b.FoBejelentes.Hatarido,
+                b.Ertekeles))
             .SingleOrDefaultAsync();
 
         if (eredmeny is null)
@@ -392,13 +400,15 @@ public class BejelentesekController : Controller
         }
 
         var kod = kovetokod.Value;
-        var bejelentes = await _db.Bejelentesek
+        var bejelentes = await _db.Bejelentesek.Include(b => b.FoBejelentes)
             .SingleOrDefaultAsync(b => b.Kovetokod == kod);
 
         if (bejelentes is null)
             return NotFound();
 
-        if (bejelentes.Allapot != BejelentesAllapot.Lezart
+        var kovetettUgy = bejelentes.FoBejelentes ?? bejelentes;
+
+        if (kovetettUgy.Allapot != BejelentesAllapot.Lezart
             || bejelentes.Ertekeles.HasValue)
         {
             return BadRequest("Csak lezárt ügy értékelhető, és csak egyszer.");
@@ -427,8 +437,8 @@ public class BejelentesekController : Controller
         }
 
         return View(nameof(Kovetes), new BejelentesKovetesNezet(
-            bejelentes.Id, kod, bejelentes.Allapot,
-            bejelentes.Hatarido, bejelentes.Ertekeles));
+            bejelentes.Id, kod, kovetettUgy.Allapot,
+            kovetettUgy.Hatarido, bejelentes.Ertekeles));
     }
 
     [HttpGet]
@@ -444,5 +454,121 @@ public class BejelentesekController : Controller
 
         Response.Headers["X-Content-Type-Options"] = "nosniff";
         return File(foto.Tartalom, foto.TartalomTipus);
+    }
+    [HttpPost]
+    [Authorize(Roles = "Ugyintezo")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> KulonlegesKezeles(
+    int id, string? muvelet, string? indok, int? foBejelentesId)
+    {
+        if (!ModelState.IsValid)
+            return Hiba("Ellenőrizd a megadott adatokat.");
+
+        var ugy = await _db.Bejelentesek.FindAsync(id);
+        if (ugy is null)
+            return NotFound();
+
+        var elozo = ugy.Allapot;
+        var kiosztasElott = elozo is BejelentesAllapot.Uj
+            or BejelentesAllapot.Ellenorizve;
+
+        if (!kiosztasElott &&
+            elozo is not (BejelentesAllapot.Folyamatban or BejelentesAllapot.LezarasraVar))
+        {
+            return Hiba("Végleges állapotú ügy már nem módosítható.");
+        }
+
+        string naploSzoveg;
+
+        if (muvelet is "veszelyes" or "normal")
+        {
+            ugy.Veszelyes = muvelet == "veszelyes";
+            naploSzoveg = ugy.Veszelyes
+                ? "Veszélyesnek jelölve"
+                : "Veszélyjelzés levéve";
+        }
+        else
+        {
+            if (!kiosztasElott ||
+                await _db.Reszfeladatok.AnyAsync(f => f.BejelentesId == id))
+            {
+                return Hiba("Ez a döntés csak a feladatok kiosztása előtt rögzíthető.");
+            }
+
+            if (muvelet == "osszevon")
+            {
+                if (foBejelentesId is not int foId || foId == id)
+                    return Hiba("Adj meg egy másik ügyazonosítót.");
+
+                var fo = await _db.Bejelentesek.FindAsync(foId);
+                if (fo is null || fo.Kategoria != ugy.Kategoria ||
+                    fo.Allapot is not (BejelentesAllapot.Ellenorizve
+                        or BejelentesAllapot.Folyamatban or BejelentesAllapot.LezarasraVar))
+                {
+                    return Hiba("A főügy legyen azonos kategóriájú, ellenőrzött és még nyitott.");
+                }
+
+                if (await _db.Bejelentesek.AnyAsync(b => b.FoBejelentesId == id))
+                    return Hiba("Ehhez az ügyhöz már tartoznak összevont jelzések.");
+
+                ugy.FoBejelentesId = fo.Id;
+                ugy.Allapot = BejelentesAllapot.Osszevont;
+                fo.Veszelyes |= ugy.Veszelyes;
+
+                Naploz(fo, fo.Allapot, $"Kapcsolódó jelzés hozzáadva: #{id}");
+                naploSzoveg = $"Összevonva a(z) #{fo.Id} üggyel";
+            }
+            else if (muvelet is "teves" or "hataskor")
+            {
+                indok = indok?.Trim();
+                if (string.IsNullOrEmpty(indok) || indok.Length > 80)
+                    return Hiba("Adj meg legfeljebb 80 karakteres indoklást.");
+
+                ugy.Allapot = muvelet == "teves"
+                    ? BejelentesAllapot.Teves
+                    : BejelentesAllapot.HataskoronKivuli;
+
+                naploSzoveg = (muvelet == "teves" ? "Téves: " : "Hatáskörön kívüli: ") + indok;
+            }
+            else
+            {
+                return Hiba("Ismeretlen művelet.");
+            }
+        }
+
+        Naploz(ugy, elozo, naploSzoveg);
+
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return Hiba("Az ügy közben megváltozott. Nézd át, majd próbáld újra.");
+        }
+
+        TempData["Siker"] = "A módosítást mentettük.";
+        return RedirectToAction(nameof(Reszletek), new { id });
+
+        IActionResult Hiba(string uzenet)
+        {
+            TempData["Hiba"] = uzenet;
+            return RedirectToAction(nameof(Reszletek), new { id });
+        }
+
+        void Naploz(Bejelentes bejelentes, BejelentesAllapot elozoAllapot, string szoveg)
+        {
+            bejelentes.Verzio = Guid.NewGuid();
+
+            _db.BejelentesNaplok.Add(new BejelentesNaplo
+            {
+                BejelentesId = bejelentes.Id,
+                Muvelet = szoveg,
+                ElozoAllapot = elozoAllapot,
+                UjAllapot = bejelentes.Allapot,
+                Hatarido = bejelentes.Hatarido,
+                FelhasznaloId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+            });
+        }
     }
 }

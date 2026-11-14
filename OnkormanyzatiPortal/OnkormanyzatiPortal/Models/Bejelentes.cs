@@ -32,4 +32,7 @@ public class Bejelentes
     public int? Ertekeles { get; set; }
     public double? Szelesseg { get; set; }
     public double? Hosszusag { get; set; }
+    public bool Veszelyes { get; set; }
+    public int? FoBejelentesId { get; set; }
+    public Bejelentes? FoBejelentes { get; set; }
 }

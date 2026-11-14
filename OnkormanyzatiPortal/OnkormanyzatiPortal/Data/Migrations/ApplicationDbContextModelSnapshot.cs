@@ -243,6 +243,9 @@ namespace OnkormanyzatiPortal.Data.Migrations
                     b.Property<int?>("Ertekeles")
                         .HasColumnType("int");
 
+                    b.Property<int?>("FoBejelentesId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("Hatarido")
                         .HasColumnType("datetime2");
 
@@ -278,7 +281,12 @@ namespace OnkormanyzatiPortal.Data.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<bool>("Veszelyes")
+                        .HasColumnType("bit");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("FoBejelentesId");
 
                     b.HasIndex("Kovetokod")
                         .IsUnique()
@@ -497,6 +505,16 @@ namespace OnkormanyzatiPortal.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("OnkormanyzatiPortal.Models.Bejelentes", b =>
+                {
+                    b.HasOne("OnkormanyzatiPortal.Models.Bejelentes", "FoBejelentes")
+                        .WithMany()
+                        .HasForeignKey("FoBejelentesId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("FoBejelentes");
                 });
 
             modelBuilder.Entity("OnkormanyzatiPortal.Models.BejelentesFoto", b =>
