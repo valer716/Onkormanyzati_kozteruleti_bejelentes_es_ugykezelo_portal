@@ -81,6 +81,21 @@ using (var scope = app.Services.CreateScope())
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var felhasznalok = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
 
+        var vezetoEmail = app.Configuration["Fejlesztes:VezetoEmail"];
+
+        if (!string.IsNullOrWhiteSpace(vezetoEmail))
+        {
+            var vezeto = await felhasznalok.FindByEmailAsync(vezetoEmail);
+
+            if (vezeto is not null && !await felhasznalok.IsInRoleAsync(vezeto, "Vezeto"))
+            {
+                var eredmeny = await felhasznalok.AddToRoleAsync(vezeto, "Vezeto");
+
+                if (!eredmeny.Succeeded)
+                    throw new InvalidOperationException("Nem sikerült kiosztani a vezetői szerepkört.");
+            }
+        }
+
         foreach (var beallitas in app.Configuration.GetSection("Fejlesztes:Vegrehajtok").GetChildren())
         {
             var vegrehajtoEmail = beallitas["Email"];

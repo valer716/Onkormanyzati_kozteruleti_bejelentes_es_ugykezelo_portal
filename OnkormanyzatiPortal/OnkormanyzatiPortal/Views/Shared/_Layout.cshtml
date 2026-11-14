@@ -48,6 +48,14 @@
                                    asp-controller="Munkafeladatok" asp-action="Index">Munkafeladatok</a>
                             </li>
                         }
+
+                        @if (User.IsInRole("Vezeto"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area=""
+                                   asp-controller="Vezetoi" asp-action="Index">Vezetői kimutatás</a>
+                            </li>
+                        }
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>

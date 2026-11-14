@@ -1,0 +1,134 @@
+﻿@using System.Text.Json
+@using OnkormanyzatiPortal.Models
+@model VezetoiKimutatasNezet
+
+@{
+    ViewData["Title"] = "Vezetői kimutatás";
+
+    var cellak = Model.NyitottUgyek
+        .Where(u => u.Szelesseg.HasValue && u.Hosszusag.HasValue)
+        .GroupBy(u => (
+            Lat: Math.Round(u.Szelesseg!.Value, 2),
+            Lon: Math.Round(u.Hosszusag!.Value, 2)))
+        .Select(g => new
+        {
+            lat = g.Key.Lat,
+            lon = g.Key.Lon,
+            darab = g.Count(),
+            lejart = g.Count(u => u.Lejart)
+        })
+        .ToList();
+}
+
+<h1>Vezetői kimutatás</h1>
+
+<ul>
+    <li>Nyitott ügyek: <strong>@Model.NyitottUgyek.Count</strong></li>
+    <li>Határidőn túli ügyek: <strong>@Model.NyitottUgyek.Count(u => u.Lejart)</strong></li>
+    <li>
+        Átlagos megoldási idő:
+        <strong>@(Model.AtlagosMegoldasiNap is double nap ? $"{nap:0.0} nap" : "Még nincs lezárt ügy")</strong>
+    </li>
+</ul>
+
+<p><a asp-action="Export" class="btn btn-outline-primary">JSON letöltése</a></p>
+
+<h2>Nyitott ügyek területi sűrűsége</h2>
+
+@if (cellak.Count == 0)
+{
+    <p>Jelenleg nincs nyitott ügy térképi koordinátával.</p>
+}
+else
+{
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@@1.9.4/dist/leaflet.css" />
+
+    <p>A nagyobb kör több ügyet jelöl. A piros körben legalább egy ügy lejárt.</p>
+    <div id="vezetoiTerkep" style="height: 300px;"
+         data-cellak="@JsonSerializer.Serialize(cellak)"
+         aria-label="Nyitott ügyek térképe"></div>
+}
+
+<h2 class="mt-4">Bejelentések kategóriánként</h2>
+<ul>
+    @foreach (var kategoria in Model.Kategoriak)
+    {
+        <li>@Html.DisplayFor(_ => kategoria.Key): @kategoria.Value</li>
+    }
+</ul>
+
+<h2>Nyitott ügyek</h2>
+
+@if (Model.NyitottUgyek.Count == 0)
+{
+    <p>Nincs nyitott ügy.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Azonosító</th>
+                    <th>Kategória</th>
+                    <th>Állapot</th>
+                    <th>Ügyhatáridő</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ugy in Model.NyitottUgyek)
+                {
+                    <tr>
+                        <td>#@ugy.Id</td>
+                        <td>@Html.DisplayFor(_ => ugy.Kategoria)</td>
+                        <td>@Html.DisplayFor(_ => ugy.Allapot)</td>
+                        <td>
+                            @(ugy.Hatarido?.ToString("yyyy.MM.dd.") ?? "Nincs megadva")
+                            @if (ugy.Lejart)
+                            {
+                                <strong class="text-danger">Lejárt</strong>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@section Scripts {
+    @if (cellak.Count > 0)
+    {
+        <script src="https://unpkg.com/leaflet@@1.9.4/dist/leaflet.js"></script>
+        <script>
+            const elem = document.getElementById("vezetoiTerkep");
+
+            if (window.L) {
+                const cellak = JSON.parse(elem.dataset.cellak);
+                const terkep = L.map(elem, { scrollWheelZoom: false });
+
+                L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                    maxZoom: 19,
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                }).addTo(terkep);
+
+                terkep.fitBounds(cellak.map(c => [c.lat, c.lon]), {
+                    padding: [25, 25],
+                    maxZoom: 14
+                });
+
+                for (const cella of cellak) {
+                    L.circleMarker([cella.lat, cella.lon], {
+                        radius: Math.min(24, 7 + 4 * Math.sqrt(cella.darab)),
+                        color: cella.lejart > 0 ? "#b02a37" : "#0d6efd",
+                        fillOpacity: 0.6
+                    }).addTo(terkep).bindTooltip(
+                        `${cella.darab} nyitott ügy, ebből ${cella.lejart} lejárt`
+                    );
+                }
+            } else {
+                elem.textContent = "A térkép nem töltődött be. Az ügyek a táblázatban láthatók.";
+            }
+        </script>
+    }
+}
