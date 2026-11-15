@@ -426,8 +426,3 @@ FodyWeavers.xsd
 
 # Official VS Code C# Dev Kit Extension exclusion
 #*.lscache
-
-# SQLite adatbázisfájlok
-*.db
-*.db-shm
-*.db-wal
