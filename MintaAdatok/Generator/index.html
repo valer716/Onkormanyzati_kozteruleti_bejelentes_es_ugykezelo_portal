@@ -6,27 +6,58 @@
 <title>Mintabejelentés-készítő</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
-body{font-family:system-ui,sans-serif;max-width:820px;margin:0 auto;padding:16px;background:#f6f7f9;color:#1d2530}
+body{font-family:system-ui,sans-serif;max-width:900px;margin:0 auto;padding:16px;background:#f6f7f9;color:#1d2530}
 h1{font-size:1.4rem}
 h2{font-size:1.1rem;margin-top:28px;border-bottom:2px solid #cfd6df;padding-bottom:4px}
 label{display:block;margin:10px 0 3px;font-weight:600;font-size:.92rem}
 input,select,textarea{width:100%;box-sizing:border-box;padding:8px;border:1px solid #b9c2cd;border-radius:6px;font:inherit;background:#fff}
+input[type=checkbox]{width:auto}
 textarea{min-height:90px}
 .sor{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:600px){.sor{grid-template-columns:1fr}}
 #terkep{height:260px;border-radius:6px;margin-top:6px}
-button{padding:10px 18px;border:0;border-radius:6px;background:#1f6feb;color:#fff;font:inherit;font-weight:600;cursor:pointer;margin:6px 6px 6px 0}
+button{padding:9px 16px;border:0;border-radius:6px;background:#1f6feb;color:#fff;font:inherit;font-weight:600;cursor:pointer;margin:6px 6px 6px 0}
+button:disabled{opacity:.6;cursor:wait}
 button.masodlagos{background:#5b6675}
+button.veszely{background:#c0392b}
+button.kicsi{padding:5px 10px;font-size:.85rem;margin:2px 4px 2px 0}
 #uzenet{margin-top:14px;padding:10px;border-radius:6px;display:none}
 .ok{background:#dcf5e3;color:#13502a}.hiba{background:#fde2e2;color:#7a1b1b}
-.kicsi{font-size:.85rem;color:#5b6675}
+.megj{font-size:.85rem;color:#5b6675}
+.kartya{display:grid;grid-template-columns:90px 1fr auto;gap:12px;align-items:center;background:#fff;border:1px solid #d5dbe3;border-radius:8px;padding:10px;margin-top:8px}
+.kartya.szerkesztes{border-color:#1f6feb;box-shadow:0 0 0 2px #cfe0ff}
+.kartya img{width:90px;height:68px;object-fit:cover;border-radius:6px;background:#e3e7ec}
+.kartya .nincskep{width:90px;height:68px;border-radius:6px;background:#e3e7ec;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:#5b6675}
+.figyelmeztetes{color:#a15c00;font-size:.82rem;margin-top:3px}
+.szerkszalag{background:#fff3cd;border:1px solid #f0d98a;border-radius:6px;padding:8px 12px;margin-top:12px;display:none}
+.fulek{display:flex;gap:8px;margin-top:12px;border-bottom:2px solid #cfd6df}
+.fulek button{background:#e3e7ec;color:#1d2530;border-radius:6px 6px 0 0;margin:0}
+.fulek button.aktiv{background:#1f6feb;color:#fff}
+.kepvalasztok label{font-weight:400;display:flex;gap:8px;align-items:center;margin:4px 0}
 </style>
 </head>
 <body>
 <h1>Mintabejelentés-készítő</h1>
-<p class="kicsi">Úgy töltsd ki, mintha a lakos küldené be. A Mentés a kiválasztott MintaAdatok mappában a mintaadatok.json fájlhoz fűz egy új elemet, a képet pedig a kepek mappába teszi.</p>
+<p class="megj">Úgy töltsd ki, mintha a lakos küldené be. A mentés a MintaAdatok mappában a mintaadatok.json fájlhoz fűz egy új elemet, a képeket pedig a kepek mappába teszi.</p>
 
-<h2>1. Amit a bejelentő megad</h2>
+<nav class="fulek">
+<button id="fulUj" class="aktiv">Új bejelentés</button>
+<button id="fulLista">Szerkesztő (<span id="darab">0</span>)</button>
+</nav>
+<div id="uzenet"></div>
+
+<section id="oldalLista" hidden>
+<h2>Meglévő bejelentések</h2>
+<button id="frissites" class="masodlagos">Lista frissítése</button>
+<span class="megj" id="mappaInfo">Betöltés...</span>
+<div id="lista"></div>
+</section>
+
+<section id="oldalUrlap">
+<h2 id="urlapCim">Új bejelentés</h2>
+<div class="szerkszalag" id="szalag"><span id="szalagSzoveg"></span> <button class="kicsi masodlagos" id="megse">Vissza a listához</button></div>
+
+<h3>1. Amit a bejelentő megad</h3>
 <label for="cim">Cím (legfeljebb 120 karakter)</label>
 <input id="cim" maxlength="120">
 <label for="leiras">Leírás (legfeljebb 2000 karakter)</label>
@@ -40,32 +71,33 @@ button.masodlagos{background:#5b6675}
   <div><label for="hosszusag">Hosszúság</label><input id="hosszusag" inputmode="decimal"></div>
 </div>
 <div><label for="kategoria">Kategória (a bejelentő választja, az ügyintéző javíthatja)</label>
-    <select id="kategoria"><option>Egyeb</option><option>Uthiba</option><option>Kozvilagitas</option><option>Hulladek</option><option>Utcabutor</option></select></div>
+  <select id="kategoria"><option>Egyeb</option><option>Uthiba</option><option>Kozvilagitas</option><option>Hulladek</option><option>Utcabutor</option></select></div>
+<div id="meglevoKepek" class="kepvalasztok"></div>
 <label for="kep">Fényképek, több is választható (JPEG vagy PNG, egyenként legfeljebb 5 MB)</label>
 <input id="kep" type="file" accept="image/jpeg,image/png" multiple>
 
-<h2>2. Háttéradatok</h2>
-<p class="kicsi">Ezt nem a bejelentő írja be, a rendszer állítja elő. A mintában azért kell megadni, hogy valós képet kapjunk.</p>
-<div class="sor">
-  <div><label for="bekuldes">Beküldés ideje (a rendszer adja)</label><input id="bekuldes" type="date"></div>
-</div>
+<h3>2. Háttéradatok</h3>
+<p class="megj">Ezt nem a bejelentő írja be, a rendszer állítja elő. A mintában azért kell megadni, hogy valós képet kapjunk.</p>
+<label for="bekuldes">Beküldés ideje</label>
+<input id="bekuldes" type="date">
 
-<p>
-<button id="mentes">Mentés a MintaAdatok mappába</button>
-<button id="letoltes" class="masodlagos">Letöltés (JSON-részlet és kép)</button>
-</p>
-<div id="uzenet"></div>
+<p><button id="mentes">Mentés</button></p>
+</section>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 const $=id=>document.getElementById(id);
+let lista=[];
+let letezo=new Set();
+let szerkesztIndex=null;
+
 const terkep=L.map("terkep").setView([47.498,19.055],13);
 L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"&copy; OpenStreetMap"}).addTo(terkep);
 let jelolo=null;
 function jelolesMezokbol(){
   const a=parseFloat($("szelesseg").value.replace(",","."));
   const b=parseFloat($("hosszusag").value.replace(",","."));
-  if(isNaN(a)||isNaN(b))return;
+  if(isNaN(a)||isNaN(b)){if(jelolo){terkep.removeLayer(jelolo);jelolo=null}return}
   if(jelolo)jelolo.setLatLng([a,b]);else jelolo=L.marker([a,b]).addTo(terkep);
 }
 terkep.on("click",e=>{
@@ -76,8 +108,141 @@ terkep.on("click",e=>{
 $("szelesseg").addEventListener("change",jelolesMezokbol);
 $("hosszusag").addEventListener("change",jelolesMezokbol);
 
+function nezet(nev){
+  const lista=nev==="lista";
+  $("oldalLista").hidden=!lista;
+  $("oldalUrlap").hidden=lista;
+  $("fulLista").classList.toggle("aktiv",lista);
+  $("fulUj").classList.toggle("aktiv",!lista);
+  if(!lista)terkep.invalidateSize();
+  $("uzenet").style.display="none";
+}
 function uzen(t,jo){const u=$("uzenet");u.textContent=t;u.className=jo?"ok":"hiba";u.style.display="block"}
 function szam(id){const v=parseFloat($(id).value.replace(",","."));return isNaN(v)?null:v}
+function szovegRendez(t){return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function fajlBase64(f){
+  return new Promise((ok,hiba)=>{
+    const r=new FileReader();
+    r.onload=()=>ok(r.result.split(",")[1]);
+    r.onerror=()=>hiba(r.error);
+    r.readAsDataURL(f);
+  });
+}
+
+async function api(url,adat){
+  let valasz;
+  try{
+    valasz=await fetch(url,adat===undefined?{}:{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(adat)});
+  }catch(e){
+    throw new Error("A szerver nem érhető el. Indítsd el az Inditas.bat fájlt, és innen nyisd meg az oldalt.");
+  }
+  const j=await valasz.json().catch(()=>({hiba:"Hibás válasz a szervertől."}));
+  if(!valasz.ok)throw new Error(j.hiba||"Ismeretlen hiba.");
+  return j;
+}
+function allapotBetolt(j){
+  lista=j.lista;
+  letezo=new Set(j.letezoKepek);
+  $("mappaInfo").textContent=lista.length+" bejelentés a mintaadatok.json fájlban";
+  $("darab").textContent=lista.length;
+  listaRajzol();
+}
+async function frissit(){
+  try{allapotBetolt(await api("/api/lista"))}
+  catch(e){$("mappaInfo").textContent="";uzen(e.message,false)}
+}
+
+function figyelmeztetesek(r){
+  const f=[];
+  const kepek=r.kepek||[];
+  const hianyzo=kepek.filter(n=>!letezo.has(n));
+  if(r.szelesseg==null||r.hosszusag==null)f.push("nincs koordináta");
+  if(!r.bekuldes)f.push("nincs beküldési dátum");
+  if(!kepek.length)f.push("nincs kép");
+  if(hianyzo.length)f.push("hiányzó képfájl: "+hianyzo.join(", "));
+  if(!r.cim||r.cim.length<5)f.push("túl rövid cím");
+  if(!r.leiras||r.leiras.length<20)f.push("túl rövid leírás");
+  return f;
+}
+
+function listaRajzol(){
+  const kont=$("lista");
+  kont.innerHTML="";
+  if(!lista.length){kont.innerHTML='<p class="megj">Még nincs bejelentés.</p>';return}
+  lista.forEach((r,i)=>{
+    const kepek=r.kepek||[];
+    const elso=kepek.find(n=>letezo.has(n));
+    const fig=figyelmeztetesek(r);
+    const d=document.createElement("div");
+    d.className="kartya"+(szerkesztIndex===i?" szerkesztes":"");
+    d.innerHTML=(elso?'<img src="/kepek/'+encodeURIComponent(elso)+'" alt="">':'<div class="nincskep">nincs kép</div>')+
+      '<div><strong>#'+(i+1)+' '+szovegRendez(r.cim||"")+'</strong><br>'+
+      '<span class="megj">'+szovegRendez(r.helyszin||"")+' | '+szovegRendez(r.kategoria||"")+' | '+szovegRendez(r.bekuldes||"nincs dátum")+' | '+kepek.length+' kép</span>'+
+      (fig.length?'<div class="figyelmeztetes">Figyelem: '+szovegRendez(fig.join("; "))+'</div>':'')+'</div>'+
+      '<div><button class="kicsi" data-szerk="'+i+'">Szerkeszt</button><button class="kicsi veszely" data-torol="'+i+'">Töröl</button></div>';
+    kont.appendChild(d);
+  });
+  kont.querySelectorAll("[data-szerk]").forEach(b=>b.addEventListener("click",()=>szerkesztesIndit(parseInt(b.dataset.szerk))));
+  kont.querySelectorAll("[data-torol]").forEach(b=>b.addEventListener("click",()=>torles(parseInt(b.dataset.torol))));
+}
+
+function urlapUrit(){
+  ["cim","leiras","helyszin","szelesseg","hosszusag","bekuldes"].forEach(id=>$(id).value="");
+  $("kategoria").value="Egyeb";
+  $("kep").value="";
+  $("meglevoKepek").innerHTML="";
+  jelolesMezokbol();
+}
+function szerkesztesVege(){
+  szerkesztIndex=null;
+  $("szalag").style.display="none";
+  $("urlapCim").textContent="Új bejelentés";
+  $("mentes").textContent="Mentés";
+  urlapUrit();
+}
+function szerkesztesIndit(i){
+  const r=lista[i];
+  szerkesztIndex=i;
+  $("cim").value=r.cim||"";
+  $("leiras").value=r.leiras||"";
+  $("helyszin").value=r.helyszin||"";
+  $("szelesseg").value=r.szelesseg??"";
+  $("hosszusag").value=r.hosszusag??"";
+  $("kategoria").value=r.kategoria||"Egyeb";
+  $("bekuldes").value=r.bekuldes||"";
+  $("kep").value="";
+  jelolesMezokbol();
+  if(r.szelesseg!=null&&r.hosszusag!=null)terkep.setView([r.szelesseg,r.hosszusag],16);
+  const k=$("meglevoKepek");
+  k.innerHTML="<label>Meglévő képek (a jelöletlenek törlődnek mentéskor):</label>";
+  (r.kepek||[]).forEach(nev=>{
+    const l=document.createElement("label");
+    l.innerHTML='<input type="checkbox" checked data-kep="'+szovegRendez(nev)+'"> '+szovegRendez(nev);
+    k.appendChild(l);
+  });
+  $("szalagSzoveg").textContent="Szerkesztés: #"+(i+1)+" "+(r.cim||"");
+  $("szalag").style.display="block";
+  $("urlapCim").textContent="Bejelentés szerkesztése";
+  $("mentes").textContent="Módosítások mentése";
+  listaRajzol();
+  nezet("urlap");
+  window.scrollTo(0,0);
+}
+$("megse").addEventListener("click",()=>{szerkesztesVege();listaRajzol();nezet("lista")});
+$("fulUj").addEventListener("click",()=>{if(szerkesztIndex!==null){szerkesztesVege();listaRajzol()}nezet("urlap")});
+$("fulLista").addEventListener("click",()=>nezet("lista"));
+
+async function torles(i){
+  const r=lista[i];
+  if(!confirm("Törlöd ezt a bejelentést és a képeit?\n\n#"+(i+1)+" "+r.cim))return;
+  try{
+    const j=await api("/api/torles",{index:i});
+    if(szerkesztIndex!==null)szerkesztesVege();
+    allapotBetolt(j);
+    uzen("Törölve.",true);
+  }catch(e){uzen("A törlés nem sikerült: "+e.message,false)}
+}
+
 function ellenoriz(){
   if($("cim").value.trim().length<5)return "A cím legalább 5 karakter legyen.";
   if($("leiras").value.trim().length<20)return "A leírás legalább 20 karakter legyen.";
@@ -86,64 +251,40 @@ function ellenoriz(){
   for(const f of $("kep").files)if(f.size>5*1024*1024)return "A kép legfeljebb 5 MB lehet: "+f.name;
   return null;
 }
-function ekezetnelkuli(t){return t.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,40)}
-function rekord(kepNevek){
-  return {
-    cim:$("cim").value.trim(),
-    leiras:$("leiras").value.trim(),
-    helyszin:$("helyszin").value.trim(),
-    szelesseg:szam("szelesseg"),
-    hosszusag:szam("hosszusag"),
-    kategoria:$("kategoria").value,
-    bekuldes:$("bekuldes").value||null,
-    kepek:kepNevek
-  };
-}
-function kepNevekKeszit(lista){
-  const foglalt=new Set(lista.flatMap(r=>r.kepek||[]));
-  const alap=ekezetnelkuli($("cim").value)||"bejelentes";
-  const nevek=[];
-  for(const f of $("kep").files){
-    const kit=f.type==="image/png"?".png":".jpg";
-    let n=1,nev=alap+kit;
-    while(foglalt.has(nev)){n++;nev=alap+"_"+n+kit}
-    foglalt.add(nev);nevek.push(nev);
-  }
-  return nevek;
-}
+
 $("mentes").addEventListener("click",async()=>{
   const h=ellenoriz();if(h){uzen(h,false);return}
-  if(!window.showDirectoryPicker){uzen("Ez a böngésző nem tud mappába menteni. Használd a Letöltés gombot, vagy a Chrome/Edge-et.",false);return}
+  const gomb=$("mentes");
+  gomb.disabled=true;
   try{
-    const mappa=await window.showDirectoryPicker({mode:"readwrite"});
-    let lista=[];
-    try{
-      const fh=await mappa.getFileHandle("mintaadatok.json");
-      const szov=(await(await fh.getFile()).text()).replace(/^﻿/,"").trim();
-      if(szov)lista=JSON.parse(szov);
-    }catch(e){if(e.name!=="NotFoundError")throw e}
-    const nevek=kepNevekKeszit(lista);
-    if(nevek.length){
-      const kepek=await mappa.getDirectoryHandle("kepek",{create:true});
-      for(let i=0;i<nevek.length;i++){
-        const w=await(await kepek.getFileHandle(nevek[i],{create:true})).createWritable();
-        await w.write($("kep").files[i]);await w.close();
+    const ujKepek=[];
+    for(const f of $("kep").files)ujKepek.push({adat:await fajlBase64(f)});
+    const megtartott=[...document.querySelectorAll("#meglevoKepek [data-kep]")].filter(c=>c.checked).map(c=>c.dataset.kep);
+    const j=await api("/api/mentes",{
+      index:szerkesztIndex,
+      megtartott:megtartott,
+      ujKepek:ujKepek,
+      rekord:{
+        cim:$("cim").value.trim(),
+        leiras:$("leiras").value.trim(),
+        helyszin:$("helyszin").value.trim(),
+        szelesseg:szam("szelesseg"),
+        hosszusag:szam("hosszusag"),
+        kategoria:$("kategoria").value,
+        bekuldes:$("bekuldes").value||null
       }
-    }
-    lista.push(rekord(nevek));
-    const j=await(await mappa.getFileHandle("mintaadatok.json",{create:true})).createWritable();
-    await j.write(new Blob([JSON.stringify(lista,null,2)],{type:"application/json"}));await j.close();
-    uzen("Elmentve. A mintaadatok.json most "+lista.length+" bejelentést tartalmaz.",true);
-  }catch(e){uzen("A mentés megszakadt: "+e.message,false)}
+    });
+    const szerkesztett=szerkesztIndex!==null;
+    if(szerkesztett)szerkesztesVege();else urlapUrit();
+    allapotBetolt(j);
+    if(szerkesztett)nezet("lista");
+    uzen(szerkesztett?"A módosítás elmentve.":"Elmentve. A mintaadatok.json most "+lista.length+" bejelentést tartalmaz.",true);
+  }catch(e){uzen("A mentés nem sikerült: "+e.message,false)}
+  finally{gomb.disabled=false}
 });
-$("letoltes").addEventListener("click",()=>{
-  const h=ellenoriz();if(h){uzen(h,false);return}
-  const nevek=kepNevekKeszit([]);
-  const le=(blob,nev)=>{const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=nev;a.click();URL.revokeObjectURL(a.href)};
-  le(new Blob([JSON.stringify(rekord(nevek),null,2)],{type:"application/json"}),(ekezetnelkuli($("cim").value)||"bejelentes")+".json");
-  nevek.forEach((n,i)=>le($("kep").files[i],n));
-  uzen("Letöltve. A JSON-részletet másold be a mintaadatok.json tömbjébe, a képeket a kepek mappába.",true);
-});
+
+$("frissites").addEventListener("click",frissit);
+frissit();
 </script>
 </body>
 </html>
