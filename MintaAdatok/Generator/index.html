@@ -9,6 +9,7 @@
 body{font-family:system-ui,sans-serif;max-width:900px;margin:0 auto;padding:16px;background:#f6f7f9;color:#1d2530}
 h1{font-size:1.4rem}
 h2{font-size:1.1rem;margin-top:28px;border-bottom:2px solid #cfd6df;padding-bottom:4px}
+h3{margin-top:26px}
 label{display:block;margin:10px 0 3px;font-weight:600;font-size:.92rem}
 input,select,textarea{width:100%;box-sizing:border-box;padding:8px;border:1px solid #b9c2cd;border-radius:6px;font:inherit;background:#fff}
 input[type=checkbox]{width:auto}
@@ -29,16 +30,20 @@ button.kicsi{padding:5px 10px;font-size:.85rem;margin:2px 4px 2px 0}
 .kartya img{width:90px;height:68px;object-fit:cover;border-radius:6px;background:#e3e7ec}
 .kartya .nincskep{width:90px;height:68px;border-radius:6px;background:#e3e7ec;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:#5b6675}
 .figyelmeztetes{color:#a15c00;font-size:.82rem;margin-top:3px}
+.cimke{display:inline-block;padding:1px 8px;border-radius:10px;background:#e3e7ec;font-size:.78rem;font-weight:600;margin-left:6px}
+.cimke.veszely{background:#fde2e2;color:#7a1b1b}
+.kod{font-family:ui-monospace,Consolas,monospace;font-size:.75rem;color:#5b6675;user-select:all}
 .szerkszalag{background:#fff3cd;border:1px solid #f0d98a;border-radius:6px;padding:8px 12px;margin-top:12px;display:none}
+.kepvalasztok label,.pipa{font-weight:400;display:flex;gap:8px;align-items:center;margin:4px 0}
 .fulek{display:flex;gap:8px;margin-top:12px;border-bottom:2px solid #cfd6df}
 .fulek button{background:#e3e7ec;color:#1d2530;border-radius:6px 6px 0 0;margin:0}
 .fulek button.aktiv{background:#1f6feb;color:#fff}
-.kepvalasztok label{font-weight:400;display:flex;gap:8px;align-items:center;margin:4px 0}
+.rfdoboz{background:#fff;border:1px solid #d5dbe3;border-radius:8px;padding:4px 12px 12px;margin-top:10px}
 </style>
 </head>
 <body>
 <h1>Mintabejelentés-készítő</h1>
-<p class="megj">Úgy töltsd ki, mintha a lakos küldené be. A mentés a MintaAdatok mappában a mintaadatok.json fájlhoz fűz egy új elemet, a képeket pedig a kepek mappába teszi.</p>
+<p class="megj">Úgy töltsd ki, mintha a lakos küldené be, majd add meg, hol tart az ügy. A mentés a MintaAdatok mappában a mintaadatok.json fájlhoz fűz egy új elemet, a képeket pedig a kepek mappába teszi.</p>
 
 <nav class="fulek">
 <button id="fulUj" class="aktiv">Új bejelentés</button>
@@ -81,12 +86,47 @@ button.kicsi{padding:5px 10px;font-size:.85rem;margin:2px 4px 2px 0}
 <label for="bekuldes">Beküldés ideje</label>
 <input id="bekuldes" type="date">
 
+<h3>3. Az ügy sorsa</h3>
+<p class="megj">Azt add meg, hol tart az ügy a bemutatás pillanatában. Alapból Új. A nem releváns mezők az állapot választása után elrejtőznek, a portál szabályai szerint.</p>
+<div class="sor">
+  <div><label for="allapot">Állapot</label>
+    <select id="allapot">
+      <option value="Uj">Új</option>
+      <option value="Ellenorizve">Ellenőrizve</option>
+      <option value="Folyamatban">Folyamatban</option>
+      <option value="LezarasraVar">Lezárásra vár</option>
+      <option value="Lezart">Lezárt</option>
+      <option value="Teves">Téves bejelentés</option>
+      <option value="HataskoronKivuli">Hatáskörön kívüli</option>
+      <option value="Osszevont">Összevont</option>
+    </select></div>
+  <div><label class="pipa" style="margin-top:34px"><input type="checkbox" id="veszelyes"> Veszélyes ügy</label></div>
+</div>
+<div class="sor" id="blokkEllenorzes">
+  <div><label for="ellenorzes">Ellenőrzés dátuma</label><input id="ellenorzes" type="date"></div>
+  <div><label for="hatarido">Határidő</label><input id="hatarido" type="date"></div>
+</div>
+<div id="blokkIndok"><label for="indok">Indok (legfeljebb 80 karakter)</label><input id="indok" maxlength="80"></div>
+<div id="blokkFo"><label for="fo">Főbejelentés (amihez összevonták)</label><select id="fo"></select></div>
+<div id="blokkReszfeladatok">
+  <h4>Részfeladatok</h4>
+  <div id="rfLista"></div>
+  <button type="button" class="kicsi masodlagos" id="rfUj">+ Részfeladat hozzáadása</button>
+</div>
+<div class="sor" id="blokkLezaras">
+  <div><label for="lezaras">Lezárás dátuma</label><input id="lezaras" type="date"></div>
+  <div><label for="ertekeles">Lakossági értékelés (1-5, nem kötelező)</label>
+    <select id="ertekeles"><option value="">Nincs</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+</div>
+
 <p><button id="mentes">Mentés</button></p>
 </section>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 const $=id=>document.getElementById(id);
+const ALLAPOT_NEV={Uj:"Új",Ellenorizve:"Ellenőrizve",Folyamatban:"Folyamatban",LezarasraVar:"Lezárásra vár",Lezart:"Lezárt",Teves:"Téves",HataskoronKivuli:"Hatáskörön kívüli",Osszevont:"Összevont"};
+const SZERVEZETEK=["Utfenntartas","Koztisztasag","Kozvilagitas"];
 let lista=[];
 let letezo=new Set();
 let szerkesztIndex=null;
@@ -109,12 +149,12 @@ $("szelesseg").addEventListener("change",jelolesMezokbol);
 $("hosszusag").addEventListener("change",jelolesMezokbol);
 
 function nezet(nev){
-  const lista=nev==="lista";
-  $("oldalLista").hidden=!lista;
-  $("oldalUrlap").hidden=lista;
-  $("fulLista").classList.toggle("aktiv",lista);
-  $("fulUj").classList.toggle("aktiv",!lista);
-  if(!lista)terkep.invalidateSize();
+  const listaNezet=nev==="lista";
+  $("oldalLista").hidden=!listaNezet;
+  $("oldalUrlap").hidden=listaNezet;
+  $("fulLista").classList.toggle("aktiv",listaNezet);
+  $("fulUj").classList.toggle("aktiv",!listaNezet);
+  if(!listaNezet)terkep.invalidateSize();
   $("uzenet").style.display="none";
 }
 function uzen(t,jo){const u=$("uzenet");u.textContent=t;u.className=jo?"ok":"hiba";u.style.display="block"}
@@ -152,13 +192,17 @@ async function frissit(){
   catch(e){$("mappaInfo").textContent="";uzen(e.message,false)}
 }
 
+function osszesKep(r){
+  const nevek=[...(r.kepek||[])];
+  (r.reszfeladatok||[]).forEach(x=>{if(x.elotte)nevek.push(x.elotte);if(x.utana)nevek.push(x.utana)});
+  return nevek;
+}
 function figyelmeztetesek(r){
   const f=[];
-  const kepek=r.kepek||[];
-  const hianyzo=kepek.filter(n=>!letezo.has(n));
+  const hianyzo=osszesKep(r).filter(n=>!letezo.has(n));
   if(r.szelesseg==null||r.hosszusag==null)f.push("nincs koordináta");
   if(!r.bekuldes)f.push("nincs beküldési dátum");
-  if(!kepek.length)f.push("nincs kép");
+  if(!(r.kepek||[]).length)f.push("nincs bejelentői kép");
   if(hianyzo.length)f.push("hiányzó képfájl: "+hianyzo.join(", "));
   if(!r.cim||r.cim.length<5)f.push("túl rövid cím");
   if(!r.leiras||r.leiras.length<20)f.push("túl rövid leírás");
@@ -170,14 +214,22 @@ function listaRajzol(){
   kont.innerHTML="";
   if(!lista.length){kont.innerHTML='<p class="megj">Még nincs bejelentés.</p>';return}
   lista.forEach((r,i)=>{
-    const kepek=r.kepek||[];
-    const elso=kepek.find(n=>letezo.has(n));
+    const elso=(r.kepek||[]).find(n=>letezo.has(n));
     const fig=figyelmeztetesek(r);
+    const rfk=r.reszfeladatok||[];
+    const foCim=r.foAzonosito?((lista.find(x=>x.azonosito===r.foAzonosito)||{}).cim||r.foAzonosito):null;
     const d=document.createElement("div");
     d.className="kartya"+(szerkesztIndex===i?" szerkesztes":"");
     d.innerHTML=(elso?'<img src="/kepek/'+encodeURIComponent(elso)+'" alt="">':'<div class="nincskep">nincs kép</div>')+
-      '<div><strong>#'+(i+1)+' '+szovegRendez(r.cim||"")+'</strong><br>'+
-      '<span class="megj">'+szovegRendez(r.helyszin||"")+' | '+szovegRendez(r.kategoria||"")+' | '+szovegRendez(r.bekuldes||"nincs dátum")+' | '+kepek.length+' kép</span>'+
+      '<div><strong>'+szovegRendez(r.azonosito)+' '+szovegRendez(r.cim||"")+'</strong>'+
+      '<span class="cimke">'+szovegRendez(ALLAPOT_NEV[r.allapot]||r.allapot)+'</span>'+
+      (r.veszelyes?'<span class="cimke veszely">Veszélyes</span>':'')+'<br>'+
+      '<span class="megj">'+szovegRendez(r.helyszin||"")+' | '+szovegRendez(r.kategoria||"")+' | '+szovegRendez(r.bekuldes||"nincs dátum")+
+      ' | '+(r.kepek||[]).length+' kép'+
+      (rfk.length?' | részfeladat: '+rfk.filter(x=>x.kesz).length+'/'+rfk.length+' kész':'')+
+      (foCim?' | összevonva: '+szovegRendez(foCim):'')+
+      (r.ertekeles?' | értékelés: '+r.ertekeles+'/5':'')+'</span><br>'+
+      '<span class="kod">követőkód: '+szovegRendez(r.kovetokod||"")+'</span>'+
       (fig.length?'<div class="figyelmeztetes">Figyelem: '+szovegRendez(fig.join("; "))+'</div>':'')+'</div>'+
       '<div><button class="kicsi" data-szerk="'+i+'">Szerkeszt</button><button class="kicsi veszely" data-torol="'+i+'">Töröl</button></div>';
     kont.appendChild(d);
@@ -186,11 +238,61 @@ function listaRajzol(){
   kont.querySelectorAll("[data-torol]").forEach(b=>b.addEventListener("click",()=>torles(parseInt(b.dataset.torol))));
 }
 
+function reszfeladatBlokk(rf){
+  rf=rf||{};
+  const d=document.createElement("div");
+  d.className="rfdoboz";
+  d.dataset.elotte=rf.elotte||"";
+  d.dataset.utana=rf.utana||"";
+  const szervOpcio=SZERVEZETEK.map(s=>'<option'+(rf.szervezet===s?' selected':'')+'>'+s+'</option>').join("");
+  const kepSor=(kulcs,cim,nev)=>'<div><label>'+cim+'</label>'+
+    (nev?'<label class="pipa"><input type="checkbox" checked class="rf-'+kulcs+'-megtart"> '+szovegRendez(nev)+' (megtartom)</label>':'')+
+    '<input type="file" class="rf-'+kulcs+'" accept="image/jpeg,image/png"></div>';
+  d.innerHTML='<div style="margin-top:8px"><strong>Részfeladat</strong> <button type="button" class="kicsi veszely rf-torol">Eltávolít</button></div>'+
+    '<div class="sor"><div><label>Szervezet</label><select class="rf-szervezet">'+szervOpcio+'</select></div>'+
+    '<div><label>Határidő</label><input type="date" class="rf-hatarido" value="'+szovegRendez(rf.hatarido||"")+'"></div></div>'+
+    '<label>Cím (legfeljebb 160 karakter)</label><input class="rf-cim" maxlength="160" value="'+szovegRendez(rf.cim||"")+'">'+
+    '<label class="pipa"><input type="checkbox" class="rf-kesz"'+(rf.kesz?' checked':'')+'> Kész (a végrehajtó készre jelentette)</label>'+
+    '<label>Helyszíni megjegyzés (kész esetén kötelező)</label><input class="rf-megj" maxlength="1000" value="'+szovegRendez(rf.megjegyzes||"")+'">'+
+    '<div class="sor">'+kepSor("elotte","Kép munka előtt (a végrehajtó tölti fel)",rf.elotte)+kepSor("utana","Kép munka után (a végrehajtó tölti fel)",rf.utana)+'</div>';
+  d.querySelector(".rf-torol").addEventListener("click",()=>d.remove());
+  return d;
+}
+function foFeltolt(kivalasztott){
+  const sel=$("fo");
+  sel.innerHTML='<option value="">Válassz...</option>';
+  lista.forEach((r,i)=>{
+    if(i===szerkesztIndex)return;
+    const o=document.createElement("option");
+    o.value=r.azonosito;
+    o.textContent=r.azonosito+" | "+r.cim+" | "+r.kategoria+" | "+(ALLAPOT_NEV[r.allapot]||r.allapot);
+    if(r.azonosito===kivalasztott)o.selected=true;
+    sel.appendChild(o);
+  });
+}
+function allapotUi(){
+  const a=$("allapot").value;
+  const mutat=(id,lathato)=>{$(id).style.display=lathato?"":"none"};
+  mutat("blokkEllenorzes",["Ellenorizve","Folyamatban","LezarasraVar","Lezart","Teves","HataskoronKivuli","Osszevont"].includes(a));
+  mutat("blokkIndok",["Teves","HataskoronKivuli"].includes(a));
+  mutat("blokkFo",a==="Osszevont");
+  mutat("blokkReszfeladatok",["Folyamatban","LezarasraVar","Lezart"].includes(a));
+  mutat("blokkLezaras",a==="Lezart");
+}
+$("allapot").addEventListener("change",allapotUi);
+$("rfUj").addEventListener("click",()=>$("rfLista").appendChild(reszfeladatBlokk()));
+
 function urlapUrit(){
-  ["cim","leiras","helyszin","szelesseg","hosszusag","bekuldes"].forEach(id=>$(id).value="");
+  ["cim","leiras","helyszin","szelesseg","hosszusag","bekuldes","ellenorzes","hatarido","lezaras","indok"].forEach(id=>$(id).value="");
   $("kategoria").value="Egyeb";
+  $("allapot").value="Uj";
+  $("veszelyes").checked=false;
+  $("ertekeles").value="";
   $("kep").value="";
   $("meglevoKepek").innerHTML="";
+  $("rfLista").innerHTML="";
+  foFeltolt(null);
+  allapotUi();
   jelolesMezokbol();
 }
 function szerkesztesVege(){
@@ -203,6 +305,7 @@ function szerkesztesVege(){
 function szerkesztesIndit(i){
   const r=lista[i];
   szerkesztIndex=i;
+  urlapUrit();
   $("cim").value=r.cim||"";
   $("leiras").value=r.leiras||"";
   $("helyszin").value=r.helyszin||"";
@@ -210,7 +313,16 @@ function szerkesztesIndit(i){
   $("hosszusag").value=r.hosszusag??"";
   $("kategoria").value=r.kategoria||"Egyeb";
   $("bekuldes").value=r.bekuldes||"";
-  $("kep").value="";
+  $("allapot").value=r.allapot||"Uj";
+  $("veszelyes").checked=!!r.veszelyes;
+  $("ellenorzes").value=r.ellenorzes||"";
+  $("hatarido").value=r.hatarido||"";
+  $("lezaras").value=r.lezaras||"";
+  $("indok").value=r.indok||"";
+  $("ertekeles").value=r.ertekeles??"";
+  foFeltolt(r.foAzonosito);
+  (r.reszfeladatok||[]).forEach(x=>$("rfLista").appendChild(reszfeladatBlokk(x)));
+  allapotUi();
   jelolesMezokbol();
   if(r.szelesseg!=null&&r.hosszusag!=null)terkep.setView([r.szelesseg,r.hosszusag],16);
   const k=$("meglevoKepek");
@@ -220,7 +332,7 @@ function szerkesztesIndit(i){
     l.innerHTML='<input type="checkbox" checked data-kep="'+szovegRendez(nev)+'"> '+szovegRendez(nev);
     k.appendChild(l);
   });
-  $("szalagSzoveg").textContent="Szerkesztés: #"+(i+1)+" "+(r.cim||"");
+  $("szalagSzoveg").textContent="Szerkesztés: "+r.azonosito+" "+(r.cim||"");
   $("szalag").style.display="block";
   $("urlapCim").textContent="Bejelentés szerkesztése";
   $("mentes").textContent="Módosítások mentése";
@@ -234,7 +346,7 @@ $("fulLista").addEventListener("click",()=>nezet("lista"));
 
 async function torles(i){
   const r=lista[i];
-  if(!confirm("Törlöd ezt a bejelentést és a képeit?\n\n#"+(i+1)+" "+r.cim))return;
+  if(!confirm("Törlöd ezt a bejelentést és a képeit?\n\n"+r.azonosito+" "+r.cim))return;
   try{
     const j=await api("/api/torles",{index:i});
     if(szerkesztIndex!==null)szerkesztesVege();
@@ -248,8 +360,35 @@ function ellenoriz(){
   if($("leiras").value.trim().length<20)return "A leírás legalább 20 karakter legyen.";
   if($("helyszin").value.trim().length<5)return "A helyszín legalább 5 karakter legyen.";
   if(szam("szelesseg")===null||szam("hosszusag")===null)return "A koordináta kötelező, kattints a térképre.";
-  for(const f of $("kep").files)if(f.size>5*1024*1024)return "A kép legfeljebb 5 MB lehet: "+f.name;
+  for(const f of document.querySelectorAll('#oldalUrlap input[type=file]'))
+    for(const fajl of f.files)if(fajl.size>5*1024*1024)return "A kép legfeljebb 5 MB lehet: "+fajl.name;
   return null;
+}
+function ertek(id,lathato){return lathato?($(id).value||null):null}
+
+async function reszfeladatokGyujt(){
+  const kimenet=[];
+  for(const d of document.querySelectorAll("#rfLista .rfdoboz")){
+    const x={
+      szervezet:d.querySelector(".rf-szervezet").value,
+      cim:d.querySelector(".rf-cim").value.trim(),
+      hatarido:d.querySelector(".rf-hatarido").value||null,
+      kesz:d.querySelector(".rf-kesz").checked,
+      megjegyzes:d.querySelector(".rf-megj").value.trim()||null,
+      elotteMegtart:null,
+      utanaMegtart:null,
+      elotteUj:null,
+      utanaUj:null
+    };
+    for(const kulcs of ["elotte","utana"]){
+      const megtart=d.querySelector(".rf-"+kulcs+"-megtart");
+      if(megtart&&megtart.checked)x[kulcs+"Megtart"]=d.dataset[kulcs];
+      const fajl=d.querySelector(".rf-"+kulcs).files[0];
+      if(fajl)x[kulcs+"Uj"]={adat:await fajlBase64(fajl)};
+    }
+    kimenet.push(x);
+  }
+  return kimenet;
 }
 
 $("mentes").addEventListener("click",async()=>{
@@ -257,9 +396,13 @@ $("mentes").addEventListener("click",async()=>{
   const gomb=$("mentes");
   gomb.disabled=true;
   try{
+    const a=$("allapot").value;
     const ujKepek=[];
     for(const f of $("kep").files)ujKepek.push({adat:await fajlBase64(f)});
     const megtartott=[...document.querySelectorAll("#meglevoKepek [data-kep]")].filter(c=>c.checked).map(c=>c.dataset.kep);
+    const rfLathato=["Folyamatban","LezarasraVar","Lezart"].includes(a);
+    const ellLathato=["Ellenorizve","Folyamatban","LezarasraVar","Lezart","Teves","HataskoronKivuli","Osszevont"].includes(a);
+    const ertekeles=a==="Lezart"&&$("ertekeles").value?parseInt($("ertekeles").value):null;
     const j=await api("/api/mentes",{
       index:szerkesztIndex,
       megtartott:megtartott,
@@ -271,12 +414,22 @@ $("mentes").addEventListener("click",async()=>{
         szelesseg:szam("szelesseg"),
         hosszusag:szam("hosszusag"),
         kategoria:$("kategoria").value,
-        bekuldes:$("bekuldes").value||null
+        bekuldes:$("bekuldes").value||null,
+        allapot:a,
+        veszelyes:$("veszelyes").checked,
+        ellenorzes:ertek("ellenorzes",ellLathato),
+        hatarido:ertek("hatarido",ellLathato),
+        lezaras:ertek("lezaras",a==="Lezart"),
+        ertekeles:ertekeles,
+        indok:ertek("indok",["Teves","HataskoronKivuli"].includes(a)),
+        foAzonosito:ertek("fo",a==="Osszevont"),
+        reszfeladatok:rfLathato?await reszfeladatokGyujt():[]
       }
     });
     const szerkesztett=szerkesztIndex!==null;
     if(szerkesztett)szerkesztesVege();else urlapUrit();
     allapotBetolt(j);
+    foFeltolt(null);
     if(szerkesztett)nezet("lista");
     uzen(szerkesztett?"A módosítás elmentve.":"Elmentve. A mintaadatok.json most "+lista.length+" bejelentést tartalmaz.",true);
   }catch(e){uzen("A mentés nem sikerült: "+e.message,false)}
@@ -284,6 +437,7 @@ $("mentes").addEventListener("click",async()=>{
 });
 
 $("frissites").addEventListener("click",frissit);
+allapotUi();
 frissit();
 </script>
 </body>

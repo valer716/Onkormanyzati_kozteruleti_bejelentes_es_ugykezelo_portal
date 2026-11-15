@@ -11,8 +11,10 @@ Mintabejelentések a bemutatóhoz és a kipróbáláshoz.
 ## A generátor használata
 
 1. Indítsd el a `Generator/Inditas.bat` fájlt (Python kell hozzá). Elindul egy kis helyi szerver, és megnyílik a `http://localhost:8081/Generator/index.html` oldal.
-2. Az **Új bejelentés** fülön töltsd ki az űrlapot úgy, mintha a lakos küldené be: cím, leírás, helyszín, hely a térképen, kategória, fényképek. A **Mentés** a `mintaadatok.json` fájlhoz fűz egy elemet, a képeket a `kepek/` mappába teszi.
-3. A **Szerkesztő** fülön látszanak a meglévő bejelentések, itt szerkeszthetők és törölhetők.
+2. Az **Új bejelentés** fülön töltsd ki az űrlapot úgy, mintha a lakos küldené be: cím, leírás, helyszín, hely a térképen, kategória, fényképek.
+3. A **3. Az ügy sorsa** részben add meg, hol tart az ügy: állapot, határidő, részfeladatok (szervezet, határidő, kész-e, megjegyzés, előtte/utána kép), lezárás és értékelés, összevonás, indok. A nem releváns mezők az állapot választása után elrejtőznek, és a szerver a portál szabályai szerint ellenőriz (például lezárt ügynél minden részfeladat kész).
+4. A **Mentés** a `mintaadatok.json` fájlhoz fűz egy elemet, a képeket a `kepek/` mappába teszi.
+5. A **Szerkesztő** fülön látszanak a meglévő bejelentések, itt szerkeszthetők és törölhetők.
 
 A szerver csak a saját gépről érhető el, és a fájlokat közvetlenül a `MintaAdatok` mappába írja. Bármelyik böngészővel használható.
 
@@ -20,17 +22,41 @@ A szerver csak a saját gépről érhető el, és a fájlokat közvetlenül a `M
 
 ```json
 {
+  "azonosito": "bj-0001",
+  "kovetokod": "329572c7-5c8b-4730-b69b-15375fb25d80",
   "cim": "Betört aknafedél",
-  "leiras": "Az aknafedél eltört, balesetveszélyes.",
+  "leiras": "Az aknafedél eltört, balesetveszélyes az úttesten.",
   "helyszin": "Kossuth utca 12., Budapest",
   "szelesseg": 47.4984,
   "hosszusag": 19.0402,
   "kategoria": "Uthiba",
   "bekuldes": "2026-11-03",
-  "kepek": ["betort_aknafedel.jpg"]
+  "ellenorzes": "2026-11-04",
+  "allapot": "Folyamatban",
+  "veszelyes": false,
+  "hatarido": "2026-11-25",
+  "lezaras": null,
+  "ertekeles": null,
+  "foAzonosito": null,
+  "indok": null,
+  "kepek": ["betort_aknafedel.jpg"],
+  "reszfeladatok": [
+    {
+      "szervezet": "Utfenntartas",
+      "cim": "Aknafedél cseréje",
+      "hatarido": "2026-11-20",
+      "kesz": true,
+      "megjegyzes": "Kicserélve.",
+      "elotte": "betort_aknafedel_r1_elotte.jpg",
+      "utana": "betort_aknafedel_r1_utana.jpg"
+    }
+  ]
 }
 ```
 
-A kategória értékei: `Egyeb`, `Uthiba`, `Kozvilagitas`, `Hulladek`, `Utcabutor`.
+- **kategoria:** `Egyeb`, `Uthiba`, `Kozvilagitas`, `Hulladek`, `Utcabutor`
+- **allapot:** `Uj`, `Ellenorizve`, `Folyamatban`, `LezarasraVar`, `Lezart`, `Teves`, `HataskoronKivuli`, `Osszevont`
+- **szervezet:** `Utfenntartas`, `Koztisztasag`, `Kozvilagitas`
+- Az `azonosito` és a `kovetokod` mezőket a szerver generálja, a `foAzonosito` az összevont ügy főbejelentésének azonosítója.
 
 A mintaadatok betöltése az alkalmazásba még nem készült el.
