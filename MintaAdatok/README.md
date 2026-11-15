@@ -10,11 +10,11 @@ Mintabejelentések a bemutatóhoz és a kipróbáláshoz.
 
 ## A generátor használata
 
-1. Indítsd el az `Generator/Inditas.bat` fájlt (Python kell hozzá). Megnyitja a `http://localhost:8080/Generator/index.html` oldalt.
-2. Töltsd ki az űrlapot úgy, mintha a lakos küldené be: cím, leírás, helyszín, hely a térképen, kategória, fényképek.
-3. A **Mentés** gombbal válaszd ki ezt a `MintaAdatok` mappát. A generátor hozzáfűz egy elemet a `mintaadatok.json` fájlhoz, a képeket a `kepek/` mappába teszi.
+1. Indítsd el a `Generator/Inditas.bat` fájlt (Python kell hozzá). Elindul egy kis helyi szerver, és megnyílik a `http://localhost:8081/Generator/index.html` oldal.
+2. Az **Új bejelentés** fülön töltsd ki az űrlapot úgy, mintha a lakos küldené be: cím, leírás, helyszín, hely a térképen, kategória, fényképek. A **Mentés** a `mintaadatok.json` fájlhoz fűz egy elemet, a képeket a `kepek/` mappába teszi.
+3. A **Szerkesztő** fülön látszanak a meglévő bejelentések, itt szerkeszthetők és törölhetők.
 
-A mentéshez Chrome vagy Edge kell. Más böngészőben a Letöltés gomb használható.
+A szerver csak a saját gépről érhető el, és a fájlokat közvetlenül a `MintaAdatok` mappába írja. Bármelyik böngészővel használható.
 
 ## Egy bejelentés a fájlban
 
