@@ -1,0 +1,138 @@
+@using OnkormanyzatiPortal.Models
+@model Bejelentes
+
+@{
+    ViewData["Title"] = "Ügy részletei";
+
+    var feladatok = (IReadOnlyList<Reszfeladat>)ViewBag.Reszfeladatok;
+    var fotok = (IReadOnlyList<FotoListaSor>)ViewBag.Fotok;
+    var naplo = (IReadOnlyList<BejelentesNaplo>)ViewBag.Naplo;
+}
+
+<p><a asp-action="Index">Vissza a kimutatáshoz</a></p>
+
+<h1>#@Model.Id – @Model.Cim</h1>
+
+<dl class="row">
+    <dt class="col-sm-3">Kategória</dt>
+    <dd class="col-sm-9">@Html.DisplayFor(m => m.Kategoria)</dd>
+
+    <dt class="col-sm-3">Állapot</dt>
+    <dd class="col-sm-9">@Html.DisplayFor(m => m.Allapot)</dd>
+
+    <dt class="col-sm-3">Helyszín</dt>
+    <dd class="col-sm-9">@Model.Helyszin</dd>
+
+    <dt class="col-sm-3">Beérkezett</dt>
+    <dd class="col-sm-9">@Model.LetrehozvaUtc.ToString("yyyy.MM.dd. HH:mm") (UTC)</dd>
+
+    <dt class="col-sm-3">Ügyhatáridő</dt>
+    <dd class="col-sm-9">@(Model.Hatarido?.ToString("yyyy.MM.dd.") ?? "Nincs megadva")</dd>
+
+    @if (Model.LezarvaUtc is DateTime lezarvaUtc)
+    {
+        <dt class="col-sm-3">Lezárva</dt>
+        <dd class="col-sm-9">@lezarvaUtc.ToString("yyyy.MM.dd. HH:mm") (UTC)</dd>
+    }
+</dl>
+
+@if (Model.Veszelyes)
+{
+    <p class="text-danger"><strong>Veszélyes ügy</strong></p>
+}
+
+<h2 class="h5">Leírás</h2>
+<p style="white-space: pre-wrap">@Model.Leiras</p>
+
+@if (fotok.Count > 0)
+{
+    <h2 class="h5">Fényképek</h2>
+
+    <div class="row g-3 mb-4">
+        @foreach (var foto in fotok)
+        {
+            var cimke = foto.Tipus switch
+            {
+                BejelentesFotoTipus.Elotte => "Előtte",
+                BejelentesFotoTipus.Utana => "Utána",
+                _ => "Bejelentői fotó"
+            };
+
+            <div class="col-6 col-md-4 col-lg-3">
+                <figure class="m-0">
+                    <a asp-action="Foto" asp-route-id="@foto.Id" target="_blank">
+                        <img src="@Url.Action("Foto", new { id = foto.Id })" alt="@cimke"
+                             class="img-fluid rounded border" loading="lazy" />
+                    </a>
+                    <figcaption class="small">@cimke</figcaption>
+                </figure>
+            </div>
+        }
+    </div>
+}
+
+<h2 class="h5">Részfeladatok</h2>
+
+@if (feladatok.Count == 0)
+{
+    <p>Még nincs kiosztott részfeladat.</p>
+}
+else
+{
+    <div class="table-responsive mb-4">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Feladat</th>
+                    <th>Szervezet</th>
+                    <th>Határidő</th>
+                    <th>Állapot</th>
+                    <th>Megjegyzés</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var feladat in feladatok)
+                {
+                    <tr>
+                        <td>@feladat.Cim</td>
+                        <td>@feladat.Szervezet.Nev</td>
+                        <td>@feladat.Hatarido.ToString("yyyy.MM.dd.")</td>
+                        <td>@(feladat.Elkeszult ? "Kész" : "Kiosztva")</td>
+                        <td>@feladat.Megjegyzes</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<h2 class="h5">Státusztörténet</h2>
+
+<div class="table-responsive">
+    <table class="table table-sm">
+        <thead>
+            <tr>
+                <th>Időpont (UTC)</th>
+                <th>Művelet</th>
+                <th>Állapot</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var sor in naplo)
+            {
+                <tr>
+                    <td>@sor.IdopontUtc.ToString("yyyy.MM.dd. HH:mm")</td>
+                    <td>@sor.Muvelet</td>
+                    <td>
+                        @if (sor.ElozoAllapot.HasValue && sor.ElozoAllapot != sor.UjAllapot)
+                        {
+                            @Html.DisplayFor(_ => sor.ElozoAllapot!.Value)
+                            <span>→</span>
+                        }
+                        @Html.DisplayFor(_ => sor.UjAllapot)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

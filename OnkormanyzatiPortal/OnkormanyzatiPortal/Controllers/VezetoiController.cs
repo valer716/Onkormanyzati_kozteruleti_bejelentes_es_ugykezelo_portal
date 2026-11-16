@@ -56,6 +56,54 @@ public class VezetoiController(ApplicationDbContext db) : Controller
     }
 
     [HttpGet]
+    public async Task<IActionResult> Reszletek(int id)
+    {
+        var bejelentes = await db.Bejelentesek
+            .AsNoTracking()
+            .FirstOrDefaultAsync(b => b.Id == id);
+
+        if (bejelentes is null)
+            return NotFound();
+
+        ViewBag.Reszfeladatok = await db.Reszfeladatok
+            .AsNoTracking()
+            .Include(f => f.Szervezet)
+            .Where(f => f.BejelentesId == id)
+            .OrderBy(f => f.Id)
+            .ToListAsync();
+
+        ViewBag.Fotok = await db.BejelentesFotok
+            .AsNoTracking()
+            .Where(f => f.BejelentesId == id)
+            .OrderBy(f => f.Id)
+            .Select(f => new FotoListaSor(f.Id, f.Tipus, f.ReszfeladatId))
+            .ToListAsync();
+
+        ViewBag.Naplo = await db.BejelentesNaplok
+            .AsNoTracking()
+            .Where(n => n.BejelentesId == id)
+            .OrderBy(n => n.IdopontUtc)
+            .ThenBy(n => n.Id)
+            .ToListAsync();
+
+        return View(bejelentes);
+    }
+
+    [HttpGet]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+    public async Task<IActionResult> Foto(int id)
+    {
+        var foto = await db.BejelentesFotok.AsNoTracking()
+            .SingleOrDefaultAsync(f => f.Id == id);
+
+        if (foto is null)
+            return NotFound();
+
+        Response.Headers["X-Content-Type-Options"] = "nosniff";
+        return File(foto.Tartalom, foto.TartalomTipus);
+    }
+
+    [HttpGet]
     public async Task<IActionResult> Export()
     {
         var csoportok = await db.Bejelentesek
