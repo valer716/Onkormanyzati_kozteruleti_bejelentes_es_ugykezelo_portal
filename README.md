@@ -2,6 +2,17 @@
 
 ASP.NET Core MVC (.NET 10) webalkalmazás közterületi bejelentések beküldésére és kezelésére. A lakos belépés nélkül, névtelenül küld be bejelentést, az ügyintéző, a végrehajtó és a vezető belépve dolgozik, az állapotváltások naplózásra kerülnek.
 
+## Technológiák
+
+| Mire | Mit használunk |
+|---|---|
+| Webalkalmazás | ASP.NET Core MVC (.NET 10), Razor nézetek |
+| Adatbázis | SQL Server LocalDB, Entity Framework Core migrációkkal |
+| Belépés, szerepkörök | ASP.NET Core Identity (ügyintéző, végrehajtó, vezető) |
+| Felület | Bootstrap 5 |
+| Térkép | Leaflet és OpenStreetMap |
+| Minta és betöltés | JSON és képek a `MintaAdatok` mappában, a portál indításkor betölti |
+
 ## Futtatás
 
 Szükséges (Windows):
