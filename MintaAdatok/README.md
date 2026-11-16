@@ -54,7 +54,7 @@ A szerver csak a saját gépről érhető el, és a fájlokat közvetlenül a `M
 }
 ```
 
-- **kategoria:** `Egyeb`, `Uthiba`, `Kozvilagitas`, `Hulladek`, `Utcabutor`
+- **kategoria:** `Egyeb`, `Uthiba`, `Kozvilagitas`, `Hulladek`, `Utcabutor`, `Forgalomtechnika`, `Parkok`, `ElhagyottJarmu`, `Kozmu`
 - **allapot:** `Uj`, `Ellenorizve`, `Folyamatban`, `LezarasraVar`, `Lezart`, `Teves`, `HataskoronKivuli`, `Osszevont`
 - **szervezet:** `Utfenntartas`, `Koztisztasag`, `Kozvilagitas`
 - Az `azonosito` és a `kovetokod` mezőket a szerver generálja, a `foAzonosito` az összevont ügy főbejelentésének azonosítója.
