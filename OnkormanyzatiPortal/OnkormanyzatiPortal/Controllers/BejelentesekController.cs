@@ -43,6 +43,15 @@ public class BejelentesekController : Controller
                 ModelState.AddModelError("hosszusag", "A hosszúság −180 és 180 közé essen.");
         }
 
+        var koordinataHiba = ModelState["szelesseg"]?.Errors.Count > 0
+            || ModelState["hosszusag"]?.Errors.Count > 0;
+
+        if (string.IsNullOrWhiteSpace(bejelentes.Helyszin) && !koordinataHiba)
+        {
+            bejelentes.Helyszin = FormattableString.Invariant($"Térképi pont: {lat:0.00000}, {lon:0.00000}");
+            ModelState.Remove(nameof(Bejelentes.Helyszin));
+        }
+
         if (!ModelState.IsValid)
         {
             return View(bejelentes);
