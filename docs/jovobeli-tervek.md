@@ -17,6 +17,8 @@ A feladat "Riportok és bővítések" részéhez kapcsolódó ötletek, amelyek 
 - Területi sűrűség irányítószám szerinti bontásban, térképes megjelenítéssel.
 - A beérkezés és a lezárás ideje a vezetői listán és az exportban is jelenjen meg.
 - Duplikációgyanú jelzése azonos kategóriájú, közeli bejelentéseknél.
+- Az érkezett bejelentések száma időszak szerint (7 nap, 30 nap, év), az időszak váltható.
+- A legfrissebb bejelentések listája a vezetői oldalon.
 
 ## Ismert korlátok
 

@@ -46,10 +46,3 @@ Jelölések: **KÉSZ**, **RÉSZBEN**, **HIÁNYZIK**, **NEM KÖTELEZŐ** (a szöv
 | Adatmodell, szerepkör- és jogosultsági mátrix | **KÉSZ** |
 | Legalább egy import, export vagy külső API | **KÉSZ** (mintaadat-betöltés, JSON-export, térkép) |
 | Naplózás, hibás vagy hiányzó adatok kezelése | **KÉSZ** (a napló), **RÉSZBEN** (a hiányzó koordináta még nem kötelező) |
-
-## Tervezett kiegészítések
-
-Ezek nem szerepelnek a feladat szövegében:
-
-- vezetői összesítés az érkezett bejelentésekről időszak szerint (7 nap, 30 nap, év)
-- a legfrissebb bejelentések listája a vezetői oldalon
