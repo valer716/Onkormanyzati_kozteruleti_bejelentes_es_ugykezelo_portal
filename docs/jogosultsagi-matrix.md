@@ -10,14 +10,14 @@ A szerepkörök: `Ugyintezo`, `Vegrehajto`, `Vezeto`. A lakos és a vendég nem 
 | Állapot lekérése követőkóddal | Igen | Igen | Igen | Igen |
 | Értékelés beküldése lezárt ügyre (követőkóddal) | Igen | Igen | Igen | Igen |
 | Ügylista, keresés, szűrés | Nem | Igen | Nem | Nem |
-| Ügy részletei, napló, fotók megtekintése | Nem | Igen | Nem | Nem |
+| Ügy részletei, napló, fotók megtekintése | Nem | Igen | Csak a saját szervezete feladataihoz tartozó ügyek részletei és fotói | Igen, csak olvasható |
 | Ellenőrzés, adatpontosítás, határidő megadása | Nem | Igen | Nem | Nem |
 | Részfeladat kiosztása szervezetnek | Nem | Igen | Nem | Nem |
 | Veszélyes jelölés, összevonás, téves, hatáskörön kívüli | Nem | Igen | Nem | Nem |
 | Ügy lezárása | Nem | Igen | Nem | Nem |
 | Saját szervezet részfeladatainak listája | Nem | Nem | Igen | Nem |
 | Helyszíni megjegyzés, előtte/utána fotó, készre jelentés | Nem | Nem | Igen, csak saját | Nem |
-| Vezetői kimutatás és térkép | Nem | Nem | Nem | Igen |
+| Vezetői kimutatás, diagramok, szűrhető térkép és ügytáblázat | Nem | Nem | Nem | Igen |
 | Összesített JSON-export | Nem | Nem | Nem | Igen |
 | Ügy vagy napló törlése | Nem | Nem | Nem | Nem |
 | Szerepkör módosítása az alkalmazásból | Nem | Nem | Nem | Nem |
