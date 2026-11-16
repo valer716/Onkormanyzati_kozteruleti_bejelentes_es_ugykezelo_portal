@@ -12,7 +12,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = !builder.Environment.IsDevelopment())
-    .AddRoles<IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
+    .AddRoles<IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddErrorDescriber<IdentityHibaLeiro>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
