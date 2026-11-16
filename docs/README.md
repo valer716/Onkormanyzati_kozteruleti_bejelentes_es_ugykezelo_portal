@@ -2,6 +2,7 @@
 
 | Fájl | Tartalom |
 |---|---|
+| `feladat.md` | A feladat követelményei és az állapotuk (a szöveg képként: `feladat.png`) |
 | `adatmodell.md` | Táblák, mezők, kapcsolatok, állapotváltások |
 | `jogosultsagi-matrix.md` | Szerepkörök és az általuk végezhető műveletek |
 | `tesztesetek.md` | Tesztesetek és eredményeik (Nincs futtatva, amíg le nem futtattuk) |

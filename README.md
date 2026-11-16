@@ -14,6 +14,20 @@ Indítás: dupla kattintás az `Inditas.bat` fájlra. Egy parancssori ablak nyí
 
 Visual Studióban az `OnkormanyzatiPortal.slnx` megnyitása után F5.
 
+## Belépés
+
+A bejelentés beküldéséhez és a követéshez nem kell belépni. A dolgozói felületekhez a demó-fiókok (jelszó mindegyikhez: `Sze!2026`):
+
+| Szerepkör | E-mail | Szervezet |
+|---|---|---|
+| Ügyintéző | erika.ugyintezo@portal.test | |
+| Ügyintéző | gabor.ugyintezo@portal.test | |
+| Ügyintéző | nora.ugyintezo@portal.test | |
+| Vezető | bela.vezeto@portal.test | |
+| Végrehajtó | balint.utfenntartas@portal.test | Útfenntartás |
+| Végrehajtó | kata.koztisztasag@portal.test | Köztisztaság |
+| Végrehajtó | peter.kozvilagitas@portal.test | Közvilágítás |
+
 ## Mintaadatok
 
 Első indításkor a portál betölti a `MintaAdatok` mappa győri mintabejelentéseit, és létrehozza a demó-fiókokat (ügyintéző, végrehajtó, vezető). A meglévő fiókokhoz és bejelentésekhez csak hozzáad, a már betöltött mintákat kihagyja. Kikapcsolás: `Fejlesztes:MintaAdatBetoltes` = `false` az `appsettings.Development.json` fájlban.
