@@ -56,7 +56,7 @@ erDiagram
 | Id | int | kulcs |
 | Nev | string | kötelező, legfeljebb 100 karakter |
 
-Kezdeti adat: Útfenntartás, Köztisztaság, Közvilágítás.
+Kezdeti adat: Útfenntartás, Köztisztaság, Közvilágítás, Közterület-felügyelet, Közművek (víz, áram).
 
 ## SzervezetiTag
 

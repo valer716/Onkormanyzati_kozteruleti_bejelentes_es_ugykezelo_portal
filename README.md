@@ -38,6 +38,8 @@ A bejelentés beküldéséhez és a követéshez nem kell belépni. A dolgozói 
 | Végrehajtó | balint.utfenntartas@portal.test | Útfenntartás |
 | Végrehajtó | kata.koztisztasag@portal.test | Köztisztaság |
 | Végrehajtó | peter.kozvilagitas@portal.test | Közvilágítás |
+| Végrehajtó | zsolt.kozteruletfelugyelet@portal.test | Közterület-felügyelet |
+| Végrehajtó | anna.kozmuvek@portal.test | Közművek |
 
 ## Mintaadatok
 

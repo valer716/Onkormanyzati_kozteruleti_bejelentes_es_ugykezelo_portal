@@ -22,8 +22,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozteruletfelugyelet",
+        "cim": "Helyszíni ellenőrzés és intézkedés",
         "hatarido": "2021-02-10",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -122,13 +122,13 @@
     "kategoria": "Uthiba",
     "bekuldes": "2021-03-16",
     "ellenorzes": "2021-03-17",
-    "allapot": "HataskoronKivuli",
+    "allapot": "Teves",
     "veszelyes": false,
     "hatarido": null,
     "lezaras": null,
     "ertekeles": null,
     "foAzonosito": "",
-    "indok": "Nem önkormányzati hatáskör: PANNON-VÍZ Regionális Önkormányzati Víziközmű-szolg…",
+    "indok": "Az ügy nem volt megoldható a bejelentés alapján",
     "kepek": [
       "bj-0005_1.jpg"
     ],
@@ -295,8 +295,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozteruletfelugyelet",
+        "cim": "Helyszíni ellenőrzés és intézkedés",
         "hatarido": "2021-10-26",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -328,8 +328,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2022-03-24",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -486,8 +486,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozteruletfelugyelet",
+        "cim": "Helyszíni ellenőrzés és intézkedés",
         "hatarido": "2022-06-06",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -519,8 +519,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozteruletfelugyelet",
+        "cim": "Helyszíni ellenőrzés és intézkedés",
         "hatarido": "2022-06-29",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -552,8 +552,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozteruletfelugyelet",
+        "cim": "Helyszíni ellenőrzés és intézkedés",
         "hatarido": "2022-07-01",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -573,13 +573,13 @@
     "kategoria": "Kozmu",
     "bekuldes": "2022-05-26",
     "ellenorzes": "2022-05-30",
-    "allapot": "HataskoronKivuli",
+    "allapot": "Teves",
     "veszelyes": true,
     "hatarido": null,
     "lezaras": null,
     "ertekeles": null,
     "foAzonosito": "",
-    "indok": "Nem önkormányzati hatáskör: E.ON Észak-dunántúli Áramhálózati Zrt. (Győr)",
+    "indok": "Az ügy nem volt megoldható a bejelentés alapján",
     "kepek": [
       "bj-0022_1.jpg"
     ],
@@ -608,8 +608,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozteruletfelugyelet",
+        "cim": "Helyszíni ellenőrzés és intézkedés",
         "hatarido": "2022-07-01",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -641,8 +641,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozteruletfelugyelet",
+        "cim": "Helyszíni ellenőrzés és intézkedés",
         "hatarido": "2022-07-17",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -674,8 +674,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Kozvilagitas",
-        "cim": "Lámpatest vizsgálata és javítása",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2022-06-19",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -707,8 +707,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2022-06-30",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -895,8 +895,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2022-07-07",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -984,8 +984,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozteruletfelugyelet",
+        "cim": "Helyszíni ellenőrzés és intézkedés",
         "hatarido": "2022-07-17",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -1017,8 +1017,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozteruletfelugyelet",
+        "cim": "Helyszíni ellenőrzés és intézkedés",
         "hatarido": "2022-07-12",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -1083,8 +1083,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozteruletfelugyelet",
+        "cim": "Helyszíni ellenőrzés és intézkedés",
         "hatarido": "2022-08-13",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -1116,8 +1116,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozteruletfelugyelet",
+        "cim": "Helyszíni ellenőrzés és intézkedés",
         "hatarido": "2022-07-30",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -1228,8 +1228,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2022-09-28",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -1317,8 +1317,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2022-11-02",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -1811,8 +1811,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2023-06-11",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -1844,8 +1844,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2023-05-04",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -1976,8 +1976,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Kozvilagitas",
-        "cim": "Lámpatest vizsgálata és javítása",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2023-05-12",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -2098,8 +2098,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Utfenntartas",
-        "cim": "Helyszíni vizsgálat és javítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2023-04-24",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -2131,8 +2131,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Utfenntartas",
+        "cim": "Helyszíni vizsgálat és javítás",
         "hatarido": "2023-04-25",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -2729,13 +2729,13 @@
     "kategoria": "Kozmu",
     "bekuldes": "2023-06-28",
     "ellenorzes": "2023-07-03",
-    "allapot": "HataskoronKivuli",
+    "allapot": "Teves",
     "veszelyes": false,
     "hatarido": null,
     "lezaras": null,
     "ertekeles": null,
     "foAzonosito": "",
-    "indok": "Nem önkormányzati hatáskör: PANNON-VÍZ Regionális Önkormányzati Víziközmű-szolg…",
+    "indok": "Az ügy nem volt megoldható a bejelentés alapján",
     "kepek": [
       "bj-0094_1.jpg"
     ],
@@ -2797,8 +2797,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2023-09-01",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -2853,8 +2853,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2023-08-14",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -2955,8 +2955,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2023-09-04",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -3009,13 +3009,13 @@
     "kategoria": "Kozmu",
     "bekuldes": "2023-08-08",
     "ellenorzes": "2023-08-14",
-    "allapot": "HataskoronKivuli",
+    "allapot": "Teves",
     "veszelyes": false,
     "hatarido": null,
     "lezaras": null,
     "ertekeles": null,
     "foAzonosito": "",
-    "indok": "Nem önkormányzati hatáskör: PANNON-VÍZ Regionális Önkormányzati Víziközmű-szolg…",
+    "indok": "Az ügy nem volt megoldható a bejelentés alapján",
     "kepek": [
       "bj-0104_1.jpg"
     ],
@@ -3245,8 +3245,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2023-10-07",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -3390,8 +3390,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2023-10-19",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -3566,13 +3566,13 @@
     "kategoria": "Uthiba",
     "bekuldes": "2023-09-30",
     "ellenorzes": "2023-10-01",
-    "allapot": "HataskoronKivuli",
+    "allapot": "Teves",
     "veszelyes": false,
     "hatarido": null,
     "lezaras": null,
     "ertekeles": null,
     "foAzonosito": "",
-    "indok": "Nem önkormányzati hatáskör: PANNON-VÍZ Regionális Önkormányzati Víziközmű-szolg…",
+    "indok": "Az ügy nem volt megoldható a bejelentés alapján",
     "kepek": [
       "bj-0123_1.jpg"
     ],
@@ -3789,8 +3789,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2023-12-08",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -3921,8 +3921,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Utfenntartas",
+        "cim": "Helyszíni vizsgálat és javítás",
         "hatarido": "2023-12-20",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -4158,8 +4158,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2024-01-21",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -4191,8 +4191,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2024-01-28",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -4212,13 +4212,13 @@
     "kategoria": "Kozmu",
     "bekuldes": "2023-12-31",
     "ellenorzes": "2024-01-01",
-    "allapot": "HataskoronKivuli",
+    "allapot": "Teves",
     "veszelyes": false,
     "hatarido": null,
     "lezaras": null,
     "ertekeles": null,
     "foAzonosito": "",
-    "indok": "Nem önkormányzati hatáskör: PANNON-VÍZ Regionális Önkormányzati Víziközmű-szolg…",
+    "indok": "Az ügy nem volt megoldható a bejelentés alapján",
     "kepek": [
       "bj-0145_1.jpg"
     ],
@@ -4270,8 +4270,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2024-02-14",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -4291,13 +4291,13 @@
     "kategoria": "Kozmu",
     "bekuldes": "2023-12-31",
     "ellenorzes": "2024-01-01",
-    "allapot": "HataskoronKivuli",
+    "allapot": "Teves",
     "veszelyes": true,
     "hatarido": null,
     "lezaras": null,
     "ertekeles": null,
     "foAzonosito": "",
-    "indok": "Nem önkormányzati hatáskör: PANNON-VÍZ Regionális Önkormányzati Víziközmű-szolg…",
+    "indok": "Az ügy nem volt megoldható a bejelentés alapján",
     "kepek": [
       "bj-0148_1.jpg"
     ],
@@ -4337,13 +4337,13 @@
     "kategoria": "Kozmu",
     "bekuldes": "2023-12-31",
     "ellenorzes": "2024-01-05",
-    "allapot": "HataskoronKivuli",
+    "allapot": "Teves",
     "veszelyes": false,
     "hatarido": null,
     "lezaras": null,
     "ertekeles": null,
     "foAzonosito": "",
-    "indok": "Nem önkormányzati hatáskör: E.ON Észak-dunántúli Áramhálózati Zrt. (Győr)",
+    "indok": "Az ügy nem volt megoldható a bejelentés alapján",
     "kepek": [
       "bj-0150_1.jpg"
     ],
@@ -4405,8 +4405,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozteruletfelugyelet",
+        "cim": "Helyszíni ellenőrzés és intézkedés",
         "hatarido": "2024-02-08",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -4596,8 +4596,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2024-02-29",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -4629,8 +4629,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2024-03-02",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -4695,8 +4695,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2024-03-14",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -4728,8 +4728,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2024-03-18",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -4794,8 +4794,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2024-03-16",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -4827,8 +4827,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2024-03-26",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -6131,13 +6131,13 @@
     "kategoria": "Uthiba",
     "bekuldes": "2024-04-16",
     "ellenorzes": "2024-04-18",
-    "allapot": "HataskoronKivuli",
+    "allapot": "Teves",
     "veszelyes": false,
     "hatarido": null,
     "lezaras": null,
     "ertekeles": null,
     "foAzonosito": "",
-    "indok": "Nem önkormányzati hatáskör: PANNON-VÍZ Regionális Önkormányzati Víziközmű-szolg…",
+    "indok": "Az ügy nem volt megoldható a bejelentés alapján",
     "kepek": [
       "bj-0208_1.jpg"
     ],
@@ -7057,13 +7057,13 @@
     "kategoria": "Kozmu",
     "bekuldes": "2024-05-24",
     "ellenorzes": "2024-05-26",
-    "allapot": "HataskoronKivuli",
+    "allapot": "Teves",
     "veszelyes": false,
     "hatarido": null,
     "lezaras": null,
     "ertekeles": null,
     "foAzonosito": "",
-    "indok": "Nem önkormányzati hatáskör: PANNON-VÍZ Regionális Önkormányzati Víziközmű-szolg…",
+    "indok": "Az ügy nem volt megoldható a bejelentés alapján",
     "kepek": [
       "bj-0240_1.jpg"
     ],
@@ -7158,8 +7158,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2024-06-15",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -7290,8 +7290,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2024-07-30",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -7676,8 +7676,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2024-07-09",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -7755,8 +7755,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2024-09-01",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -7910,8 +7910,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2024-09-01",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -8177,8 +8177,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Kozvilagitas",
-        "cim": "Lámpatest vizsgálata és javítása",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2024-09-05",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -8353,13 +8353,13 @@
     "kategoria": "Hulladek",
     "bekuldes": "2024-07-21",
     "ellenorzes": "2024-09-10",
-    "allapot": "HataskoronKivuli",
+    "allapot": "Teves",
     "veszelyes": false,
     "hatarido": null,
     "lezaras": null,
     "ertekeles": null,
     "foAzonosito": "",
-    "indok": "Nem önkormányzati hatáskör: E.ON Észak-dunántúli Áramhálózati Zrt. (Győr)",
+    "indok": "Az ügy nem volt megoldható a bejelentés alapján",
     "kepek": [
       "bj-0282_1.jpg"
     ],
@@ -8444,8 +8444,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2024-08-15",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -8477,8 +8477,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2024-09-10",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -8576,8 +8576,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Utfenntartas",
+        "cim": "Helyszíni vizsgálat és javítás",
         "hatarido": "2024-09-03",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -8609,8 +8609,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2024-09-03",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -8719,13 +8719,13 @@
     "kategoria": "Hulladek",
     "bekuldes": "2024-07-23",
     "ellenorzes": "2024-07-25",
-    "allapot": "HataskoronKivuli",
+    "allapot": "Teves",
     "veszelyes": false,
     "hatarido": null,
     "lezaras": null,
     "ertekeles": null,
     "foAzonosito": "",
-    "indok": "Nem önkormányzati hatáskör: E.ON Észak-dunántúli Áramhálózati Zrt. (Győr)",
+    "indok": "Az ügy nem volt megoldható a bejelentés alapján",
     "kepek": [
       "bj-0294_1.jpg"
     ],
@@ -8909,8 +8909,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2024-08-13",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -9222,8 +9222,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2024-09-11",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -9400,8 +9400,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2024-09-23",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -9454,13 +9454,13 @@
     "kategoria": "Hulladek",
     "bekuldes": "2024-07-27",
     "ellenorzes": "2024-07-28",
-    "allapot": "HataskoronKivuli",
+    "allapot": "Teves",
     "veszelyes": false,
     "hatarido": null,
     "lezaras": null,
     "ertekeles": null,
     "foAzonosito": "",
-    "indok": "Nem önkormányzati hatáskör: E.ON Észak-dunántúli Áramhálózati Zrt. (Győr)",
+    "indok": "Az ügy nem volt megoldható a bejelentés alapján",
     "kepek": [
       "bj-0319_1.jpg"
     ],
@@ -9489,8 +9489,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2024-08-24",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -9611,8 +9611,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2024-09-02",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -9743,8 +9743,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2024-09-28",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -9797,13 +9797,13 @@
     "kategoria": "Kozmu",
     "bekuldes": "2024-09-03",
     "ellenorzes": "2024-09-17",
-    "allapot": "HataskoronKivuli",
+    "allapot": "Teves",
     "veszelyes": false,
     "hatarido": null,
     "lezaras": null,
     "ertekeles": null,
     "foAzonosito": "",
-    "indok": "Nem önkormányzati hatáskör: E.ON Észak-dunántúli Áramhálózati Zrt. (Győr)",
+    "indok": "Az ügy nem volt megoldható a bejelentés alapján",
     "kepek": [
       "bj-0330_1.jpg"
     ],
@@ -9865,8 +9865,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2024-10-10",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -10033,8 +10033,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2024-10-31",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -10564,8 +10564,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2024-12-13",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -10676,8 +10676,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2025-01-10",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -10966,8 +10966,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Utfenntartas",
+        "cim": "Helyszíni vizsgálat és javítás",
         "hatarido": "2025-02-20",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -11244,13 +11244,13 @@
     "kategoria": "Kozvilagitas",
     "bekuldes": "2025-03-16",
     "ellenorzes": "2025-06-06",
-    "allapot": "HataskoronKivuli",
+    "allapot": "Teves",
     "veszelyes": false,
     "hatarido": null,
     "lezaras": null,
     "ertekeles": null,
     "foAzonosito": "",
-    "indok": "Nem önkormányzati hatáskör: E.ON Észak-dunántúli Áramhálózati Zrt. (Győr)",
+    "indok": "Az ügy nem volt megoldható a bejelentés alapján",
     "kepek": [
       "bj-0379_1.jpg"
     ],
@@ -11674,8 +11674,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Utfenntartas",
-        "cim": "Helyszíni vizsgálat és javítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2025-06-27",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -11855,8 +11855,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2025-10-24",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -11967,8 +11967,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2025-08-14",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -12102,8 +12102,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2025-08-11",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -12224,8 +12224,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozteruletfelugyelet",
+        "cim": "Helyszíni ellenőrzés és intézkedés",
         "hatarido": "2025-08-11",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -12412,8 +12412,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2025-11-16",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -12682,8 +12682,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2025-11-29",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -12805,13 +12805,13 @@
     "kategoria": "Kozmu",
     "bekuldes": "2025-10-30",
     "ellenorzes": "2025-12-11",
-    "allapot": "HataskoronKivuli",
+    "allapot": "Teves",
     "veszelyes": false,
     "hatarido": null,
     "lezaras": null,
     "ertekeles": null,
     "foAzonosito": "",
-    "indok": "Nem önkormányzati hatáskör: PANNON-VÍZ Regionális Önkormányzati Víziközmű-szolg…",
+    "indok": "Az ügy nem volt megoldható a bejelentés alapján",
     "kepek": [
       "bj-0436_1.jpg"
     ],
@@ -13088,10 +13088,10 @@
     "kategoria": "Kozvilagitas",
     "bekuldes": "2026-01-25",
     "ellenorzes": "2026-01-27",
-    "allapot": "Lezart",
+    "allapot": "Folyamatban",
     "veszelyes": false,
-    "hatarido": "2026-02-22",
-    "lezaras": "2026-04-27",
+    "hatarido": "2026-11-26",
+    "lezaras": null,
     "ertekeles": null,
     "foAzonosito": "",
     "indok": "",
@@ -13102,9 +13102,9 @@
       {
         "szervezet": "Kozvilagitas",
         "cim": "Lámpatest vizsgálata és javítása",
-        "hatarido": "2026-02-19",
-        "kesz": true,
-        "megjegyzes": "A helyszíni munka elkészült.",
+        "hatarido": "2026-11-26",
+        "kesz": false,
+        "megjegyzes": "",
         "elotte": "",
         "utana": ""
       }
@@ -13189,8 +13189,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2026-04-13",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -13266,10 +13266,10 @@
     "kategoria": "Kozvilagitas",
     "bekuldes": "2026-02-24",
     "ellenorzes": "2026-02-24",
-    "allapot": "Lezart",
+    "allapot": "Folyamatban",
     "veszelyes": false,
-    "hatarido": "2026-04-01",
-    "lezaras": "2026-04-27",
+    "hatarido": "2026-11-29",
+    "lezaras": null,
     "ertekeles": null,
     "foAzonosito": "",
     "indok": "",
@@ -13280,9 +13280,9 @@
       {
         "szervezet": "Kozvilagitas",
         "cim": "Lámpatest vizsgálata és javítása",
-        "hatarido": "2026-03-30",
-        "kesz": true,
-        "megjegyzes": "A helyszíni munka elkészült.",
+        "hatarido": "2026-11-29",
+        "kesz": false,
+        "megjegyzes": "",
         "elotte": "",
         "utana": ""
       }
@@ -13322,10 +13322,10 @@
     "kategoria": "Kozvilagitas",
     "bekuldes": "2026-03-06",
     "ellenorzes": "2026-03-07",
-    "allapot": "Lezart",
+    "allapot": "Folyamatban",
     "veszelyes": false,
-    "hatarido": "2026-03-24",
-    "lezaras": "2026-06-01",
+    "hatarido": "2026-12-01",
+    "lezaras": null,
     "ertekeles": null,
     "foAzonosito": "",
     "indok": "",
@@ -13336,9 +13336,9 @@
       {
         "szervezet": "Kozvilagitas",
         "cim": "Lámpatest vizsgálata és javítása",
-        "hatarido": "2026-03-22",
-        "kesz": true,
-        "megjegyzes": "A helyszíni munka elkészült.",
+        "hatarido": "2026-12-01",
+        "kesz": false,
+        "megjegyzes": "",
         "elotte": "",
         "utana": ""
       }
@@ -13531,8 +13531,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2026-06-22",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -13575,11 +13575,11 @@
     "kategoria": "Uthiba",
     "bekuldes": "2026-03-19",
     "ellenorzes": "2026-03-24",
-    "allapot": "Lezart",
+    "allapot": "Folyamatban",
     "veszelyes": true,
-    "hatarido": "2026-04-24",
-    "lezaras": "2026-07-12",
-    "ertekeles": 5,
+    "hatarido": "2026-11-25",
+    "lezaras": null,
+    "ertekeles": null,
     "foAzonosito": "",
     "indok": "",
     "kepek": [
@@ -13587,11 +13587,11 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Utfenntartas",
-        "cim": "Helyszíni vizsgálat és javítás",
-        "hatarido": "2026-04-22",
-        "kesz": true,
-        "megjegyzes": "A helyszíni munka elkészült.",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
+        "hatarido": "2026-11-25",
+        "kesz": false,
+        "megjegyzes": "",
         "elotte": "",
         "utana": ""
       }
@@ -13949,8 +13949,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Utfenntartas",
+        "cim": "Helyszíni vizsgálat és javítás",
         "hatarido": "2026-05-27",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -13982,8 +13982,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2026-06-19",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -14061,8 +14061,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
         "hatarido": "2026-11-28",
         "kesz": false,
         "megjegyzes": "",
@@ -14082,13 +14082,13 @@
     "kategoria": "Egyeb",
     "bekuldes": "2026-05-21",
     "ellenorzes": "2026-05-28",
-    "allapot": "HataskoronKivuli",
+    "allapot": "Teves",
     "veszelyes": false,
     "hatarido": null,
     "lezaras": null,
     "ertekeles": null,
     "foAzonosito": "",
-    "indok": "Nem önkormányzati hatáskör: E.ON Észak-dunántúli Áramhálózati Zrt. (Győr)",
+    "indok": "Az ügy nem volt megoldható a bejelentés alapján",
     "kepek": [
       "bj-0483_1.jpg"
     ],
@@ -14117,8 +14117,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozteruletfelugyelet",
+        "cim": "Helyszíni ellenőrzés és intézkedés",
         "hatarido": "2026-06-22",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -14227,10 +14227,10 @@
     "kategoria": "ElhagyottJarmu",
     "bekuldes": "2026-06-07",
     "ellenorzes": "2026-06-09",
-    "allapot": "Lezart",
+    "allapot": "Folyamatban",
     "veszelyes": false,
-    "hatarido": "2026-07-21",
-    "lezaras": "2026-07-01",
+    "hatarido": "2026-11-21",
+    "lezaras": null,
     "ertekeles": null,
     "foAzonosito": "",
     "indok": "",
@@ -14239,11 +14239,11 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
-        "hatarido": "2026-07-17",
-        "kesz": true,
-        "megjegyzes": "A helyszíni munka elkészült.",
+        "szervezet": "Kozteruletfelugyelet",
+        "cim": "Helyszíni ellenőrzés és intézkedés",
+        "hatarido": "2026-11-21",
+        "kesz": false,
+        "megjegyzes": "",
         "elotte": "",
         "utana": ""
       }
@@ -14260,13 +14260,13 @@
     "kategoria": "Kozmu",
     "bekuldes": "2026-06-07",
     "ellenorzes": "2026-06-11",
-    "allapot": "HataskoronKivuli",
+    "allapot": "Teves",
     "veszelyes": true,
     "hatarido": null,
     "lezaras": null,
     "ertekeles": null,
     "foAzonosito": "",
-    "indok": "Nem önkormányzati hatáskör: E.ON Észak-dunántúli Áramhálózati Zrt. (Győr)",
+    "indok": "Az ügy nem volt megoldható a bejelentés alapján",
     "kepek": [
       "bj-0489_1.jpg"
     ],
@@ -14494,11 +14494,11 @@
     "kategoria": "Forgalomtechnika",
     "bekuldes": "2026-07-15",
     "ellenorzes": "2026-08-06",
-    "allapot": "Lezart",
+    "allapot": "Folyamatban",
     "veszelyes": true,
-    "hatarido": "2026-08-31",
-    "lezaras": "2026-08-07",
-    "ertekeles": 4,
+    "hatarido": "2026-12-03",
+    "lezaras": null,
+    "ertekeles": null,
     "foAzonosito": "",
     "indok": "",
     "kepek": [
@@ -14508,9 +14508,9 @@
       {
         "szervezet": "Koztisztasag",
         "cim": "Helyszíni intézkedés és tisztítás",
-        "hatarido": "2026-08-29",
-        "kesz": true,
-        "megjegyzes": "A helyszíni munka elkészült.",
+        "hatarido": "2026-12-03",
+        "kesz": false,
+        "megjegyzes": "",
         "elotte": "",
         "utana": ""
       }
@@ -14560,8 +14560,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Kozteruletfelugyelet",
+        "cim": "Helyszíni ellenőrzés és intézkedés",
         "hatarido": "2026-11-22",
         "kesz": false,
         "megjegyzes": "",
@@ -14616,8 +14616,8 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
+        "szervezet": "Utfenntartas",
+        "cim": "Helyszíni vizsgálat és javítás",
         "hatarido": "2026-12-14",
         "kesz": true,
         "megjegyzes": "A helyszíni munka elkészült.",
@@ -14683,10 +14683,10 @@
     "kategoria": "Kozmu",
     "bekuldes": "2026-07-31",
     "ellenorzes": "2026-08-04",
-    "allapot": "Lezart",
+    "allapot": "Folyamatban",
     "veszelyes": false,
-    "hatarido": "2026-08-20",
-    "lezaras": "2026-08-07",
+    "hatarido": "2026-12-04",
+    "lezaras": null,
     "ertekeles": null,
     "foAzonosito": "",
     "indok": "",
@@ -14695,11 +14695,11 @@
     ],
     "reszfeladatok": [
       {
-        "szervezet": "Koztisztasag",
-        "cim": "Helyszíni intézkedés és tisztítás",
-        "hatarido": "2026-08-17",
-        "kesz": true,
-        "megjegyzes": "A helyszíni munka elkészült.",
+        "szervezet": "Kozmuvek",
+        "cim": "Szolgáltatói hibaelhárítás",
+        "hatarido": "2026-12-04",
+        "kesz": false,
+        "megjegyzes": "",
         "elotte": "",
         "utana": ""
       }
@@ -14772,10 +14772,10 @@
     "kategoria": "Parkok",
     "bekuldes": "2026-08-08",
     "ellenorzes": "2026-08-12",
-    "allapot": "Lezart",
+    "allapot": "Folyamatban",
     "veszelyes": false,
-    "hatarido": "2026-09-06",
-    "lezaras": "2026-08-14",
+    "hatarido": "2026-12-03",
+    "lezaras": null,
     "ertekeles": null,
     "foAzonosito": "",
     "indok": "",
@@ -14786,9 +14786,9 @@
       {
         "szervezet": "Koztisztasag",
         "cim": "Helyszíni intézkedés és tisztítás",
-        "hatarido": "2026-09-02",
-        "kesz": true,
-        "megjegyzes": "A helyszíni munka elkészült.",
+        "hatarido": "2026-12-03",
+        "kesz": false,
+        "megjegyzes": "",
         "elotte": "",
         "utana": ""
       }
@@ -14851,10 +14851,10 @@
     "kategoria": "Parkok",
     "bekuldes": "2026-08-13",
     "ellenorzes": "2026-08-19",
-    "allapot": "Lezart",
+    "allapot": "Folyamatban",
     "veszelyes": false,
-    "hatarido": "2026-09-19",
-    "lezaras": "2026-08-28",
+    "hatarido": "2026-12-10",
+    "lezaras": null,
     "ertekeles": null,
     "foAzonosito": "",
     "indok": "",
@@ -14865,9 +14865,9 @@
       {
         "szervezet": "Koztisztasag",
         "cim": "Helyszíni intézkedés és tisztítás",
-        "hatarido": "2026-09-18",
-        "kesz": true,
-        "megjegyzes": "A helyszíni munka elkészült.",
+        "hatarido": "2026-12-10",
+        "kesz": false,
+        "megjegyzes": "",
         "elotte": "",
         "utana": ""
       }
