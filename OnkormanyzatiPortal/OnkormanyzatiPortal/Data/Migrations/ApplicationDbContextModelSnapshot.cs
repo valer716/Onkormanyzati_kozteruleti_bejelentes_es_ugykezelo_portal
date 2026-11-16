@@ -439,6 +439,16 @@ namespace OnkormanyzatiPortal.Data.Migrations
                         {
                             Id = 3,
                             Nev = "Közvilágítás"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Nev = "Közterület-felügyelet"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Nev = "Közművek (víz, áram)"
                         });
                 });
 

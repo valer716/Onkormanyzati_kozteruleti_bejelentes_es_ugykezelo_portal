@@ -17,14 +17,18 @@ public static class MintaAdatBetoltes
         new("bela.vezeto@portal.test", "Vezeto", null),
         new("balint.utfenntartas@portal.test", "Vegrehajto", 1),
         new("kata.koztisztasag@portal.test", "Vegrehajto", 2),
-        new("peter.kozvilagitas@portal.test", "Vegrehajto", 3)
+        new("peter.kozvilagitas@portal.test", "Vegrehajto", 3),
+        new("zsolt.kozteruletfelugyelet@portal.test", "Vegrehajto", 4),
+        new("anna.kozmuvek@portal.test", "Vegrehajto", 5)
     ];
 
     private static readonly Dictionary<string, int> SzervezetAzonositok = new()
     {
         ["Utfenntartas"] = 1,
         ["Koztisztasag"] = 2,
-        ["Kozvilagitas"] = 3
+        ["Kozvilagitas"] = 3,
+        ["Kozteruletfelugyelet"] = 4,
+        ["Kozmuvek"] = 5
     };
 
     public static async Task Betolt(IServiceProvider szolgaltatok, string tartalomGyoker)
@@ -63,12 +67,14 @@ public static class MintaAdatBetoltes
             .Select(b => (b.Cim, b.LetrehozvaUtc.Date))
             .ToHashSet();
 
+        var szervezetNevek = await db.Szervezetek.AsNoTracking().ToDictionaryAsync(s => s.Id, s => s.Nev);
+
         foreach (var elem in minta)
         {
             if (meglevok.Contains((elem.Cim, elem.Bekuldes!.Value.Date)))
                 continue;
 
-            await Felvesz(db, elem, mappa, ugyintezok, vegrehajtok);
+            await Felvesz(db, elem, mappa, ugyintezok, vegrehajtok, szervezetNevek);
         }
     }
 
@@ -106,7 +112,8 @@ public static class MintaAdatBetoltes
         MintaBejelentes elem,
         string mappa,
         List<string> ugyintezok,
-        Dictionary<int, string> vegrehajtok)
+        Dictionary<int, string> vegrehajtok,
+        Dictionary<int, string> szervezetNevek)
     {
         var allapot = Enum.Parse<BejelentesAllapot>(elem.Allapot);
         var veletlen = new Random(int.Parse(elem.Azonosito[3..]));
@@ -166,7 +173,7 @@ public static class MintaAdatBetoltes
         if (allapot is BejelentesAllapot.Folyamatban or BejelentesAllapot.LezarasraVar or BejelentesAllapot.Lezart)
         {
             var rf = reszfeladatok[0];
-            naplo.Add(Sor(bejelentes, $"Feladat kiosztva: szervezet #{rf.SzervezetId}, határidő {rf.Hatarido:yyyy-MM-dd}", BejelentesAllapot.Ellenorizve, BejelentesAllapot.Folyamatban, bejelentes.Hatarido, ellenorzes!.Value.AddHours(9), ugyintezo));
+            naplo.Add(Sor(bejelentes, $"Feladat kiosztva: {szervezetNevek[rf.SzervezetId]}, határidő {rf.Hatarido:yyyy-MM-dd}", BejelentesAllapot.Ellenorizve, BejelentesAllapot.Folyamatban, bejelentes.Hatarido, ellenorzes!.Value.AddHours(9), ugyintezo));
 
             if (allapot is BejelentesAllapot.LezarasraVar or BejelentesAllapot.Lezart)
             {
