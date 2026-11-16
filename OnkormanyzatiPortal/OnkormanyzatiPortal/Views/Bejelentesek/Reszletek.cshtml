@@ -215,6 +215,48 @@ else
     <p class="text-danger"><strong>Veszélyes ügy</strong></p>
 }
 
+@if (ViewBag.Naplo is IReadOnlyList<BejelentesNaplo> naplo && naplo.Count > 0)
+{
+    var felhasznalok = (IReadOnlyDictionary<string, string>)ViewBag.Felhasznalok;
+
+    <h2>Státusztörténet</h2>
+
+    <div class="table-responsive">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Időpont (UTC)</th>
+                    <th>Művelet</th>
+                    <th>Állapot</th>
+                    <th>Végezte</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var sor in naplo)
+                {
+                    <tr>
+                        <td>@sor.IdopontUtc.ToString("yyyy.MM.dd. HH:mm")</td>
+                        <td>@sor.Muvelet</td>
+                        <td>
+                            @if (sor.ElozoAllapot.HasValue && sor.ElozoAllapot != sor.UjAllapot)
+                            {
+                                @Html.DisplayFor(_ => sor.ElozoAllapot!.Value)
+                                <span>→</span>
+                            }
+                            @Html.DisplayFor(_ => sor.UjAllapot)
+                        </td>
+                        <td>
+                            @(sor.FelhasznaloId is not null && felhasznalok.TryGetValue(sor.FelhasznaloId, out var nev)
+                                ? nev
+                                : "Lakos")
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
 @if (nyitott)
 {
     <form asp-action="KulonlegesKezeles" asp-route-id="@Model.Id"

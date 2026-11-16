@@ -242,6 +242,17 @@ public class BejelentesekController : Controller
             .Select(f => new FotoListaSor(f.Id, f.Tipus, f.ReszfeladatId))
             .ToListAsync();
 
+        ViewBag.Naplo = await _db.BejelentesNaplok
+            .AsNoTracking()
+            .Where(n => n.BejelentesId == bejelentes.Id)
+            .OrderBy(n => n.IdopontUtc)
+            .ThenBy(n => n.Id)
+            .ToListAsync();
+
+        ViewBag.Felhasznalok = await _db.Users
+            .AsNoTracking()
+            .ToDictionaryAsync(u => u.Id, u => u.UserName ?? string.Empty);
+
         ViewBag.JelzesekSzama = 1 + await _db.Bejelentesek
             .CountAsync(b => b.FoBejelentesId == bejelentes.Id);
 
@@ -405,9 +416,20 @@ public class BejelentesekController : Controller
             .SingleOrDefaultAsync();
 
         if (eredmeny is null)
+        {
             ModelState.AddModelError("", "Nem található bejelentés ezzel a kóddal.");
+            return View(eredmeny);
+        }
 
-        return View(eredmeny);
+        var esemenyek = await _db.BejelentesNaplok
+            .AsNoTracking()
+            .Where(n => n.BejelentesId == eredmeny.Id && n.ElozoAllapot != n.UjAllapot)
+            .OrderBy(n => n.IdopontUtc)
+            .ThenBy(n => n.Id)
+            .Select(n => new KovetesEsemeny(n.IdopontUtc, n.UjAllapot))
+            .ToListAsync();
+
+        return View(eredmeny with { Esemenyek = esemenyek });
     }
 
     [HttpPost]
