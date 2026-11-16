@@ -27,11 +27,21 @@ public class BejelentesekController : Controller
     public async Task<IActionResult> Letrehozas(
     [Bind("Cim,Leiras,Helyszin,Kategoria")] Bejelentes bejelentes, string? szelesseg, string? hosszusag, IFormFile? foto)
     {
-        if (!KoordinataErvenyes(szelesseg, 90, out var lat))
-            ModelState.AddModelError("szelesseg", "A szélesség −90 és 90 közé essen.");
+        double lat = 0;
+        double lon = 0;
 
-        if (!KoordinataErvenyes(hosszusag, 180, out var lon))
-            ModelState.AddModelError("hosszusag", "A hosszúság −180 és 180 közé essen.");
+        if (string.IsNullOrWhiteSpace(szelesseg) || string.IsNullOrWhiteSpace(hosszusag))
+        {
+            ModelState.AddModelError("szelesseg", "Jelöld meg a hiba helyét a térképen, vagy add meg a koordinátákat.");
+        }
+        else
+        {
+            if (!KoordinataErvenyes(szelesseg, 90, out lat))
+                ModelState.AddModelError("szelesseg", "A szélesség −90 és 90 közé essen.");
+
+            if (!KoordinataErvenyes(hosszusag, 180, out lon))
+                ModelState.AddModelError("hosszusag", "A hosszúság −180 és 180 közé essen.");
+        }
 
         if (!ModelState.IsValid)
         {
