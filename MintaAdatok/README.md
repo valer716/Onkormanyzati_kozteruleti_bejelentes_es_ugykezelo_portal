@@ -12,7 +12,7 @@ Mintabejelentések a bemutatóhoz és a kipróbáláshoz.
 
 A 538 bejelentés a járokelo.hu nyilvános, győri bejelentéseiből készült 2021-től, tanulási célra. Átvettük a címet, a leírást, a helyszínt, a koordinátát, a kategóriát, az állapotot, a beküldés napját és a bejelentés első fotóját. A bejelentő neve, a hivatali válaszok és a hozzászólások nem kerültek át.
 
-Kitalált, a portál szabályainak megfelelő adat: az ellenőrzés napja, a határidő, a lezárás napja, az értékelés, a részfeladatok, a naplóbejegyzések időpontja és az, hogy melyik demó-felhasználó végezte őket. A járókelős állapotok leképezése: megoldott → Lezart, megoldatlan → Teves (külső szolgáltatónál HataskoronKivuli), megoldásra vár → Folyamatban, a többi → Uj.
+Az ellenőrzés napja az első hivatali válasz napja, a lezárás napja a megoldottnak jelölés napja, ahol az oldalon volt ilyen adat. Kitalált, a portál szabályainak megfelelő adat: ahol ilyen nem volt, ott ez a két nap, továbbá a határidő, az értékelés, a részfeladatok, a naplóbejegyzések időpontja és az, hogy melyik demó-felhasználó végezte őket. A járókelős állapotok leképezése: megoldott → Lezart, megoldatlan → Teves (külső szolgáltatónál HataskoronKivuli), megoldásra vár → Folyamatban, a többi → Uj.
 
 ## Betöltés a portálba
 
