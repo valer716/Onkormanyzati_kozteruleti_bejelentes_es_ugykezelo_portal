@@ -404,16 +404,20 @@ public class BejelentesekController : Controller
     [HttpGet]
     [AllowAnonymous]
     [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-    public IActionResult Kovetes()
+    public async Task<IActionResult> Kovetes(Guid? kovetokod)
     {
-        return View();
+        if (kovetokod is null)
+            return View();
+
+        return await KovetesKeres(kovetokod);
     }
 
     [HttpPost]
     [AllowAnonymous]
     [ValidateAntiForgeryToken]
     [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-    public async Task<IActionResult> Kovetes(Guid? kovetokod)
+    [ActionName("Kovetes")]
+    public async Task<IActionResult> KovetesKeres(Guid? kovetokod)
     {
         if (!ModelState.IsValid || kovetokod is null || kovetokod == Guid.Empty)
         {
