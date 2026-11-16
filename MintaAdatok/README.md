@@ -8,6 +8,16 @@ Mintabejelentések a bemutatóhoz és a kipróbáláshoz.
 | `kepek/` | A bejelentésekhez tartozó fényképek |
 | `Generator/` | Böngészős űrlap, amivel új mintabejelentés vehető fel |
 
+## A mintaadatok eredete
+
+A 538 bejelentés a járokelo.hu nyilvános, győri bejelentéseiből készült 2021-től, tanulási célra. Átvettük a címet, a leírást, a helyszínt, a koordinátát, a kategóriát, az állapotot, a beküldés napját és a bejelentés első fotóját. A bejelentő neve, a hivatali válaszok és a hozzászólások nem kerültek át.
+
+Kitalált, a portál szabályainak megfelelő adat: az ellenőrzés napja, a határidő, a lezárás napja, az értékelés, a részfeladatok, a naplóbejegyzések időpontja és az, hogy melyik demó-felhasználó végezte őket. A járókelős állapotok leképezése: megoldott → Lezart, megoldatlan → Teves (külső szolgáltatónál HataskoronKivuli), megoldásra vár → Folyamatban, a többi → Uj.
+
+## Betöltés a portálba
+
+Fejlesztői módban a portál az első indításkor betölti a `mintaadatok.json` fájlt és a `kepek/` mappát, ha a bejelentések tábla üres. Részletek a gyökér `README.md` fájlban.
+
 ## A generátor használata
 
 1. Indítsd el a `Generator/Inditas.bat` fájlt (Python kell hozzá). Elindul egy kis helyi szerver, és megnyílik a `http://localhost:8081/Generator/index.html` oldal.

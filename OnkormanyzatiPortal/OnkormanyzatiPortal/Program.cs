@@ -59,6 +59,11 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
+    if (app.Environment.IsDevelopment() && app.Configuration.GetValue<bool>("Fejlesztes:MintaAdatBetoltes"))
+    {
+        await MintaAdatBetoltes.Betolt(scope.ServiceProvider, app.Environment.ContentRootPath);
+    }
+
     var email = app.Configuration["Fejlesztes:UgyintezoEmail"];
 
     if (app.Environment.IsDevelopment() && !string.IsNullOrWhiteSpace(email))
