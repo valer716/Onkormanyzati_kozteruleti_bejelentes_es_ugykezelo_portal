@@ -34,9 +34,6 @@ public static class MintaAdatBetoltes
 
         await FiokokLetrehozasa(felhasznalok, db);
 
-        if (await db.Bejelentesek.AnyAsync())
-            return;
-
         var mappa = Path.GetFullPath(Path.Combine(tartalomGyoker, "..", "..", "MintaAdatok"));
         var fajl = Path.Combine(mappa, "mintaadatok.json");
         if (!File.Exists(fajl))
@@ -59,8 +56,18 @@ public static class MintaAdatBetoltes
                 vegrehajtok[szervezetId] = felhasznalo.Id;
         }
 
+        var meglevok = (await db.Bejelentesek
+            .Where(b => b.Kovetokod != null)
+            .Select(b => b.Kovetokod!.Value)
+            .ToListAsync()).ToHashSet();
+
         foreach (var elem in minta)
+        {
+            if (meglevok.Contains(Guid.Parse(elem.Kovetokod)))
+                continue;
+
             await Felvesz(db, elem, mappa, ugyintezok, vegrehajtok);
+        }
     }
 
     private static async Task FiokokLetrehozasa(UserManager<IdentityUser> felhasznalok, ApplicationDbContext db)

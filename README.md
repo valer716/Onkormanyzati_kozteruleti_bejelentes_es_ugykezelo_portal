@@ -16,4 +16,4 @@ Visual Studióban az `OnkormanyzatiPortal.slnx` megnyitása után F5.
 
 ## Mintaadatok
 
-Első indításkor a portál betölti a `MintaAdatok` mappa győri mintabejelentéseit, és létrehozza a demó-fiókokat (ügyintéző, végrehajtó, vezető). Ha az adatbázis már tartalmaz bejelentést, nem tölt be újra. Kikapcsolás: `Fejlesztes:MintaAdatBetoltes` = `false` az `appsettings.Development.json` fájlban.
+Első indításkor a portál betölti a `MintaAdatok` mappa győri mintabejelentéseit, és létrehozza a demó-fiókokat (ügyintéző, végrehajtó, vezető). A meglévő fiókokhoz és bejelentésekhez csak hozzáad, a már betöltött mintákat kihagyja. Kikapcsolás: `Fejlesztes:MintaAdatBetoltes` = `false` az `appsettings.Development.json` fájlban.
