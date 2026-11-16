@@ -57,13 +57,15 @@ public static class MintaAdatBetoltes
         }
 
         var meglevok = (await db.Bejelentesek
-            .Where(b => b.Kovetokod != null)
-            .Select(b => b.Kovetokod!.Value)
-            .ToListAsync()).ToHashSet();
+            .AsNoTracking()
+            .Select(b => new { b.Cim, b.LetrehozvaUtc })
+            .ToListAsync())
+            .Select(b => (b.Cim, b.LetrehozvaUtc.Date))
+            .ToHashSet();
 
         foreach (var elem in minta)
         {
-            if (meglevok.Contains(Guid.Parse(elem.Kovetokod)))
+            if (meglevok.Contains((elem.Cim, elem.Bekuldes!.Value.Date)))
                 continue;
 
             await Felvesz(db, elem, mappa, ugyintezok, vegrehajtok);
@@ -122,7 +124,7 @@ public static class MintaAdatBetoltes
             Kategoria = Enum.Parse<BejelentesKategoria>(elem.Kategoria),
             Allapot = allapot,
             Hatarido = elem.Hatarido?.Date,
-            Kovetokod = Guid.Parse(elem.Kovetokod),
+            Kovetokod = elem.Kovetokod,
             Ertekeles = elem.Ertekeles,
             Szelesseg = elem.Szelesseg,
             Hosszusag = elem.Hosszusag,

@@ -28,7 +28,8 @@ public class Bejelentes
     [ConcurrencyCheck]
     public Guid Verzio { get; set; } = Guid.NewGuid();
     public DateTime? LezarvaUtc { get; set; }
-    public Guid? Kovetokod { get; set; }
+    [StringLength(6)]
+    public string? Kovetokod { get; set; }
     public int? Ertekeles { get; set; }
     public double? Szelesseg { get; set; }
     public double? Hosszusag { get; set; }

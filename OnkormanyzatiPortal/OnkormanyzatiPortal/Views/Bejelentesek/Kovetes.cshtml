@@ -4,7 +4,8 @@
 @{
     ViewData["Title"] = "Ügykövetés";
     var ujKod = TempData["Kovetokod"]?.ToString();
-    var mezoErtek = Model?.Kovetokod.ToString() ?? ujKod ?? "";
+    var mezoErtek = Csoportos(Model?.Kovetokod ?? ujKod);
+    string Csoportos(string? kod) => kod is { Length: 6 } ? kod[..3] + " " + kod[3..] : kod ?? "";
     var kovetesLink = string.IsNullOrEmpty(ujKod)
         ? null
         : Url.Action("Kovetes", "Bejelentesek", new { kovetokod = ujKod }, Context.Request.Scheme);
@@ -21,7 +22,9 @@
             <button type="button" id="linkMasolas" class="btn btn-outline-secondary">Másolás</button>
         </div>
         <a href="@kovetesLink" class="btn btn-success">Ügyem követése</a>
-        <p class="small mt-2 mb-0">Követőkód: <span class="text-break">@ujKod</span>. Ezen a készüléken a böngésző is megjegyzi a bejelentésedet.</p>
+        <p class="mt-3 mb-1">Vagy jegyezd meg a <strong>követőkódot</strong>, és írd be az Ügykövetés oldalon:</p>
+        <p class="display-5 fw-bold mb-1">@Csoportos(ujKod)</p>
+        <p class="small mb-0">Ezen a készüléken a böngésző is megjegyzi a bejelentésedet.</p>
     </div>
 }
 
@@ -37,10 +40,12 @@
     <div class="mb-3">
         <label for="kovetokod" class="form-label">Követőkód</label>
         <input id="kovetokod" name="kovetokod" value="@mezoErtek"
-               class="form-control" maxlength="36" required />
+               class="form-control form-control-lg" maxlength="8" inputmode="numeric"
+               autocomplete="off" placeholder="123 456" required />
+        <div class="form-text">A követőkód 6 számjegy, a bejelentés beküldése után kapod meg.</div>
     </div>
 
-    <button type="submit" class="btn btn-primary">Állapot lekérése</button>
+    <button type="submit" class="btn btn-primary btn-lg">Állapot lekérése</button>
 </form>
 
 @if (Model is not null)

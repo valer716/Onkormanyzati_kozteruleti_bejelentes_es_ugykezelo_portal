@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Security.Claims;
 namespace OnkormanyzatiPortal.Controllers;
 
@@ -75,7 +76,7 @@ public class BejelentesekController : Controller
         bejelentes.LetrehozvaUtc = DateTime.UtcNow;
         bejelentes.Allapot = BejelentesAllapot.Uj;
 
-        var kod = Guid.NewGuid();
+        var kod = await UjKovetokodAsync();
         bejelentes.Kovetokod = kod;
         bejelentes.Szelesseg = lat;
         bejelentes.Hosszusag = lon;
@@ -97,9 +98,26 @@ public class BejelentesekController : Controller
         });
         await _db.SaveChangesAsync();
 
-        TempData["Kovetokod"] = kod.ToString();
+        TempData["Kovetokod"] = kod;
         return RedirectToAction(nameof(Kovetes));
     }
+    private async Task<string> UjKovetokodAsync()
+    {
+        while (true)
+        {
+            var kod = RandomNumberGenerator.GetInt32(100000, 1000000).ToString(CultureInfo.InvariantCulture);
+
+            if (!await _db.Bejelentesek.AnyAsync(b => b.Kovetokod == kod))
+                return kod;
+        }
+    }
+
+    private static string? KovetokodNormalizalas(string? bemenet)
+    {
+        var szamok = new string((bemenet ?? string.Empty).Where(char.IsDigit).ToArray());
+        return szamok.Length == 6 ? szamok : null;
+    }
+
     private static Expression<Func<Bejelentes, int>> KategoriaSorrend()
     {
         var kulturak = new CultureInfo("hu-HU");
@@ -445,9 +463,9 @@ public class BejelentesekController : Controller
     [HttpGet]
     [AllowAnonymous]
     [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-    public async Task<IActionResult> Kovetes(Guid? kovetokod)
+    public async Task<IActionResult> Kovetes(string? kovetokod)
     {
-        if (kovetokod is null)
+        if (string.IsNullOrWhiteSpace(kovetokod))
             return View();
 
         return await KovetesKeres(kovetokod);
@@ -458,15 +476,15 @@ public class BejelentesekController : Controller
     [ValidateAntiForgeryToken]
     [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     [ActionName("Kovetes")]
-    public async Task<IActionResult> KovetesKeres(Guid? kovetokod)
+    public async Task<IActionResult> KovetesKeres(string? kovetokod)
     {
-        if (!ModelState.IsValid || kovetokod is null || kovetokod == Guid.Empty)
+        var kod = KovetokodNormalizalas(kovetokod);
+
+        if (!ModelState.IsValid || kod is null)
         {
-            ModelState.AddModelError("", "Adj meg érvényes követőkódot.");
+            ModelState.AddModelError("", "Adj meg érvényes, 6 számjegyű követőkódot.");
             return View();
         }
-
-        var kod = kovetokod.Value;
 
         var eredmeny = await _db.Bejelentesek
             .AsNoTracking()
@@ -500,15 +518,15 @@ public class BejelentesekController : Controller
     [AllowAnonymous]
     [ValidateAntiForgeryToken]
     [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-    public async Task<IActionResult> Ertekel(Guid? kovetokod, int pont)
+    public async Task<IActionResult> Ertekel(string? kovetokod, int pont)
     {
-        if (!ModelState.IsValid || kovetokod is null
-            || kovetokod == Guid.Empty || pont is < 1 or > 5)
+        var kod = KovetokodNormalizalas(kovetokod);
+
+        if (!ModelState.IsValid || kod is null || pont is < 1 or > 5)
         {
             return BadRequest("Érvényes követőkód és 1–5 közötti pontszám szükséges.");
         }
 
-        var kod = kovetokod.Value;
         var bejelentes = await _db.Bejelentesek.Include(b => b.FoBejelentes)
             .SingleOrDefaultAsync(b => b.Kovetokod == kod);
 
