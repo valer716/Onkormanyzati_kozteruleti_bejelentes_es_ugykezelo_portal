@@ -7,7 +7,7 @@ namespace OnkormanyzatiPortal.Data;
 
 public static class MintaAdatBetoltes
 {
-    public const string DemoJelszo = "Demo!2026";
+    public const string DemoJelszo = "Sze!2026";
 
     private static readonly DemoFiok[] DemoFiokok =
     [
