@@ -92,7 +92,7 @@ Kezdeti adat: Útfenntartás, Köztisztaság, Közvilágítás.
 
 | BejelentesKategoria | BejelentesAllapot |
 |---|---|
-| Egyeb, Uthiba, Kozvilagitas, Hulladek, Utcabutor | Uj, Ellenorizve, Folyamatban, LezarasraVar, Lezart, Teves, HataskoronKivuli, Osszevont |
+| Egyeb, Uthiba, Kozvilagitas, Hulladek, Utcabutor, Forgalomtechnika, Parkok, ElhagyottJarmu, Kozmu | Uj, Ellenorizve, Folyamatban, LezarasraVar, Lezart, Teves, HataskoronKivuli, Osszevont |
 
 ## Állapotváltások
 
