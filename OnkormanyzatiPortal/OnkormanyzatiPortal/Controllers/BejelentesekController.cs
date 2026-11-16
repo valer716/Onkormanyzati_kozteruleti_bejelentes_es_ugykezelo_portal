@@ -93,8 +93,10 @@ public class BejelentesekController : Controller
     public async Task<IActionResult> Index(
         string? kereses,
         BejelentesKategoria? kategoria,
-        BejelentesAllapot? allapot)
+        BejelentesAllapot? allapot,
+        int oldal = 1)
     {
+        const int oldalMeret = 50;
         var lekerdezes = _db.Bejelentesek.AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(kereses))
@@ -110,10 +112,31 @@ public class BejelentesekController : Controller
         if (allapot.HasValue)
             lekerdezes = lekerdezes.Where(b => b.Allapot == allapot.Value);
 
-        return View(await lekerdezes
+        var darab = await lekerdezes.CountAsync();
+        var oldalSzam = Math.Max(1, (int)Math.Ceiling(darab / (double)oldalMeret));
+        oldal = Math.Clamp(oldal, 1, oldalSzam);
+
+        var lista = await lekerdezes
             .OrderByDescending(b => b.Veszelyes)
             .ThenByDescending(b => b.LetrehozvaUtc)
-            .ToListAsync());
+            .Skip((oldal - 1) * oldalMeret)
+            .Take(oldalMeret)
+            .ToListAsync();
+
+        var azonositok = lista.Select(b => b.Id).ToList();
+
+        ViewBag.Kepek = await _db.BejelentesFotok
+            .AsNoTracking()
+            .Where(f => f.Tipus == BejelentesFotoTipus.Bejelentes && azonositok.Contains(f.BejelentesId))
+            .GroupBy(f => f.BejelentesId)
+            .Select(g => new { BejelentesId = g.Key, FotoId = g.Min(f => f.Id) })
+            .ToDictionaryAsync(g => g.BejelentesId, g => g.FotoId);
+
+        ViewBag.Oldal = oldal;
+        ViewBag.OldalSzam = oldalSzam;
+        ViewBag.Darab = darab;
+
+        return View(lista);
     }
     [HttpGet]
     [Authorize(Roles = "Ugyintezo")]

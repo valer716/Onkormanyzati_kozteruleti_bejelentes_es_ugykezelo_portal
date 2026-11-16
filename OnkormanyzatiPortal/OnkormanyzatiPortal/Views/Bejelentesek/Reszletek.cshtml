@@ -53,7 +53,7 @@
 @if (ViewBag.Fotok is IReadOnlyList<FotoListaSor> fotok && fotok.Count > 0)
 {
     <h2>Fényképek</h2>
-    <ul>
+    <div class="row g-3 mb-3">
         @foreach (var foto in fotok)
         {
             var cimke = foto.Tipus switch
@@ -63,15 +63,23 @@
                 _ => "Bejelentői fotó"
             };
 
-            <li>
-                <a asp-action="Foto" asp-route-id="@foto.Id">@cimke</a>
-                @if (foto.ReszfeladatId is int feladatId)
-                {
-                    <span>– részfeladat #@feladatId</span>
-                }
-            </li>
+            <div class="col-6 col-md-4 col-lg-3">
+                <figure class="m-0">
+                    <a asp-action="Foto" asp-route-id="@foto.Id" target="_blank">
+                        <img src="@Url.Action("Foto", new { id = foto.Id })" alt="@cimke"
+                             class="img-fluid rounded border" loading="lazy" />
+                    </a>
+                    <figcaption class="small">
+                        @cimke
+                        @if (foto.ReszfeladatId is int feladatId)
+                        {
+                            <span>– részfeladat #@feladatId</span>
+                        }
+                    </figcaption>
+                </figure>
+            </div>
         }
-    </ul>
+    </div>
 }
 
 @if (kiosztasElott)
