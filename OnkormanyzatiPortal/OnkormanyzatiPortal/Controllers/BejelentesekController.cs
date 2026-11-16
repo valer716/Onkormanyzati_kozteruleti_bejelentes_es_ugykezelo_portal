@@ -449,7 +449,7 @@ public class BejelentesekController : Controller
             || feladatHatarido is null
             || feladatHatarido.Value.Date < DateTime.Today
             || feladatHatarido.Value.Date > bejelentes.Hatarido.Value.Date
-            || !await _db.Szervezetek.AnyAsync(s => s.Id == szervezetId))
+            || await _db.Szervezetek.FindAsync(szervezetId) is null)
         {
             TempData["Hiba"] = "Adj meg feladatcímet, szervezetet és érvényes határidőt. "
                 + "A feladat határideje nem lehet múltbeli vagy későbbi az ügy határidejénél.";
@@ -473,7 +473,7 @@ public class BejelentesekController : Controller
         _db.BejelentesNaplok.Add(new BejelentesNaplo
         {
             BejelentesId = id,
-            Muvelet = $"Feladat kiosztva: szervezet #{szervezetId}, határidő {hatarido:yyyy-MM-dd}",
+            Muvelet = $"Feladat kiosztva: {(await _db.Szervezetek.FindAsync(szervezetId))!.Nev}, határidő {hatarido:yyyy-MM-dd}",
             ElozoAllapot = elozoAllapot,
             UjAllapot = bejelentes.Allapot,
             Hatarido = bejelentes.Hatarido,
