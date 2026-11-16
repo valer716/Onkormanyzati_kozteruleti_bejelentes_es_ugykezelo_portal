@@ -3,6 +3,10 @@ using OnkormanyzatiPortal.Data;
 using OnkormanyzatiPortal.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using System.Globalization;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Security.Claims;
 namespace OnkormanyzatiPortal.Controllers;
 
@@ -96,6 +100,28 @@ public class BejelentesekController : Controller
         TempData["Kovetokod"] = kod.ToString();
         return RedirectToAction(nameof(Kovetes));
     }
+    private static Expression<Func<Bejelentes, int>> KategoriaSorrend()
+    {
+        var kulturak = new CultureInfo("hu-HU");
+
+        var sorrend = Enum.GetValues<BejelentesKategoria>()
+            .OrderBy(k => k.GetType().GetField(k.ToString())!.GetCustomAttribute<DisplayAttribute>()!.Name, StringComparer.Create(kulturak, true))
+            .ToList();
+
+        var bejelentes = Expression.Parameter(typeof(Bejelentes), "b");
+        Expression kifejezes = Expression.Constant(0);
+
+        for (var i = sorrend.Count - 1; i >= 0; i--)
+        {
+            kifejezes = Expression.Condition(
+                Expression.Equal(Expression.Property(bejelentes, nameof(Bejelentes.Kategoria)), Expression.Constant(sorrend[i])),
+                Expression.Constant(i),
+                kifejezes);
+        }
+
+        return Expression.Lambda<Func<Bejelentes, int>>(kifejezes, bejelentes);
+    }
+
     private static bool KoordinataErvenyes(string? szoveg, double hatar, out double ertek)
     {
         return double.TryParse(
@@ -111,8 +137,10 @@ public class BejelentesekController : Controller
     [Authorize(Roles = "Ugyintezo")]
     public async Task<IActionResult> Index(
         string? kereses,
-        BejelentesKategoria? kategoria,
-        BejelentesAllapot? allapot,
+        BejelentesKategoria[]? kategoria,
+        BejelentesAllapot[]? allapot,
+        string? rendez,
+        string? irany,
         int oldal = 1)
     {
         const int oldalMeret = 50;
@@ -125,19 +153,32 @@ public class BejelentesekController : Controller
                 b.Cim.Contains(szo) || b.Helyszin.Contains(szo));
         }
 
-        if (kategoria.HasValue)
-            lekerdezes = lekerdezes.Where(b => b.Kategoria == kategoria.Value);
+        if (kategoria is { Length: > 0 })
+            lekerdezes = lekerdezes.Where(b => kategoria.Contains(b.Kategoria));
 
-        if (allapot.HasValue)
-            lekerdezes = lekerdezes.Where(b => b.Allapot == allapot.Value);
+        if (allapot is { Length: > 0 })
+            lekerdezes = lekerdezes.Where(b => allapot.Contains(b.Allapot));
+
+        var csokkeno = irany == "csokkeno";
 
         var darab = await lekerdezes.CountAsync();
         var oldalSzam = Math.Max(1, (int)Math.Ceiling(darab / (double)oldalMeret));
         oldal = Math.Clamp(oldal, 1, oldalSzam);
 
-        var lista = await lekerdezes
-            .OrderByDescending(b => b.Veszelyes)
-            .ThenByDescending(b => b.LetrehozvaUtc)
+        var rendezett = rendez switch
+        {
+            "azonosito" => csokkeno ? lekerdezes.OrderByDescending(b => b.Id) : lekerdezes.OrderBy(b => b.Id),
+            "cim" => csokkeno ? lekerdezes.OrderByDescending(b => b.Cim) : lekerdezes.OrderBy(b => b.Cim),
+            "helyszin" => csokkeno ? lekerdezes.OrderByDescending(b => b.Helyszin) : lekerdezes.OrderBy(b => b.Helyszin),
+            "kategoria" => csokkeno
+                ? lekerdezes.OrderByDescending(KategoriaSorrend()).ThenBy(b => b.Id)
+                : lekerdezes.OrderBy(KategoriaSorrend()).ThenBy(b => b.Id),
+            "allapot" => csokkeno ? lekerdezes.OrderByDescending(b => b.Allapot) : lekerdezes.OrderBy(b => b.Allapot),
+            "beerkezes" => csokkeno ? lekerdezes.OrderByDescending(b => b.LetrehozvaUtc) : lekerdezes.OrderBy(b => b.LetrehozvaUtc),
+            _ => lekerdezes.OrderByDescending(b => b.Veszelyes).ThenByDescending(b => b.LetrehozvaUtc)
+        };
+
+        var lista = await rendezett
             .Skip((oldal - 1) * oldalMeret)
             .Take(oldalMeret)
             .ToListAsync();
