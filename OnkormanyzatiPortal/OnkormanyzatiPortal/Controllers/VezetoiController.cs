@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,8 @@ public class VezetoiController(ApplicationDbContext db) : Controller
             .Select(b => new
             {
                 b.Id,
+                b.Cim,
+                b.Helyszin,
                 b.Kategoria,
                 b.Allapot,
                 b.Hatarido,
@@ -29,16 +32,24 @@ public class VezetoiController(ApplicationDbContext db) : Controller
 
         var ma = DateTime.Today;
 
+        var nyitottAllapotok = new[]
+        {
+            BejelentesAllapot.Uj,
+            BejelentesAllapot.Ellenorizve,
+            BejelentesAllapot.Folyamatban,
+            BejelentesAllapot.LezarasraVar
+        };
+
         var nyitott = adatok
-            .Where(b => b.Allapot is BejelentesAllapot.Uj
-                or BejelentesAllapot.Ellenorizve
-                or BejelentesAllapot.Folyamatban
-                or BejelentesAllapot.LezarasraVar)
-            .OrderBy(b => b.Hatarido ?? DateTime.MaxValue)
+            .Where(b => nyitottAllapotok.Contains(b.Allapot))
             .Select(b => new VezetoiUgySor(
-                b.Id, b.Kategoria, b.Allapot, b.Hatarido,
+                b.Id, b.Cim, b.Helyszin, b.Kategoria, b.Allapot, b.LetrehozvaUtc, b.Hatarido,
                 b.Hatarido.HasValue && b.Hatarido.Value.Date < ma,
+                (int)(DateTime.UtcNow - b.LetrehozvaUtc).TotalDays,
                 b.Szelesseg, b.Hosszusag))
+            .OrderByDescending(u => u.Lejart)
+            .ThenBy(u => u.Hatarido ?? DateTime.MaxValue)
+            .ThenBy(u => u.LetrehozvaUtc)
             .ToList();
 
         var atlag = adatok
@@ -52,7 +63,41 @@ public class VezetoiController(ApplicationDbContext db) : Controller
             .OrderByDescending(g => g.Count())
             .ToDictionary(g => g.Key, g => g.Count());
 
-        return View(new VezetoiKimutatasNezet(nyitott, atlag, kategoriak));
+        var allapotok = adatok
+            .GroupBy(b => b.Allapot)
+            .OrderBy(g => g.Key)
+            .ToDictionary(g => g.Key, g => g.Count());
+
+        var tizenketHonapja = new DateTime(ma.Year, ma.Month, 1).AddMonths(-11);
+
+        var havi = Enumerable.Range(0, 12)
+            .Select(i => tizenketHonapja.AddMonths(i))
+            .Select(honap => new VezetoiHaviSor(
+                honap.ToString("yyyy.MM"),
+                adatok.Count(b => b.LetrehozvaUtc.Year == honap.Year
+                    && b.LetrehozvaUtc.Month == honap.Month)))
+            .ToList();
+
+        var teruletek = adatok
+            .GroupBy(b => Iranyitoszam(b.Helyszin))
+            .Select(g => new VezetoiTerulet(
+                g.Key,
+                g.Count(),
+                g.Count(b => nyitottAllapotok.Contains(b.Allapot)),
+                g.Count(b => nyitottAllapotok.Contains(b.Allapot)
+                    && b.Hatarido.HasValue && b.Hatarido.Value.Date < ma)))
+            .OrderByDescending(t => t.Osszes)
+            .ToList();
+
+        return View(new VezetoiKimutatasNezet(
+            nyitott,
+            atlag,
+            kategoriak,
+            allapotok,
+            havi,
+            teruletek,
+            adatok.Count,
+            adatok.Count(b => b.Allapot == BejelentesAllapot.Lezart)));
     }
 
     [HttpGet]
@@ -130,5 +175,11 @@ public class VezetoiController(ApplicationDbContext db) : Controller
             }),
             "application/json",
             "bejelentesek-osszesites.json");
+    }
+
+    private static string Iranyitoszam(string helyszin)
+    {
+        var talalat = Regex.Match(helyszin, @"\b\d{4}\b");
+        return talalat.Success ? talalat.Value : "Ismeretlen";
     }
 }

@@ -78,14 +78,14 @@
             </div>
         </nav>
     </header>
-    <div class="container">
+    <div class="@(ViewData["Teljes"] is true ? "container-fluid px-4" : "container")">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
     <footer class="border-top footer text-muted">
-        <div class="container">
+        <div class="@(ViewData["Teljes"] is true ? "container-fluid px-4" : "container")">
             &copy; 2026 - Közterület Bejelentő - <a asp-area="" asp-controller="Home" asp-action="Privacy">Adatvédelem</a>
         </div>
     </footer>
