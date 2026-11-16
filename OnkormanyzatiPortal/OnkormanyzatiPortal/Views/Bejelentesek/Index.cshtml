@@ -3,6 +3,10 @@
 
 @{
     ViewData["Title"] = "Beérkezett bejelentések";
+
+    var kepek = (IReadOnlyDictionary<int, int>)ViewBag.Kepek;
+    int oldal = ViewBag.Oldal;
+    int oldalSzam = ViewBag.OldalSzam;
 }
 
 <h1>Beérkezett bejelentések</h1>
@@ -48,6 +52,7 @@ else
             <thead>
                 <tr>
                     <th>Azonosító</th>
+                    <th>Kép</th>
                     <th>Cím</th>
                     <th>Helyszín</th>
                     <th>Kategória</th>
@@ -60,6 +65,16 @@ else
                 {
                     <tr>
                         <td>@bejelentes.Id</td>
+                        <td>
+                            @if (kepek.TryGetValue(bejelentes.Id, out var fotoId))
+                            {
+                                <a asp-action="Reszletek" asp-route-id="@bejelentes.Id">
+                                    <img src="@Url.Action("Foto", new { id = fotoId })" alt="Bejelentői fotó"
+                                         width="72" height="54" class="rounded border"
+                                         style="object-fit: cover" loading="lazy" />
+                                </a>
+                            }
+                        </td>
                         <td>
                             <a asp-action="Reszletek" asp-route-id="@bejelentes.Id">
                                 @bejelentes.Cim
@@ -78,4 +93,28 @@ else
             </tbody>
         </table>
     </div>
+
+    <p>Összesen @ViewBag.Darab bejelentés, @oldal. oldal a(z) @oldalSzam közül.</p>
+
+    @if (oldalSzam > 1)
+    {
+        <nav aria-label="Lapozás">
+            <ul class="pagination">
+                <li class="page-item @(oldal <= 1 ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index"
+                       asp-route-kereses="@Context.Request.Query["kereses"]"
+                       asp-route-kategoria="@Context.Request.Query["kategoria"]"
+                       asp-route-allapot="@Context.Request.Query["allapot"]"
+                       asp-route-oldal="@(oldal - 1)">Előző</a>
+                </li>
+                <li class="page-item @(oldal >= oldalSzam ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index"
+                       asp-route-kereses="@Context.Request.Query["kereses"]"
+                       asp-route-kategoria="@Context.Request.Query["kategoria"]"
+                       asp-route-allapot="@Context.Request.Query["allapot"]"
+                       asp-route-oldal="@(oldal + 1)">Következő</a>
+                </li>
+            </ul>
+        </nav>
+    }
 }

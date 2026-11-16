@@ -35,6 +35,21 @@
     <p>Állapot: <strong>@Html.DisplayFor(m => m.Allapot)</strong></p>
     <p>Határidő: @(Model.Hatarido?.ToString("yyyy.MM.dd.") ?? "Nincs megadva")</p>
 
+    @if (Model.Esemenyek is { Count: > 0 } esemenyek)
+    {
+        <h3>Mi történt az üggyel?</h3>
+
+        <ol class="list-group list-group-numbered mb-4">
+            @foreach (var esemeny in esemenyek)
+            {
+                <li class="list-group-item">
+                    @esemeny.IdopontUtc.ToString("yyyy.MM.dd.")
+                    – @Html.DisplayFor(_ => esemeny.Allapot)
+                </li>
+            }
+        </ol>
+    }
+
     @if (Model.Ertekeles is int ertekeles)
     {
         <p>Köszönjük a visszajelzést! Értékelés: @ertekeles / 5.</p>

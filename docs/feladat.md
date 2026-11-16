@@ -31,7 +31,7 @@ Jelölések: **KÉSZ**, **RÉSZBEN**, **HIÁNYZIK**, **NEM KÖTELEZŐ** (a szöv
 | Átlagos megoldási idő | **KÉSZ** |
 | Határidő-túllépés | **KÉSZ** |
 | Kategóriánkénti gyakoriság | **KÉSZ** |
-| Területi sűrűség | **HIÁNYZIK** |
+| Területi sűrűség | **KÉSZ** (sűrűségtérkép a vezetői oldalon) |
 | Bejelentés több részfeladatból, csak mindegyik után zárható | **KÉSZ** |
 | Bővítések (duplikációgyanú, körzetfelelős értesítés, nyilvános adatportál, elégedettségi mutató) | **NEM KÖTELEZŐ**, nincsenek meg |
 

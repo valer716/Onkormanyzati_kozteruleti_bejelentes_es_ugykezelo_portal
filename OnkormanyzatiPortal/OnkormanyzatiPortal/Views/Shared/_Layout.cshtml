@@ -1,42 +1,47 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="hu">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - OnkormanyzatiPortal</title>
+    <title>@ViewData["Title"] - Közterület Bejelentő</title>
+    <link rel="icon" type="image/png" href="~/img/logo-pajzs.png" />
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/OnkormanyzatiPortal.styles.css" asp-append-version="true" />
+    <script src="~/js/tema.js" asp-append-version="true"></script>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm bg-body border-bottom mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">OnkormanyzatiPortal</a>
+                <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="~/img/logo-pajzs.png" alt="" width="32" height="40" class="me-2" />
+                    <span>Közterület Bejelentő</span>
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                        aria-expanded="false" aria-label="Menü megnyitása">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area=""
+                            <a class="nav-link" asp-area=""
                                asp-controller="Home" asp-action="Index">Kezdőlap</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area=""
+                            <a class="nav-link" asp-area=""
                                asp-controller="Bejelentesek" asp-action="Letrehozas">Új bejelentés</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area=""
+                            <a class="nav-link" asp-area=""
                                asp-controller="Bejelentesek" asp-action="Kovetes">Ügykövetés</a>
                         </li>
 
                         @if (User.IsInRole("Ugyintezo"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area=""
+                                <a class="nav-link" asp-area=""
                                    asp-controller="Bejelentesek" asp-action="Index">Ügyintézés</a>
                             </li>
                         }
@@ -44,7 +49,7 @@
                         @if (User.IsInRole("Vegrehajto"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area=""
+                                <a class="nav-link" asp-area=""
                                    asp-controller="Munkafeladatok" asp-action="Index">Munkafeladatok</a>
                             </li>
                         }
@@ -52,25 +57,36 @@
                         @if (User.IsInRole("Vezeto"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area=""
+                                <a class="nav-link" asp-area=""
                                    asp-controller="Vezetoi" asp-action="Index">Vezetői kimutatás</a>
                             </li>
                         }
                     </ul>
+                    <div class="dropdown me-2 my-1">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">Megjelenés</button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><button class="dropdown-item" type="button" data-tema="vilagos">Világos</button></li>
+                            <li><button class="dropdown-item" type="button" data-tema="sotet">Sötét</button></li>
+                            <li><button class="dropdown-item" type="button" data-tema="kontraszt">Nagy kontraszt</button></li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li><button class="dropdown-item" type="button" data-betu-valto>Nagyobb betű be/ki</button></li>
+                        </ul>
+                    </div>
                     <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
+    <div class="@(ViewData["Teljes"] is true ? "container-fluid px-4" : "container")">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
     <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - OnkormanyzatiPortal - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        <div class="@(ViewData["Teljes"] is true ? "container-fluid px-4" : "container")">
+            &copy; 2026 - Közterület Bejelentő - <a asp-area="" asp-controller="Home" asp-action="Privacy">Adatvédelem</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

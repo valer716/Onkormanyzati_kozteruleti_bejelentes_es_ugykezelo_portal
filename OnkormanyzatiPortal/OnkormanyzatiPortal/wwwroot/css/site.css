@@ -29,3 +29,106 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+html[data-betu="nagy"] {
+  font-size: 19px;
+}
+
+html[data-bs-theme="dark"] .border-top,
+html[data-bs-theme="dark"] .border-bottom {
+  border-color: #495057 !important;
+}
+
+html[data-bs-theme="dark"] a {
+  color: #6ea8fe;
+}
+
+html[data-kontraszt="igen"] body {
+  background-color: #000;
+  color: #fff;
+}
+
+html[data-kontraszt="igen"] a {
+  color: #ffff00;
+}
+
+html[data-kontraszt="igen"] a:hover {
+  color: #fff;
+}
+
+html[data-kontraszt="igen"] .btn-primary,
+html[data-kontraszt="igen"] .btn-success {
+  background-color: #ffff00;
+  border-color: #ffff00;
+  color: #000;
+  font-weight: bold;
+}
+
+html[data-kontraszt="igen"] .btn-outline-primary,
+html[data-kontraszt="igen"] .btn-outline-secondary,
+html[data-kontraszt="igen"] .btn-outline-danger {
+  background-color: #000;
+  border: 2px solid #fff;
+  color: #fff;
+}
+
+html[data-kontraszt="igen"] .form-control,
+html[data-kontraszt="igen"] .form-select,
+html[data-kontraszt="igen"] .list-group-item,
+html[data-kontraszt="igen"] .dropdown-menu,
+html[data-kontraszt="igen"] .card {
+  background-color: #000;
+  color: #fff;
+  border: 2px solid #fff;
+}
+
+html[data-kontraszt="igen"] .dropdown-item {
+  color: #fff;
+}
+
+html[data-kontraszt="igen"] .table {
+  --bs-table-color: #fff;
+  --bs-table-bg: #000;
+  --bs-table-border-color: #fff;
+}
+
+html[data-kontraszt="igen"] .navbar,
+html[data-kontraszt="igen"] footer {
+  background-color: #000 !important;
+  border-color: #fff !important;
+}
+
+html[data-kontraszt="igen"] .text-muted,
+html[data-kontraszt="igen"] .text-secondary,
+html[data-kontraszt="igen"] .navbar-text {
+  color: #e0e0e0 !important;
+}
+
+html[data-kontraszt="igen"] .text-danger {
+  color: #ff8080 !important;
+}
+
+html[data-kontraszt="igen"] .alert {
+  background-color: #000;
+  color: #fff;
+  border: 2px solid #fff;
+}
+
+html[data-kontraszt="igen"] *:focus-visible {
+  outline: 3px solid #ffff00 !important;
+  outline-offset: 2px;
+}
+
+html[data-bs-theme="dark"] .btn-outline-secondary {
+  color: #ced4da;
+  border-color: #adb5bd;
+}
+
+html[data-kontraszt="igen"] .nav-link,
+html[data-kontraszt="igen"] .navbar-brand {
+  color: #ffff00;
+}
+
+html[data-kontraszt="igen"] .btn-outline-secondary {
+  color: #fff;
+  border-color: #fff;
+}

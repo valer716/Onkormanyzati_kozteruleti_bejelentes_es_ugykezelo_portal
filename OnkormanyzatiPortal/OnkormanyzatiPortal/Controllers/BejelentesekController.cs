@@ -27,11 +27,21 @@ public class BejelentesekController : Controller
     public async Task<IActionResult> Letrehozas(
     [Bind("Cim,Leiras,Helyszin,Kategoria")] Bejelentes bejelentes, string? szelesseg, string? hosszusag, IFormFile? foto)
     {
-        if (!KoordinataErvenyes(szelesseg, 90, out var lat))
-            ModelState.AddModelError("szelesseg", "A szélesség −90 és 90 közé essen.");
+        double lat = 0;
+        double lon = 0;
 
-        if (!KoordinataErvenyes(hosszusag, 180, out var lon))
-            ModelState.AddModelError("hosszusag", "A hosszúság −180 és 180 közé essen.");
+        if (string.IsNullOrWhiteSpace(szelesseg) || string.IsNullOrWhiteSpace(hosszusag))
+        {
+            ModelState.AddModelError("szelesseg", "Jelöld meg a hiba helyét a térképen, vagy add meg a koordinátákat.");
+        }
+        else
+        {
+            if (!KoordinataErvenyes(szelesseg, 90, out lat))
+                ModelState.AddModelError("szelesseg", "A szélesség −90 és 90 közé essen.");
+
+            if (!KoordinataErvenyes(hosszusag, 180, out lon))
+                ModelState.AddModelError("hosszusag", "A hosszúság −180 és 180 közé essen.");
+        }
 
         if (!ModelState.IsValid)
         {
@@ -93,8 +103,10 @@ public class BejelentesekController : Controller
     public async Task<IActionResult> Index(
         string? kereses,
         BejelentesKategoria? kategoria,
-        BejelentesAllapot? allapot)
+        BejelentesAllapot? allapot,
+        int oldal = 1)
     {
+        const int oldalMeret = 50;
         var lekerdezes = _db.Bejelentesek.AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(kereses))
@@ -110,10 +122,31 @@ public class BejelentesekController : Controller
         if (allapot.HasValue)
             lekerdezes = lekerdezes.Where(b => b.Allapot == allapot.Value);
 
-        return View(await lekerdezes
+        var darab = await lekerdezes.CountAsync();
+        var oldalSzam = Math.Max(1, (int)Math.Ceiling(darab / (double)oldalMeret));
+        oldal = Math.Clamp(oldal, 1, oldalSzam);
+
+        var lista = await lekerdezes
             .OrderByDescending(b => b.Veszelyes)
             .ThenByDescending(b => b.LetrehozvaUtc)
-            .ToListAsync());
+            .Skip((oldal - 1) * oldalMeret)
+            .Take(oldalMeret)
+            .ToListAsync();
+
+        var azonositok = lista.Select(b => b.Id).ToList();
+
+        ViewBag.Kepek = await _db.BejelentesFotok
+            .AsNoTracking()
+            .Where(f => f.Tipus == BejelentesFotoTipus.Bejelentes && azonositok.Contains(f.BejelentesId))
+            .GroupBy(f => f.BejelentesId)
+            .Select(g => new { BejelentesId = g.Key, FotoId = g.Min(f => f.Id) })
+            .ToDictionaryAsync(g => g.BejelentesId, g => g.FotoId);
+
+        ViewBag.Oldal = oldal;
+        ViewBag.OldalSzam = oldalSzam;
+        ViewBag.Darab = darab;
+
+        return View(lista);
     }
     [HttpGet]
     [Authorize(Roles = "Ugyintezo")]
@@ -218,6 +251,17 @@ public class BejelentesekController : Controller
             .OrderBy(f => f.Id)
             .Select(f => new FotoListaSor(f.Id, f.Tipus, f.ReszfeladatId))
             .ToListAsync();
+
+        ViewBag.Naplo = await _db.BejelentesNaplok
+            .AsNoTracking()
+            .Where(n => n.BejelentesId == bejelentes.Id)
+            .OrderBy(n => n.IdopontUtc)
+            .ThenBy(n => n.Id)
+            .ToListAsync();
+
+        ViewBag.Felhasznalok = await _db.Users
+            .AsNoTracking()
+            .ToDictionaryAsync(u => u.Id, u => u.UserName ?? string.Empty);
 
         ViewBag.JelzesekSzama = 1 + await _db.Bejelentesek
             .CountAsync(b => b.FoBejelentesId == bejelentes.Id);
@@ -382,9 +426,20 @@ public class BejelentesekController : Controller
             .SingleOrDefaultAsync();
 
         if (eredmeny is null)
+        {
             ModelState.AddModelError("", "Nem található bejelentés ezzel a kóddal.");
+            return View(eredmeny);
+        }
 
-        return View(eredmeny);
+        var esemenyek = await _db.BejelentesNaplok
+            .AsNoTracking()
+            .Where(n => n.BejelentesId == eredmeny.Id && n.ElozoAllapot != n.UjAllapot)
+            .OrderBy(n => n.IdopontUtc)
+            .ThenBy(n => n.Id)
+            .Select(n => new KovetesEsemeny(n.IdopontUtc, n.UjAllapot))
+            .ToListAsync();
+
+        return View(eredmeny with { Esemenyek = esemenyek });
     }
 
     [HttpPost]

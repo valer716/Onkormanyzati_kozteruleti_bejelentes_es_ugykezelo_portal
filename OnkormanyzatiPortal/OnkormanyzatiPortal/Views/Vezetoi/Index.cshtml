@@ -4,60 +4,155 @@
 
 @{
     ViewData["Title"] = "Vezetői kimutatás";
+    ViewData["Teljes"] = true;
 
-    var cellak = Model.NyitottUgyek
+    var kategoriaNevek = Html.GetEnumSelectList<BejelentesKategoria>().ToDictionary(x => x.Value, x => x.Text);
+    var allapotNevek = Html.GetEnumSelectList<BejelentesAllapot>().ToDictionary(x => x.Value, x => x.Text);
+
+    string KategoriaNev(BejelentesKategoria kategoria) => kategoriaNevek[((int)kategoria).ToString()];
+    string AllapotNev(BejelentesAllapot allapot) => allapotNevek[((int)allapot).ToString()];
+
+    var lejart = Model.NyitottUgyek.Count(u => u.Lejart);
+    var legtobb = Model.Teruletek.Count == 0 ? 1 : Model.Teruletek.Max(t => t.Osszes);
+
+    var terkepAdat = Model.NyitottUgyek
         .Where(u => u.Szelesseg.HasValue && u.Hosszusag.HasValue)
-        .GroupBy(u => (
-            Lat: Math.Round(u.Szelesseg!.Value, 2),
-            Lon: Math.Round(u.Hosszusag!.Value, 2)))
-        .Select(g => new
+        .Select(u => new
         {
-            lat = g.Key.Lat,
-            lon = g.Key.Lon,
-            darab = g.Count(),
-            lejart = g.Count(u => u.Lejart)
+            id = u.Id,
+            cim = u.Cim,
+            kategoria = KategoriaNev(u.Kategoria),
+            allapot = AllapotNev(u.Allapot),
+            lejart = u.Lejart,
+            lat = u.Szelesseg,
+            lon = u.Hosszusag,
+            nap = u.NyitvaNap,
+            url = Url.Action("Reszletek", new { id = u.Id })
         })
         .ToList();
+
+    var grafikonAdat = new
+    {
+        kategoriaCimkek = Model.Kategoriak.Select(k => KategoriaNev(k.Key)),
+        kategoriaAdat = Model.Kategoriak.Select(k => k.Value),
+        allapotCimkek = Model.Allapotok.Select(a => AllapotNev(a.Key)),
+        allapotAdat = Model.Allapotok.Select(a => a.Value),
+        haviCimkek = Model.Havi.Select(h => h.Honap),
+        haviAdat = Model.Havi.Select(h => h.Darab)
+    };
+
+    var nyitottAllapotok = new[]
+    {
+        BejelentesAllapot.Uj,
+        BejelentesAllapot.Ellenorizve,
+        BejelentesAllapot.Folyamatban,
+        BejelentesAllapot.LezarasraVar
+    };
 }
 
 <h1>Vezetői kimutatás</h1>
 
-<ul>
-    <li>Nyitott ügyek: <strong>@Model.NyitottUgyek.Count</strong></li>
-    <li>Határidőn túli ügyek: <strong>@Model.NyitottUgyek.Count(u => u.Lejart)</strong></li>
-    <li>
-        Átlagos megoldási idő:
-        <strong>@(Model.AtlagosMegoldasiNap is double nap ? $"{nap:0.0} nap" : "Még nincs lezárt ügy")</strong>
-    </li>
-</ul>
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="card h-100"><div class="card-body">
+            <div class="text-body-secondary">Nyitott ügyek</div>
+            <div class="display-6">@Model.NyitottUgyek.Count</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card h-100 @(lejart > 0 ? "border-danger" : "")"><div class="card-body">
+            <div class="text-body-secondary">Határidőn túli ügyek</div>
+            <div class="display-6 @(lejart > 0 ? "text-danger" : "")">@lejart</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card h-100"><div class="card-body">
+            <div class="text-body-secondary">Átlagos megoldási idő</div>
+            <div class="display-6">@(Model.AtlagosMegoldasiNap is double nap ? $"{nap:0} nap" : "Nincs adat")</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card h-100"><div class="card-body">
+            <div class="text-body-secondary">Lezárt ügyek</div>
+            <div class="display-6">@Model.LezartUgy <span class="fs-6 text-body-secondary">/ @Model.OsszesUgy</span></div>
+        </div></div>
+    </div>
+</div>
 
-<p><a asp-action="Export" class="btn btn-outline-primary">JSON letöltése</a></p>
+<div class="row g-3 mb-4">
+    <div class="col-lg-5">
+        <div class="card h-100"><div class="card-body">
+            <h2 class="h6">Bejelentések kategóriánként</h2>
+            <div style="position: relative; height: 300px"><canvas id="kategoriaGrafikon"></canvas></div>
+        </div></div>
+    </div>
+    <div class="col-lg-3">
+        <div class="card h-100"><div class="card-body">
+            <h2 class="h6">Állapotok</h2>
+            <div style="position: relative; height: 300px"><canvas id="allapotGrafikon"></canvas></div>
+        </div></div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card h-100"><div class="card-body">
+            <h2 class="h6">Érkezett bejelentések az elmúlt 12 hónapban</h2>
+            <div style="position: relative; height: 300px"><canvas id="haviGrafikon"></canvas></div>
+        </div></div>
+    </div>
+</div>
 
-<h2>Nyitott ügyek területi sűrűsége</h2>
+<h2>Nyitott ügyek</h2>
 
-@if (cellak.Count == 0)
+<div class="row g-2 mb-3">
+    <div class="col-sm-6 col-lg-3">
+        <label for="szuroKategoria" class="form-label">Kategória</label>
+        <select id="szuroKategoria" class="form-select">
+            <option value="">Minden kategória</option>
+            @foreach (var kategoria in Model.Kategoriak.Keys.OrderBy(k => KategoriaNev(k)))
+            {
+                <option value="@((int)kategoria)">@KategoriaNev(kategoria)</option>
+            }
+        </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <label for="szuroAllapot" class="form-label">Állapot</label>
+        <select id="szuroAllapot" class="form-select">
+            <option value="">Minden nyitott állapot</option>
+            @foreach (var allapot in nyitottAllapotok)
+            {
+                <option value="@((int)allapot)">@AllapotNev(allapot)</option>
+            }
+        </select>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <label for="szuroKereses" class="form-label">Keresés címre vagy helyszínre</label>
+        <input id="szuroKereses" class="form-control" />
+    </div>
+    <div class="col-sm-6 col-lg-3 align-self-end">
+        <div class="form-check">
+            <input id="szuroLejart" type="checkbox" class="form-check-input" />
+            <label for="szuroLejart" class="form-check-label">Csak a határidőn túli ügyek</label>
+        </div>
+        <div class="text-body-secondary small" id="szuroDarab"></div>
+    </div>
+</div>
+
+@if (terkepAdat.Count == 0)
 {
     <p>Jelenleg nincs nyitott ügy térképi koordinátával.</p>
 }
 else
 {
     <link rel="stylesheet" href="https://unpkg.com/leaflet@@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@@1.5.3/dist/MarkerCluster.Default.css" />
 
-    <p>A nagyobb kör több ügyet jelöl. A piros körben legalább egy ügy lejárt.</p>
-    <div id="vezetoiTerkep" style="height: 300px;"
-         data-cellak="@JsonSerializer.Serialize(cellak)"
+    <p class="text-body-secondary">
+        A számmal jelölt körök több közeli ügyet fognak össze, kattintásra vagy nagyításra szétnyílnak.
+        A piros pont határidőn túli, a kék pont határidőn belüli ügyet jelöl.
+    </p>
+    <div id="vezetoiTerkep" class="mb-4 border rounded" style="height: 60vh; min-height: 380px;"
          aria-label="Nyitott ügyek térképe"></div>
 }
-
-<h2 class="mt-4">Bejelentések kategóriánként</h2>
-<ul>
-    @foreach (var kategoria in Model.Kategoriak)
-    {
-        <li>@Html.DisplayFor(_ => kategoria.Key): @kategoria.Value</li>
-    }
-</ul>
-
-<h2>Nyitott ügyek</h2>
 
 @if (Model.NyitottUgyek.Count == 0)
 {
@@ -65,30 +160,42 @@ else
 }
 else
 {
-    <div class="table-responsive">
-        <table class="table">
-            <thead>
+    <div class="table-responsive mb-4" style="max-height: 70vh">
+        <table class="table table-hover align-middle" id="ugyTabla">
+            <thead class="sticky-top" style="background-color: var(--bs-body-bg)">
                 <tr>
                     <th>Azonosító</th>
+                    <th>Cím</th>
+                    <th>Helyszín</th>
                     <th>Kategória</th>
                     <th>Állapot</th>
-                    <th>Ügyhatáridő</th>
+                    <th>Beérkezett</th>
+                    <th>Napja nyitott</th>
+                    <th>Határidő</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var ugy in Model.NyitottUgyek)
                 {
-                    <tr>
+                    <tr data-id="@ugy.Id" data-kat="@((int)ugy.Kategoria)" data-all="@((int)ugy.Allapot)"
+                        data-lejart="@(ugy.Lejart ? "1" : "0")"
+                        data-szoveg="@((ugy.Cim + " " + ugy.Helyszin).ToLowerInvariant())">
                         <td>#@ugy.Id</td>
-                        <td>@Html.DisplayFor(_ => ugy.Kategoria)</td>
-                        <td>@Html.DisplayFor(_ => ugy.Allapot)</td>
+                        <td>@ugy.Cim</td>
+                        <td>@ugy.Helyszin</td>
+                        <td>@KategoriaNev(ugy.Kategoria)</td>
+                        <td>@AllapotNev(ugy.Allapot)</td>
+                        <td>@ugy.LetrehozvaUtc.ToString("yyyy.MM.dd.")</td>
+                        <td>@ugy.NyitvaNap</td>
                         <td>
                             @(ugy.Hatarido?.ToString("yyyy.MM.dd.") ?? "Nincs megadva")
                             @if (ugy.Lejart)
                             {
-                                <strong class="text-danger">Lejárt</strong>
+                                <span class="badge text-bg-danger">Lejárt</span>
                             }
                         </td>
+                        <td><a asp-action="Reszletek" asp-route-id="@ugy.Id" class="btn btn-outline-primary btn-sm">Részletek</a></td>
                     </tr>
                 }
             </tbody>
@@ -96,39 +203,173 @@ else
     </div>
 }
 
+<h2>Bejelentések irányítószám szerint</h2>
+
+<div class="table-responsive mb-4">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Irányítószám</th>
+                <th>Összes bejelentés</th>
+                <th style="width: 40%"></th>
+                <th>Nyitott</th>
+                <th>Határidőn túli</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var terulet in Model.Teruletek)
+            {
+                <tr>
+                    <td>@terulet.Iranyitoszam</td>
+                    <td>@terulet.Osszes</td>
+                    <td>
+                        <div class="progress" role="progressbar" aria-label="Bejelentések száma @terulet.Iranyitoszam">
+                            <div class="progress-bar" style="width: @(terulet.Osszes * 100 / legtobb)%"></div>
+                        </div>
+                    </td>
+                    <td>@terulet.Nyitott</td>
+                    <td>@terulet.Lejart</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<p class="small"><a asp-action="Export">Összesítő adatok exportja (JSON)</a></p>
+
+<script type="application/json" id="terkepAdat">@Html.Raw(JsonSerializer.Serialize(terkepAdat))</script>
+<script type="application/json" id="grafikonAdat">@Html.Raw(JsonSerializer.Serialize(grafikonAdat))</script>
+
 @section Scripts {
-    @if (cellak.Count > 0)
-    {
-        <script src="https://unpkg.com/leaflet@@1.9.4/dist/leaflet.js"></script>
-        <script>
-            const elem = document.getElementById("vezetoiTerkep");
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://unpkg.com/leaflet@@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@@1.5.3/dist/leaflet.markercluster.js"></script>
+    <script>
+        const grafikonAdat = JSON.parse(document.getElementById("grafikonAdat").textContent);
 
-            if (window.L) {
-                const cellak = JSON.parse(elem.dataset.cellak);
-                const terkep = L.map(elem, { scrollWheelZoom: false });
+        if (window.Chart) {
+            Chart.defaults.color = getComputedStyle(document.body).color;
 
-                L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-                    maxZoom: 19,
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                }).addTo(terkep);
+            new Chart(document.getElementById("kategoriaGrafikon"), {
+                type: "bar",
+                data: {
+                    labels: grafikonAdat.kategoriaCimkek,
+                    datasets: [{ data: grafikonAdat.kategoriaAdat, backgroundColor: "#0d6efd" }]
+                },
+                options: { indexAxis: "y", maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
 
-                terkep.fitBounds(cellak.map(c => [c.lat, c.lon]), {
-                    padding: [25, 25],
-                    maxZoom: 14
+            new Chart(document.getElementById("allapotGrafikon"), {
+                type: "doughnut",
+                data: {
+                    labels: grafikonAdat.allapotCimkek,
+                    datasets: [{
+                        data: grafikonAdat.allapotAdat,
+                        backgroundColor: ["#6c757d", "#0dcaf0", "#0d6efd", "#ffc107", "#198754", "#adb5bd", "#fd7e14", "#6f42c1"]
+                    }]
+                },
+                options: { maintainAspectRatio: false, plugins: { legend: { position: "bottom" } } }
+            });
+
+            new Chart(document.getElementById("haviGrafikon"), {
+                type: "bar",
+                data: {
+                    labels: grafikonAdat.haviCimkek,
+                    datasets: [{ data: grafikonAdat.haviAdat, backgroundColor: "#198754" }]
+                },
+                options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
+
+        const terkepAdat = JSON.parse(document.getElementById("terkepAdat").textContent);
+        const terkepElem = document.getElementById("vezetoiTerkep");
+        const sorok = [...document.querySelectorAll("#ugyTabla tbody tr")];
+        const szuroKategoria = document.getElementById("szuroKategoria");
+        const szuroAllapot = document.getElementById("szuroAllapot");
+        const szuroKereses = document.getElementById("szuroKereses");
+        const szuroLejart = document.getElementById("szuroLejart");
+        const szuroDarab = document.getElementById("szuroDarab");
+
+        let terkep = null;
+        let jelolok = null;
+
+        function szoveg(ertek) {
+            const elem = document.createElement("div");
+            elem.textContent = ertek;
+            return elem.innerHTML;
+        }
+
+        function jeloloFrissites(lathatoAzonositok) {
+            if (!terkep) {
+                return;
+            }
+
+            jelolok.clearLayers();
+
+            for (const ugy of terkepAdat) {
+                if (!lathatoAzonositok.has(String(ugy.id))) {
+                    continue;
+                }
+
+                const jelolo = L.circleMarker([ugy.lat, ugy.lon], {
+                    radius: 9,
+                    color: ugy.lejart ? "#b02a37" : "#0d6efd",
+                    fillOpacity: 0.7
                 });
 
-                for (const cella of cellak) {
-                    L.circleMarker([cella.lat, cella.lon], {
-                        radius: Math.min(24, 7 + 4 * Math.sqrt(cella.darab)),
-                        color: cella.lejart > 0 ? "#b02a37" : "#0d6efd",
-                        fillOpacity: 0.6
-                    }).addTo(terkep).bindTooltip(
-                        `${cella.darab} nyitott ügy, ebből ${cella.lejart} lejárt`
-                    );
-                }
-            } else {
-                elem.textContent = "A térkép nem töltődött be. Az ügyek a táblázatban láthatók.";
+                jelolo.bindPopup(
+                    "<strong>#" + ugy.id + " " + szoveg(ugy.cim) + "</strong><br>" +
+                    szoveg(ugy.kategoria) + " – " + szoveg(ugy.allapot) + "<br>" +
+                    ugy.nap + " napja nyitott" + (ugy.lejart ? ", határidőn túli" : "") + "<br>" +
+                    "<a href=\"" + ugy.url + "\">Részletek</a>"
+                );
+
+                jelolok.addLayer(jelolo);
             }
-        </script>
-    }
+        }
+
+        function szures() {
+            const lathato = new Set();
+            const szo = szuroKereses.value.trim().toLowerCase();
+
+            for (const sor of sorok) {
+                const megfelel =
+                    (!szuroKategoria.value || sor.dataset.kat === szuroKategoria.value) &&
+                    (!szuroAllapot.value || sor.dataset.all === szuroAllapot.value) &&
+                    (!szuroLejart.checked || sor.dataset.lejart === "1") &&
+                    (!szo || sor.dataset.szoveg.includes(szo));
+
+                sor.hidden = !megfelel;
+
+                if (megfelel) {
+                    lathato.add(sor.dataset.id);
+                }
+            }
+
+            szuroDarab.textContent = lathato.size + " ügy a szűrés szerint";
+            jeloloFrissites(lathato);
+        }
+
+        if (terkepElem && window.L && L.markerClusterGroup) {
+            terkep = L.map(terkepElem, { scrollWheelZoom: true });
+
+            L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(terkep);
+
+            jelolok = L.markerClusterGroup();
+            terkep.addLayer(jelolok);
+
+            terkep.fitBounds(terkepAdat.map(u => [u.lat, u.lon]), { padding: [25, 25], maxZoom: 14 });
+        } else if (terkepElem) {
+            terkepElem.textContent = "A térkép nem töltődött be. Az ügyek a táblázatban láthatók.";
+        }
+
+        for (const elem of [szuroKategoria, szuroAllapot, szuroKereses, szuroLejart]) {
+            elem.addEventListener("input", szures);
+        }
+
+        szures();
+    </script>
 }
