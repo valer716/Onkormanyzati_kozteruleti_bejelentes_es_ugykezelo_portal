@@ -8,10 +8,11 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/OnkormanyzatiPortal.styles.css" asp-append-version="true" />
+    <script src="~/js/tema.js" asp-append-version="true"></script>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm bg-body border-bottom mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Önkormányzati portál</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -21,22 +22,22 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area=""
+                            <a class="nav-link" asp-area=""
                                asp-controller="Home" asp-action="Index">Kezdőlap</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area=""
+                            <a class="nav-link" asp-area=""
                                asp-controller="Bejelentesek" asp-action="Letrehozas">Új bejelentés</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area=""
+                            <a class="nav-link" asp-area=""
                                asp-controller="Bejelentesek" asp-action="Kovetes">Ügykövetés</a>
                         </li>
 
                         @if (User.IsInRole("Ugyintezo"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area=""
+                                <a class="nav-link" asp-area=""
                                    asp-controller="Bejelentesek" asp-action="Index">Ügyintézés</a>
                             </li>
                         }
@@ -44,7 +45,7 @@
                         @if (User.IsInRole("Vegrehajto"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area=""
+                                <a class="nav-link" asp-area=""
                                    asp-controller="Munkafeladatok" asp-action="Index">Munkafeladatok</a>
                             </li>
                         }
@@ -52,11 +53,22 @@
                         @if (User.IsInRole("Vezeto"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area=""
+                                <a class="nav-link" asp-area=""
                                    asp-controller="Vezetoi" asp-action="Index">Vezetői kimutatás</a>
                             </li>
                         }
                     </ul>
+                    <div class="dropdown me-2 my-1">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">Megjelenés</button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><button class="dropdown-item" type="button" data-tema="vilagos">Világos</button></li>
+                            <li><button class="dropdown-item" type="button" data-tema="sotet">Sötét</button></li>
+                            <li><button class="dropdown-item" type="button" data-tema="kontraszt">Nagy kontraszt</button></li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li><button class="dropdown-item" type="button" data-betu-valto>Nagyobb betű be/ki</button></li>
+                        </ul>
+                    </div>
                     <partial name="_LoginPartial" />
                 </div>
             </div>
