@@ -1,0 +1,103 @@
+@using OnkormanyzatiPortal.Models
+@model Reszfeladat
+
+@{
+    ViewData["Title"] = "Munkafeladat";
+
+    var fotok = (IReadOnlyList<FotoListaSor>)ViewBag.Fotok;
+    var szerkesztheto = !Model.Elkeszult && Model.Bejelentes.Allapot == BejelentesAllapot.Folyamatban;
+}
+
+<p><a asp-action="Index">Vissza a feladatokhoz</a></p>
+
+<h1>@Model.Cim</h1>
+
+@if (TempData["Siker"] is string siker)
+{
+    <div class="alert alert-success" role="status">@siker</div>
+}
+@if (TempData["Hiba"] is string hiba)
+{
+    <div class="alert alert-danger" role="alert">@hiba</div>
+}
+
+<dl class="row">
+    <dt class="col-sm-3">Ügy</dt>
+    <dd class="col-sm-9">#@Model.BejelentesId – @Model.Bejelentes.Cim</dd>
+
+    <dt class="col-sm-3">Kategória</dt>
+    <dd class="col-sm-9">@Html.DisplayFor(_ => Model.Bejelentes.Kategoria)</dd>
+
+    <dt class="col-sm-3">Helyszín</dt>
+    <dd class="col-sm-9">@Model.Bejelentes.Helyszin</dd>
+
+    <dt class="col-sm-3">Határidő</dt>
+    <dd class="col-sm-9">@Model.Hatarido.ToString("yyyy.MM.dd.")</dd>
+
+    <dt class="col-sm-3">Állapot</dt>
+    <dd class="col-sm-9">@(Model.Elkeszult ? "Kész" : "Kiosztva")</dd>
+</dl>
+
+<h2 class="h5">A bejelentés leírása</h2>
+<p style="white-space: pre-wrap">@Model.Bejelentes.Leiras</p>
+
+@if (fotok.Count > 0)
+{
+    <h2 class="h5">Fényképek</h2>
+
+    <div class="row g-3 mb-4">
+        @foreach (var foto in fotok)
+        {
+            var cimke = foto.Tipus switch
+            {
+                BejelentesFotoTipus.Elotte => "Előtte",
+                BejelentesFotoTipus.Utana => "Utána",
+                _ => "Bejelentői fotó"
+            };
+
+            <div class="col-6 col-md-4 col-lg-3">
+                <figure class="m-0">
+                    <a asp-action="Foto" asp-route-id="@foto.Id" target="_blank">
+                        <img src="@Url.Action("Foto", new { id = foto.Id })" alt="@cimke"
+                             class="img-fluid rounded border" loading="lazy" />
+                    </a>
+                    <figcaption class="small">@cimke</figcaption>
+                </figure>
+            </div>
+        }
+    </div>
+}
+
+@if (szerkesztheto)
+{
+    <h2 class="h5">Helyszíni munka rögzítése</h2>
+
+    <form asp-action="Rogzit" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="megjegyzes" class="form-label">Helyszíni megjegyzés</label>
+            <textarea id="megjegyzes" name="megjegyzes" class="form-control" rows="4"
+                      maxlength="1000" required>@Model.Megjegyzes</textarea>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-md">
+                <label for="elotte" class="form-label">Előtte fotó (nem kötelező)</label>
+                <input id="elotte" name="elotte" type="file" accept="image/jpeg,image/png" class="form-control" />
+            </div>
+
+            <div class="col-md">
+                <label for="utana" class="form-label">Utána fotó</label>
+                <input id="utana" name="utana" type="file" accept="image/jpeg,image/png" class="form-control" />
+            </div>
+        </div>
+
+        <button type="submit" name="kesz" value="false" class="btn btn-outline-secondary">Mentés</button>
+        <button type="submit" name="kesz" value="true" class="btn btn-success">Készre jelentés</button>
+        <a asp-action="Index" class="btn btn-link">Mégse</a>
+    </form>
+}
+else if (!string.IsNullOrEmpty(Model.Megjegyzes))
+{
+    <h2 class="h5">Helyszíni megjegyzés</h2>
+    <p style="white-space: pre-wrap">@Model.Megjegyzes</p>
+}

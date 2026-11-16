@@ -11,16 +11,86 @@ namespace OnkormanyzatiPortal.Controllers;
 public class MunkafeladatokController(ApplicationDbContext db) : Controller
 {
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string? kereses, string? allapot)
     {
-        var feladatok = await SajatFeladatok()
+        IQueryable<Reszfeladat> lekerdezes = SajatFeladatok()
             .AsNoTracking()
-            .Include(f => f.Bejelentes)
+            .Include(f => f.Bejelentes);
+
+        if (!string.IsNullOrWhiteSpace(kereses))
+        {
+            var szo = kereses.Trim();
+            lekerdezes = lekerdezes.Where(f =>
+                f.Cim.Contains(szo)
+                || f.Bejelentes.Cim.Contains(szo)
+                || f.Bejelentes.Helyszin.Contains(szo));
+        }
+
+        if (allapot == "nyitott")
+            lekerdezes = lekerdezes.Where(f => !f.Elkeszult);
+        else if (allapot == "kesz")
+            lekerdezes = lekerdezes.Where(f => f.Elkeszult);
+
+        var feladatok = await lekerdezes
             .OrderBy(f => f.Elkeszult)
             .ThenBy(f => f.Hatarido)
             .ToListAsync();
 
+        var ugyAzonositok = feladatok.Select(f => f.BejelentesId).Distinct().ToList();
+
+        ViewBag.Kepek = await db.BejelentesFotok
+            .AsNoTracking()
+            .Where(f => f.Tipus == BejelentesFotoTipus.Bejelentes && ugyAzonositok.Contains(f.BejelentesId))
+            .GroupBy(f => f.BejelentesId)
+            .Select(g => new { BejelentesId = g.Key, FotoId = g.Min(f => f.Id) })
+            .ToDictionaryAsync(g => g.BejelentesId, g => g.FotoId);
+
         return View(feladatok);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Reszletek(int id)
+    {
+        var feladat = await SajatFeladatok()
+            .AsNoTracking()
+            .Include(f => f.Bejelentes)
+            .Include(f => f.Szervezet)
+            .SingleOrDefaultAsync(f => f.Id == id);
+
+        if (feladat is null)
+            return NotFound();
+
+        ViewBag.Fotok = await db.BejelentesFotok
+            .AsNoTracking()
+            .Where(f => f.BejelentesId == feladat.BejelentesId
+                && (f.ReszfeladatId == null || f.ReszfeladatId == id))
+            .OrderBy(f => f.Id)
+            .Select(f => new FotoListaSor(f.Id, f.Tipus, f.ReszfeladatId))
+            .ToListAsync();
+
+        return View(feladat);
+    }
+
+    [HttpGet]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+    public async Task<IActionResult> Foto(int id)
+    {
+        var felhasznaloId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        var foto = await db.BejelentesFotok
+            .AsNoTracking()
+            .Where(f => f.Id == id
+                && db.SzervezetiTagok.Any(t => t.FelhasznaloId == felhasznaloId
+                    && db.Reszfeladatok.Any(x => x.SzervezetId == t.SzervezetId
+                        && x.BejelentesId == f.BejelentesId
+                        && (f.ReszfeladatId == null || f.ReszfeladatId == x.Id))))
+            .SingleOrDefaultAsync();
+
+        if (foto is null)
+            return NotFound();
+
+        Response.Headers["X-Content-Type-Options"] = "nosniff";
+        return File(foto.Tartalom, foto.TartalomTipus);
     }
 
     [HttpPost]
@@ -45,7 +115,7 @@ public class MunkafeladatokController(ApplicationDbContext db) : Controller
         if (!ModelState.IsValid || string.IsNullOrEmpty(megjegyzes) || megjegyzes.Length > 1000)
         {
             TempData["Hiba"] = "Adj meg helyszíni megjegyzést, legfeljebb 1000 karakterben.";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Reszletek), new { id });
         }
 
         BejelentesFoto? elotteKep;
@@ -59,7 +129,7 @@ public class MunkafeladatokController(ApplicationDbContext db) : Controller
         catch (ArgumentException e)
         {
             TempData["Hiba"] = e.Message;
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Reszletek), new { id });
         }
 
         foreach (var kep in new[] { elotteKep, utanaKep })
@@ -110,11 +180,15 @@ public class MunkafeladatokController(ApplicationDbContext db) : Controller
         catch (DbUpdateConcurrencyException)
         {
             TempData["Hiba"] = "Az ügy közben megváltozott. Próbáld újra a mentést.";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Reszletek), new { id });
         }
 
         TempData["Siker"] = kesz ? "A részfeladat elkészült." : "A megjegyzést mentettük.";
-        return RedirectToAction(nameof(Index));
+
+        if (kesz)
+            return RedirectToAction(nameof(Index));
+
+        return RedirectToAction(nameof(Reszletek), new { id });
     }
 
     private IQueryable<Reszfeladat> SajatFeladatok()
