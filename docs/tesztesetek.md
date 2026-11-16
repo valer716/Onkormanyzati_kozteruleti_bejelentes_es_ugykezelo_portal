@@ -49,3 +49,10 @@ Az automatikus tesztek helye a tervezett `OnkormanyzatiPortal.Tests` projekt (fu
 | T24 | Vezetoi_AtlagosMegoldasiIdo_CsakLezartUgyekbol | Átlag számítása | Csak a Lezart ügyek számítanak | automata | Nincs futtatva |
 | T25 | Vezetoi_Export_NemTartalmazSzemelyesAdatot | Export tartalma | Csak kategória, állapot, darabszám | kézi | Nincs futtatva |
 | T26 | Vezetoi_Terkep_CsakKoordinatasUgyetMutat | Hiányzó koordináta kezelése | Koordináta nélküli ügy nem kerül a térképre | kézi | Nincs futtatva |
+
+## Reszponzivitás
+
+| Azonosító | Teszt neve | Mit ellenőriz | Elvárt eredmény | Típus | Eredmény |
+|---|---|---|---|---|---|
+| T27 | Reszponziv_BejelentoUrlap_TelefonMeretben | Az űrlap és a térkép 375 px szélességben (böngésző eszközei, eszköz-nézet) | Nincs vízszintes görgetés, a mezők és a térkép használható | kézi | Nincs futtatva |
+| T28 | Reszponziv_UgyListaEsVezetoiOldal_TabletMeretben | Az ügylista és a vezetői oldal 768 px szélességben | A táblázat olvasható, a térkép és a kimutatás elfér | kézi | Nincs futtatva |

@@ -24,6 +24,8 @@ A szerepkörök: `Ugyintezo`, `Vegrehajto`, `Vezeto`. A lakos és a vendég nem 
 
 ## Megjegyzések
 
+- Az ügyintéző az önkormányzat hivatali dolgozója, ő a portál központi kezelője: ő dönt a téves és a hatáskörön kívüli ügyekről, indoklással. A végrehajtó a feladatot végző szervezet munkatársa, a vezető csak olvas és kimutat, ügyet nem módosít. A szerepkörök nem épülnek egymásra, mindegyiknek más a feladata.
+- A lakos nem regisztrál és nem lép be, névtelen. A portál belépési és regisztrációs oldalai a dolgozók fiókjaihoz tartoznak.
 - A követőkód a bejelentő titka. Aki ismeri, látja az ügy állapotát és határidejét, mást nem. Összevont ügynél a főügy állapota látszik.
 - A végrehajtó csak a saját szervezetéhez tartozó részfeladatot módosíthatja, idegen feladat azonosítójára hibát kap.
 - A végrehajtó feladata csak `Folyamatban` állapotú ügynél és csak elkészülés előtt módosítható.

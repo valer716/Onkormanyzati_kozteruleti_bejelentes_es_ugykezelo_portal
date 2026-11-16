@@ -107,7 +107,7 @@ Kezdeti adat: Útfenntartás, Köztisztaság, Közvilágítás.
 
 ## Korlátok és védelem
 
-- A `Kovetokod` egyedi, ahol van értéke.
+- A `Kovetokod` egyedi, ahol van értéke. Egyszerű, véletlen `Guid`, nem aláírt és nem lejáró token: aki ismeri, látja az ügy állapotát és határidejét. Éles rendszerben ezt erősebb megoldásra kellene cserélni.
 - A `Verzio` minden módosításkor új értéket kap; elavult módosítás nem menthető el.
 - A fotó fogadásakor a fájl tartalma is ellenőrzésre kerül, nem csak a kiterjesztés.
 - Törlő felület nincs, ügy és napló nem törölhető az alkalmazásból.
