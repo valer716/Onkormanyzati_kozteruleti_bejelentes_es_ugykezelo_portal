@@ -30,7 +30,7 @@ erDiagram
 | Hatarido | DateTime? | az ellenőrzéskor kerül kitöltésre |
 | Verzio | Guid | párhuzamos módosítás ellenőrzése (`ConcurrencyCheck`) |
 | LezarvaUtc | DateTime? | sikeres lezárás ideje |
-| Kovetokod | Guid? | egyedi (szűrt index), a lakossági követéshez |
+| Kovetokod | string? | 6 számjegy, egyedi (szűrt index), a lakossági követéshez |
 | Ertekeles | int? | lakossági értékelés, lezárt ügyre |
 | Szelesseg, Hosszusag | double? | térképes hely |
 | Veszelyes | bool | veszélyes ügy jelölése |
@@ -107,7 +107,7 @@ Kezdeti adat: Útfenntartás, Köztisztaság, Közvilágítás.
 
 ## Korlátok és védelem
 
-- A `Kovetokod` egyedi, ahol van értéke. Egyszerű, véletlen `Guid`, nem aláírt és nem lejáró token: aki ismeri, látja az ügy állapotát és határidejét. Éles rendszerben ezt erősebb megoldásra kellene cserélni.
+- A `Kovetokod` egyedi, ahol van értéke. Rövid, 6 számjegyű véletlen szám, hogy a lakos meg tudja jegyezni és be tudja gépelni. Aki ismeri, látja az ügy állapotát és határidejét, ezért a kód találgatható; éles rendszerben hosszabb kód vagy a próbálkozások korlátozása kellene.
 - A `Verzio` minden módosításkor új értéket kap; elavult módosítás nem menthető el.
 - A fotó fogadásakor a fájl tartalma is ellenőrzésre kerül, nem csak a kiterjesztés.
 - Törlő felület nincs, ügy és napló nem törölhető az alkalmazásból.

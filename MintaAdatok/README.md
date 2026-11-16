@@ -33,7 +33,7 @@ A szerver csak a saját gépről érhető el, és a fájlokat közvetlenül a `M
 ```json
 {
   "azonosito": "bj-0001",
-  "kovetokod": "329572c7-5c8b-4730-b69b-15375fb25d80",
+  "kovetokod": "329572",
   "cim": "Betört aknafedél",
   "leiras": "Az aknafedél eltört, balesetveszélyes az úttesten.",
   "helyszin": "Kossuth utca 12., Budapest",

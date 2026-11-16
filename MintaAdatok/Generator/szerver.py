@@ -5,7 +5,7 @@ import json
 import os
 import re
 import unicodedata
-import uuid
+import random
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
 PORT = int(os.environ.get("PORT", "8081"))
@@ -37,11 +37,20 @@ def alap_reszfeladat(x):
     }
 
 
+def uj_kovetokod(lista):
+    foglalt = {str(r.get("kovetokod")) for r in lista}
+
+    while True:
+        kod = str(random.randint(100000, 999999))
+        if kod not in foglalt:
+            return kod
+
+
 def alap_rekord(r, azonosito):
     kiegeszito = {k: v for k, v in r.items() if k not in KULCSOK}
     rekord = {
         "azonosito": r.get("azonosito") or azonosito,
-        "kovetokod": r.get("kovetokod") or str(uuid.uuid4()),
+        "kovetokod": r.get("kovetokod") or uj_kovetokod([]),
         "cim": r.get("cim", ""),
         "leiras": r.get("leiras", ""),
         "helyszin": r.get("helyszin", ""),
@@ -329,7 +338,7 @@ def mentes(adat):
         rekord["kovetokod"] = regi["kovetokod"]
     else:
         rekord["azonosito"] = kovetkezo_azonosito(lista)
-        rekord["kovetokod"] = str(uuid.uuid4())
+        rekord["kovetokod"] = uj_kovetokod(lista)
 
     foglalt = {n for r in lista for n in kepnevek(r)}
     alap = ekezetnelkuli(rekord["cim"])

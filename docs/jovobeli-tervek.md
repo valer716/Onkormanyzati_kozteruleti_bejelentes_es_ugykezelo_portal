@@ -22,6 +22,6 @@ A feladat "Riportok és bővítések" részéhez kapcsolódó ötletek, amelyek 
 
 ## Ismert korlátok
 
-- A követőkód egy egyszerű, véletlen `Guid`. Aki ismeri, látja az ügy állapotát és határidejét. Éles rendszerben érdemes lejáró vagy aláírt tokenre cserélni.
+- A követőkód 6 számjegyű véletlen szám, hogy megjegyezhető legyen. Aki ismeri, látja az ügy állapotát és határidejét, ezért találgatható. Éles rendszerben hosszabb vagy lejáró kód, illetve a próbálkozások korlátozása kellene.
 - A bejelentő szabad szövegbe személyes adatot is írhat (név, rendszám), és a fotón is lehet felismerhető személy. Ezt a portál jelenleg nem szűri.
 - A lakos nem kap értesítést az állapotváltozásról, a követés oldalon kell újra megnéznie az ügyet.
