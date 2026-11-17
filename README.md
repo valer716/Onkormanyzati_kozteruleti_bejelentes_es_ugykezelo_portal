@@ -45,7 +45,6 @@ Szükséges (Windows):
 
 - **.NET 10 SDK**: dotnet.microsoft.com/download
 - **SQL Server LocalDB**: a Visual Studio telepítőjében (Visual Studio Installer, Egyedi összetevők, "SQL Server Express LocalDB"), vagy az SQL Server Express telepítőjével
-- **dotnet-ef eszköz**: parancssorban `dotnet tool install --global dotnet-ef` (az `Inditas.bat` ezt is elvégzi)
 
 Indítás: dupla kattintás az `Inditas.bat` fájlra. Egy parancssori ablak nyílik meg, ez futtatja a webszervert (külön webszervert telepíteni nem kell, az alkalmazás tartalmazza), létrehozza az adatbázist, és megnyitja a böngészőt a `http://localhost:5131` címen. Leállítás: az ablak bezárása vagy Ctrl+C.
 

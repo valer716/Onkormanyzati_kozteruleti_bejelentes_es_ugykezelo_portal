@@ -47,6 +47,11 @@ app.MapRazorPages()
 
 using (var scope = app.Services.CreateScope())
 {
+    if (app.Environment.IsDevelopment())
+    {
+        await scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.MigrateAsync();
+    }
+
     var szerepkorKezelo = scope.ServiceProvider
         .GetRequiredService<RoleManager<IdentityRole>>();
 
