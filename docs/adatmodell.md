@@ -98,7 +98,7 @@ Kezdeti adat: Útfenntartás, Köztisztaság, Közvilágítás, Közterület-fel
 
 | Honnan | Hová | Ki és mikor |
 |---|---|---|
-| Uj, Ellenorizve | Ellenorizve | Ügyintéző ellenőrzi az ügyet, pontosítja az adatait és határidőt ad (ma vagy később) |
+| Uj, Ellenorizve | Ellenorizve | Ügyintéző ellenőrzi az ügyet és határidőt ad (ma vagy később) |
 | Ellenorizve, Folyamatban | Folyamatban | Ügyintéző részfeladatot ad egy szervezetnek (a határidő nem lehet későbbi az ügyénél) |
 | Folyamatban | LezarasraVar | Végrehajtó készre jelenti az utolsó nyitott részfeladatot |
 | LezarasraVar | Lezart | Ügyintéző lezárja, ha van részfeladat és mind elkészült |
@@ -112,3 +112,20 @@ Kezdeti adat: Útfenntartás, Köztisztaság, Közvilágítás, Közterület-fel
 - A fotó fogadásakor a fájl tartalma is ellenőrzésre kerül, nem csak a kiterjesztés.
 - Törlő felület nincs, ügy és napló nem törölhető az alkalmazásból.
 - A bejelentő neve és e-mail-címe nem tárolódik.
+
+## Naplózott műveletek
+
+A `BejelentesNaplo` a következő műveleteket rögzíti (a `Muvelet` mező szövege):
+
+| Művelet | Ki végzi |
+|---|---|
+| Bejelentés érkezett | lakos |
+| Ellenőrzés és határidő beállítása, Határidő módosítása | ügyintéző |
+| Ügyadatok pontosítva (cím, leírás, helyszín, kategória), állapotváltás nélkül | ügyintéző |
+| Feladat kiosztva: a szervezet neve és a határidő | ügyintéző |
+| Részfeladat elkészült, Megjegyzés mentve | végrehajtó |
+| Veszélyesnek jelölve, Veszélyjelzés levéve | ügyintéző |
+| Téves vagy Hatáskörön kívüli, indoklással | ügyintéző |
+| Összevonva a főüggyel, Kapcsolódó jelzés hozzáadva | ügyintéző |
+| Ügyintéző ellenőrizte és lezárta az ügyet | ügyintéző |
+| Lakossági értékelés | lakos |

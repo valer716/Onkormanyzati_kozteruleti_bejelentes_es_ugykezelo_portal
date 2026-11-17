@@ -12,6 +12,7 @@ A szerepkörök: `Ugyintezo`, `Vegrehajto`, `Vezeto`. A lakos és a vendég nem 
 | Ügylista, keresés, szűrés | Nem | Igen | Nem | Nem |
 | Ügy részletei, napló, fotók megtekintése | Nem | Igen | Csak a saját szervezete feladataihoz tartozó ügyek részletei és fotói | Igen, csak olvasható |
 | Ellenőrzés, adatpontosítás, határidő megadása | Nem | Igen | Nem | Nem |
+| A bejelentés címének, leírásának, helyszínének és kategóriájának javítása (lezárásig) | Nem | Igen | Nem | Nem |
 | Részfeladat kiosztása szervezetnek | Nem | Igen | Nem | Nem |
 | Veszélyes jelölés, összevonás, téves, hatáskörön kívüli | Nem | Igen | Nem | Nem |
 | Ügy lezárása | Nem | Igen | Nem | Nem |

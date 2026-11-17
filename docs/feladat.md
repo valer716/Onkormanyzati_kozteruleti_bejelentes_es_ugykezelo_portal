@@ -9,7 +9,7 @@ Jelölések: **KÉSZ**, **RÉSZBEN**, **HIÁNYZIK**, **NEM KÖTELEZŐ** (a szöv
 | Követelmény | Állapot |
 |---|---|
 | A lakos térképi hely, kategória, leírás és fénykép megadásával küld bejelentést, akár regisztráció nélkül | **KÉSZ** |
-| Az ügyintéző ellenőrzi, pontosítja, összevonja a hasonló eseteket, felelős szervezethez irányítja, határidőt állít | **KÉSZ** (a felület átnézése hátra van) |
+| Az ügyintéző ellenőrzi, pontosítja, összevonja a hasonló eseteket, felelős szervezethez irányítja, határidőt állít | **KÉSZ** (az ügyintéző a lezárásig javíthatja az adatokat és a kategóriát, az összevonáshoz listából választ) |
 | A végrehajtó munkafeladatot kap, helyszíni megjegyzést és előtte-utána fényképet tölt fel | **KÉSZ** |
 | A lezárást az ügyintéző ellenőrzi, a bejelentő visszajelzést adhat, személyes adata nem jelenik meg a nyilvános nézetben | **KÉSZ** (értékelés, a követés oldal csak állapotot és határidőt mutat) |
 | Téves, hatáskörön kívüli, veszélyes és tömegesen jelzett ügyek kezelése, minden lényeges állapotváltozás naplózása | **KÉSZ** |
@@ -27,7 +27,7 @@ Jelölések: **KÉSZ**, **RÉSZBEN**, **HIÁNYZIK**, **NEM KÖTELEZŐ** (a szöv
 
 | Követelmény | Állapot |
 |---|---|
-| Térképes és táblázatos vezetői nézet a nyitott ügyekről | **KÉSZ** |
+| Térképes és táblázatos vezetői nézet a nyitott ügyekről | **KÉSZ** (szűrhető, csoportosított térkép, időszak szerinti szűrés, ügyelőnézet) |
 | Átlagos megoldási idő | **KÉSZ** |
 | Határidő-túllépés | **KÉSZ** |
 | Kategóriánkénti gyakoriság | **KÉSZ** |
@@ -45,4 +45,4 @@ Jelölések: **KÉSZ**, **RÉSZBEN**, **HIÁNYZIK**, **NEM KÖTELEZŐ** (a szöv
 | Dokumentált tesztesetek | **RÉSZBEN** (a tesztesetek le vannak írva, az automata tesztek és az eredmények hiányoznak) |
 | Adatmodell, szerepkör- és jogosultsági mátrix | **KÉSZ** |
 | Legalább egy import, export vagy külső API | **KÉSZ** (mintaadat-betöltés, JSON-export, térkép) |
-| Naplózás, hibás vagy hiányzó adatok kezelése | **KÉSZ** (a napló), **RÉSZBEN** (a hiányzó koordináta még nem kötelező) |
+| Naplózás, hibás vagy hiányzó adatok kezelése | **KÉSZ** (a napló, a térképi pont kötelező érthető hibaüzenettel, az utca nem kötelező) |
