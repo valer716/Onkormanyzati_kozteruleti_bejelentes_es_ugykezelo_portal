@@ -22,7 +22,9 @@ namespace OnkormanyzatiPortal.Data
             builder.Entity<Szervezet>().HasData(
                 new Szervezet { Id = 1, Nev = "Útfenntartás" },
                 new Szervezet { Id = 2, Nev = "Köztisztaság" },
-                new Szervezet { Id = 3, Nev = "Közvilágítás" }
+                new Szervezet { Id = 3, Nev = "Közvilágítás" },
+                new Szervezet { Id = 4, Nev = "Közterület-felügyelet" },
+                new Szervezet { Id = 5, Nev = "Közművek (víz, áram)" }
             );
 
             builder.Entity<Bejelentes>()

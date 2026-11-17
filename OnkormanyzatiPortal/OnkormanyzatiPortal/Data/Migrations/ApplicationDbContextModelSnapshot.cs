@@ -260,8 +260,9 @@ namespace OnkormanyzatiPortal.Data.Migrations
                     b.Property<int>("Kategoria")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("Kovetokod")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("Kovetokod")
+                        .HasMaxLength(6)
+                        .HasColumnType("nvarchar(6)");
 
                     b.Property<string>("Leiras")
                         .IsRequired()
@@ -438,6 +439,16 @@ namespace OnkormanyzatiPortal.Data.Migrations
                         {
                             Id = 3,
                             Nev = "Közvilágítás"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Nev = "Közterület-felügyelet"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Nev = "Közművek (víz, áram)"
                         });
                 });
 

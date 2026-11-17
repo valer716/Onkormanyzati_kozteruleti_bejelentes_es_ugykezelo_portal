@@ -6,17 +6,31 @@
 
     var feladatok = (IReadOnlyList<Reszfeladat>)ViewBag.Reszfeladatok;
     var szervezetek = (IReadOnlyList<Szervezet>)ViewBag.Szervezetek;
+    var foUgyek = (IReadOnlyList<FoUgyJelolt>)ViewBag.FoUgyek;
+    var fotok = ViewBag.Fotok as IReadOnlyList<FotoListaSor> ?? [];
+    var naplo = ViewBag.Naplo as IReadOnlyList<BejelentesNaplo> ?? [];
+    var felhasznalok = (IReadOnlyDictionary<string, string>)ViewBag.Felhasznalok;
 
-    var kiosztasElott = Model.Allapot is
-        BejelentesAllapot.Uj or BejelentesAllapot.Ellenorizve;
+    var kiosztasElott = Model.Allapot is BejelentesAllapot.Uj or BejelentesAllapot.Ellenorizve;
 
-    var nyitott = kiosztasElott || (Model.Allapot is
-        BejelentesAllapot.Folyamatban or BejelentesAllapot.LezarasraVar);
+    var nyitott = Model.Allapot is BejelentesAllapot.Uj or BejelentesAllapot.Ellenorizve
+        or BejelentesAllapot.Folyamatban or BejelentesAllapot.LezarasraVar;
+
+    var alapHatarido = (Model.Hatarido ?? DateTime.Today.AddDays(14)).ToString("yyyy-MM-dd");
+    var kategoriak = Html.GetEnumSelectList<BejelentesKategoria>();
 }
 
-<p><a asp-action="Index">Vissza az ügylistához</a></p>
+<p><a asp-action="Index" class="btn btn-outline-secondary btn-sm">← Vissza az ügylistához</a></p>
 
-<h1>#@Model.Id – @Model.Cim</h1>
+<h1 class="h2">#@Model.Id – @Model.Cim</h1>
+
+<p>
+    <span class="badge text-bg-primary fs-6">@Html.DisplayFor(m => m.Allapot)</span>
+    @if (Model.Veszelyes)
+    {
+        <span class="badge text-bg-danger fs-6">Veszélyes</span>
+    }
+</p>
 
 @if (TempData["Siker"] is string siker)
 {
@@ -28,277 +42,367 @@
     <div class="alert alert-danger" role="alert">@hiba</div>
 }
 
-<dl class="row">
-    <dt class="col-sm-3">Kategória</dt>
-    <dd class="col-sm-9">@Html.DisplayFor(m => m.Kategoria)</dd>
-
-    <dt class="col-sm-3">Állapot</dt>
-    <dd class="col-sm-9">@Html.DisplayFor(m => m.Allapot)</dd>
-
-    <dt class="col-sm-3">Helyszín</dt>
-    <dd class="col-sm-9">@Model.Helyszin</dd>
-
-    <dt class="col-sm-3">Ügyhatáridő</dt>
-    <dd class="col-sm-9">
-        @(Model.Hatarido?.ToString("yyyy.MM.dd.") ?? "Nincs megadva")
-    </dd>
-
-    <dt class="col-sm-3">Beérkezés (UTC)</dt>
-    <dd class="col-sm-9">@Model.LetrehozvaUtc.ToString("yyyy.MM.dd. HH:mm")</dd>
-</dl>
-
-<h2>Leírás</h2>
-<p style="white-space: pre-wrap">@Model.Leiras</p>
-
-@if (ViewBag.Fotok is IReadOnlyList<FotoListaSor> fotok && fotok.Count > 0)
-{
-    <h2>Fényképek</h2>
-    <div class="row g-3 mb-3">
-        @foreach (var foto in fotok)
+<div class="card mb-4" id="adatok">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-semibold">A bejelentés adatai</span>
+        @if (nyitott)
         {
-            var cimke = foto.Tipus switch
-            {
-                BejelentesFotoTipus.Elotte => "Előtte",
-                BejelentesFotoTipus.Utana => "Utána",
-                _ => "Bejelentői fotó"
-            };
+            <button type="button" id="szerkesztesGomb" class="btn btn-outline-secondary btn-sm">✎ Szerkesztés</button>
+        }
+    </div>
 
-            <div class="col-6 col-md-4 col-lg-3">
-                <figure class="m-0">
-                    <a asp-action="Foto" asp-route-id="@foto.Id" target="_blank">
-                        <img src="@Url.Action("Foto", new { id = foto.Id })" alt="@cimke"
-                             class="img-fluid rounded border" loading="lazy" />
-                    </a>
-                    <figcaption class="small">
-                        @cimke
-                        @if (foto.ReszfeladatId is int feladatId)
-                        {
-                            <span>– részfeladat #@feladatId</span>
-                        }
-                    </figcaption>
-                </figure>
+    <div class="card-body">
+        <div id="adatNezet">
+            <dl class="row mb-2">
+                <dt class="col-sm-3">Kategória</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(m => m.Kategoria)</dd>
+
+                <dt class="col-sm-3">Helyszín</dt>
+                <dd class="col-sm-9">@Model.Helyszin</dd>
+
+                <dt class="col-sm-3">Beérkezés (UTC)</dt>
+                <dd class="col-sm-9">@Model.LetrehozvaUtc.ToString("yyyy.MM.dd. HH:mm")</dd>
+
+                <dt class="col-sm-3">Ügyhatáridő</dt>
+                <dd class="col-sm-9">@(Model.Hatarido?.ToString("yyyy.MM.dd.") ?? "Nincs megadva")</dd>
+            </dl>
+
+            <h2 class="h6">Leírás</h2>
+            <p style="white-space: pre-wrap">@Model.Leiras</p>
+        </div>
+
+        @if (nyitott)
+        {
+            <form id="szerkesztesUrlap" asp-action="Pontosit" asp-route-id="@Model.Id" method="post" class="d-none">
+                <div class="mb-3">
+                    <label for="szerkCim" class="form-label">Bejelentés címe</label>
+                    <input id="szerkCim" name="cim" value="@Model.Cim" class="form-control" required maxlength="120" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="szerkLeiras" class="form-label">Leírás</label>
+                    <textarea id="szerkLeiras" name="leiras" class="form-control" rows="5"
+                              required maxlength="2000">@Model.Leiras</textarea>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-8">
+                        <label for="szerkHelyszin" class="form-label">Helyszín</label>
+                        <input id="szerkHelyszin" name="helyszin" value="@Model.Helyszin" class="form-control" required maxlength="200" />
+                    </div>
+                    <div class="col-md-4">
+                        <label for="szerkKategoria" class="form-label">Kategória</label>
+                        <select id="szerkKategoria" name="kategoria" class="form-select">
+                            @foreach (var kategoria in kategoriak)
+                            {
+                                <option value="@kategoria.Value" selected="@(kategoria.Value == ((int)Model.Kategoria).ToString())">@kategoria.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Mentés</button>
+                <button type="button" id="szerkesztesMegse" class="btn btn-outline-secondary">Mégse</button>
+            </form>
+        }
+
+        @if (fotok.Count > 0)
+        {
+            <h2 class="h6 mt-3">Fényképek</h2>
+
+            <div class="row g-3">
+                @foreach (var foto in fotok)
+                {
+                    var cimke = foto.Tipus switch
+                    {
+                        BejelentesFotoTipus.Elotte => "Előtte",
+                        BejelentesFotoTipus.Utana => "Utána",
+                        _ => "Bejelentői fotó"
+                    };
+
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <figure class="m-0">
+                            <a href="@Url.Action("Foto", new { id = foto.Id })" data-foto-url="@Url.Action("Foto", new { id = foto.Id })" data-foto-cim="@cimke">
+                                <img src="@Url.Action("Foto", new { id = foto.Id })" alt="@cimke"
+                                     class="img-fluid rounded border" loading="lazy" />
+                            </a>
+                            <figcaption class="small">
+                                @cimke
+                                @if (foto.ReszfeladatId is int feladatId)
+                                {
+                                    <span>– részfeladat #@feladatId</span>
+                                }
+                            </figcaption>
+                        </figure>
+                    </div>
+                }
             </div>
         }
     </div>
-}
+</div>
 
-@if (kiosztasElott)
-{
-    <h2>Ellenőrzés és pontosítás</h2>
+<div class="card mb-4" id="kovetkezo">
+    <div class="card-header fw-semibold">Következő lépés</div>
+    <div class="card-body">
+        @if (Model.Allapot == BejelentesAllapot.Uj)
+        {
+            <p>Nézd át a bejelentést (a ceruzával javíthatod az adatait és a kategóriát), majd add meg a határidőt.</p>
 
-    <form asp-action="Ellenoriz" asp-route-id="@Model.Id" method="post" class="mb-4">
-        <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+            <form asp-action="Ellenoriz" asp-route-id="@Model.Id" method="post">
+                <label for="hatarido" class="form-label">Ügyhatáridő</label>
+                <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+                    <input id="hatarido" name="hatarido" type="date" class="form-control" style="max-width: 12rem"
+                           value="@alapHatarido" required />
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-nap="7">7 nap</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-nap="14">14 nap</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-nap="30">30 nap</button>
+                </div>
 
-        <div class="mb-3">
-            <label asp-for="Cim" class="form-label">Rövid cím</label>
-            <input asp-for="Cim" class="form-control" required maxlength="120" />
-        </div>
+                <button type="submit" class="btn btn-primary">Ellenőrzöttnek jelölöm</button>
+            </form>
+        }
+        else if (Model.Allapot is BejelentesAllapot.Ellenorizve or BejelentesAllapot.Folyamatban)
+        {
+            if (Model.Allapot == BejelentesAllapot.Ellenorizve)
+            {
+                <p>Az ügy ellenőrzött. Adj feladatot a felelős szervezetnek.</p>
+            }
+            else
+            {
+                <p>Az ügy folyamatban van, a szervezetek dolgoznak rajta. Ha kell, adhatsz újabb feladatot.</p>
+            }
 
-        <div class="mb-3">
-            <label asp-for="Leiras" class="form-label">Leírás</label>
-            <textarea asp-for="Leiras" class="form-control" rows="4"
-                      required maxlength="2000"></textarea>
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="Helyszin" class="form-label">Helyszín</label>
-            <input asp-for="Helyszin" class="form-control" required maxlength="200" />
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="Hatarido" class="form-label">Ügyhatáridő</label>
-            <input asp-for="Hatarido" asp-format="{0:yyyy-MM-dd}"
-                   type="date" class="form-control" required />
-        </div>
-
-        <button type="submit" class="btn btn-primary">Mentés ellenőrzöttként</button>
-    </form>
-}
-
-<h2>Részfeladatok</h2>
-
-@if (feladatok.Count == 0)
-{
-    <p>Még nincs kiosztott részfeladat.</p>
-}
-else
-{
-    <div class="table-responsive">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Feladat</th>
-                    <th>Szervezet</th>
-                    <th>Határidő</th>
-                    <th>Állapot</th>
-                    <th>Megjegyzés</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var feladat in feladatok)
-                {
-                    <tr>
-                        <td>@feladat.Cim</td>
-                        <td>@feladat.Szervezet.Nev</td>
-                        <td>@feladat.Hatarido.ToString("yyyy.MM.dd.")</td>
-                        <td>@(feladat.Elkeszult ? "Kész" : "Kiosztva")</td>
-                        <td>@feladat.Megjegyzes</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-}
-
-@if (Model.Hatarido.HasValue &&
-    (Model.Allapot is BejelentesAllapot.Ellenorizve or BejelentesAllapot.Folyamatban))
-{
-    <h3>Új részfeladat</h3>
-
-    <form asp-action="Kioszt" asp-route-id="@Model.Id" method="post" class="mb-4">
-        <div class="mb-3">
-            <label for="feladatCim" class="form-label">Feladat címe</label>
-            <input id="feladatCim" name="feladatCim" class="form-control"
-                   required maxlength="160" />
-        </div>
-
-        <div class="mb-3">
-            <label for="szervezetId" class="form-label">Felelős szervezet</label>
-            <select id="szervezetId" name="szervezetId" class="form-select" required>
-                <option value="">Válassz szervezetet</option>
-                @foreach (var szervezet in szervezetek)
-                {
-                    <option value="@szervezet.Id">@szervezet.Nev</option>
-                }
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label for="feladatHatarido" class="form-label">Feladathatáridő</label>
-            <input id="feladatHatarido" name="feladatHatarido"
-                   type="date" class="form-control" required />
-        </div>
-
-        <button type="submit" class="btn btn-primary">Feladat kiosztása</button>
-    </form>
-}
-
-@if (Model.Allapot == BejelentesAllapot.LezarasraVar
-    && feladatok.Count > 0
-    && feladatok.All(f => f.Elkeszult))
-{
-    <h2>Ügy lezárása</h2>
-    <p>Minden részfeladat elkészült. Lezárás előtt nézd át a megjegyzéseket és a fotókat.</p>
-
-    <form asp-action="Lezar" asp-route-id="@Model.Id" method="post" class="mb-4">
-        <button type="submit" class="btn btn-success">Ellenőriztem, lezárom</button>
-    </form>
-}
-else if (Model.LezarvaUtc is DateTime lezarvaUtc)
-{
-    <p>Lezárás ideje (UTC): @lezarvaUtc.ToString("yyyy.MM.dd. HH:mm")</p>
-}
-
-<h2>Különleges ügyek</h2>
-
-@if (Model.FoBejelentesId is int foId)
-{
-    <p>Főügy: <a asp-action="Reszletek" asp-route-id="@foId">#@foId</a></p>
-}
-else
-{
-    <p>Jelzések száma: @ViewBag.JelzesekSzama (az eredeti bejelentéssel együtt)</p>
-}
-
-@if (Model.Veszelyes)
-{
-    <p class="text-danger"><strong>Veszélyes ügy</strong></p>
-}
-
-@if (ViewBag.Naplo is IReadOnlyList<BejelentesNaplo> naplo && naplo.Count > 0)
-{
-    var felhasznalok = (IReadOnlyDictionary<string, string>)ViewBag.Felhasznalok;
-
-    <h2>Státusztörténet</h2>
-
-    <div class="table-responsive">
-        <table class="table table-sm">
-            <thead>
-                <tr>
-                    <th>Időpont (UTC)</th>
-                    <th>Művelet</th>
-                    <th>Állapot</th>
-                    <th>Végezte</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var sor in naplo)
-                {
-                    <tr>
-                        <td>@sor.IdopontUtc.ToString("yyyy.MM.dd. HH:mm")</td>
-                        <td>@sor.Muvelet</td>
-                        <td>
-                            @if (sor.ElozoAllapot.HasValue && sor.ElozoAllapot != sor.UjAllapot)
+            <form asp-action="Kioszt" asp-route-id="@Model.Id" method="post" data-piszkozat="kioszt-@Model.Id">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-5">
+                        <label for="feladatCim" class="form-label">Mit kell elvégezni?</label>
+                        <input id="feladatCim" name="feladatCim" class="form-control" required maxlength="160" />
+                    </div>
+                    <div class="col-md-4">
+                        <label for="szervezetId" class="form-label">Felelős szervezet</label>
+                        <select id="szervezetId" name="szervezetId" class="form-select" required>
+                            <option value="">Válassz szervezetet</option>
+                            @foreach (var szervezet in szervezetek)
                             {
-                                @Html.DisplayFor(_ => sor.ElozoAllapot!.Value)
-                                <span>→</span>
+                                <option value="@szervezet.Id">@szervezet.Nev</option>
                             }
-                            @Html.DisplayFor(_ => sor.UjAllapot)
-                        </td>
-                        <td>
-                            @(sor.FelhasznaloId is not null && felhasznalok.TryGetValue(sor.FelhasznaloId, out var nev)
-                                ? nev
-                                : "Lakos")
-                        </td>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="feladatHatarido" class="form-label">Feladat határideje</label>
+                        <input id="feladatHatarido" name="feladatHatarido" type="date" class="form-control"
+                               value="@Model.Hatarido?.ToString("yyyy-MM-dd")"
+                               max="@Model.Hatarido?.ToString("yyyy-MM-dd")" required />
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Feladat kiosztása</button>
+            </form>
+
+            @if (Model.Allapot == BejelentesAllapot.Ellenorizve)
+            {
+                <details class="mt-3">
+                    <summary>Az ügyhatáridő módosítása</summary>
+                    <form asp-action="Ellenoriz" asp-route-id="@Model.Id" method="post" class="mt-2">
+                        <div class="d-flex flex-wrap gap-2 align-items-center">
+                            <input name="hatarido" type="date" class="form-control" style="max-width: 12rem"
+                                   value="@alapHatarido" required />
+                            <button type="button" class="btn btn-outline-secondary btn-sm" data-nap="7">7 nap</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" data-nap="14">14 nap</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" data-nap="30">30 nap</button>
+                            <button type="submit" class="btn btn-outline-primary btn-sm">Mentés</button>
+                        </div>
+                    </form>
+                </details>
+            }
+        }
+        else if (Model.Allapot == BejelentesAllapot.LezarasraVar && feladatok.Count > 0 && feladatok.All(f => f.Elkeszult))
+        {
+            <p>Minden részfeladat elkészült. Lezárás előtt nézd át a megjegyzéseket és a fotókat.</p>
+
+            <form asp-action="Lezar" asp-route-id="@Model.Id" method="post">
+                <button type="submit" class="btn btn-success">Ellenőriztem, lezárom</button>
+            </form>
+        }
+        else if (Model.LezarvaUtc is DateTime lezarvaUtc)
+        {
+            <p class="mb-0">Az ügy lezárva: @lezarvaUtc.ToString("yyyy.MM.dd. HH:mm") (UTC). További teendő nincs.</p>
+        }
+        else
+        {
+            <p class="mb-0">Az ügy végleges állapotú, további teendő nincs.</p>
+        }
+    </div>
+</div>
+
+@if (feladatok.Count > 0)
+{
+    <div class="card mb-4" id="reszfeladatok">
+        <div class="card-header fw-semibold">Részfeladatok</div>
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th>Feladat</th>
+                        <th>Szervezet</th>
+                        <th>Határidő</th>
+                        <th>Állapot</th>
+                        <th>Megjegyzés</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var feladat in feladatok)
+                    {
+                        <tr>
+                            <td>@feladat.Cim</td>
+                            <td>@feladat.Szervezet.Nev</td>
+                            <td>@feladat.Hatarido.ToString("yyyy.MM.dd.")</td>
+                            <td>@(feladat.Elkeszult ? "Kész" : "Kiosztva")</td>
+                            <td>@feladat.Megjegyzes</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 }
 
-@if (nyitott)
+<div class="card mb-4" id="kulonleges">
+    <div class="card-header fw-semibold">További műveletek</div>
+    <div class="card-body">
+        @if (Model.FoBejelentesId is int foId)
+        {
+            <p>Ez az ügy összevonva a(z) <a asp-action="Reszletek" asp-route-id="@foId">#@foId</a> főüggyel.</p>
+        }
+        else
+        {
+            <p>Jelzések száma: @ViewBag.JelzesekSzama (az eredeti bejelentéssel együtt)</p>
+        }
+
+        @if (nyitott)
+        {
+            <form asp-action="KulonlegesKezeles" asp-route-id="@Model.Id" method="post" class="mb-4">
+                <button type="submit" name="muvelet"
+                        value="@(Model.Veszelyes ? "normal" : "veszelyes")"
+                        class="btn btn-outline-danger">
+                    @(Model.Veszelyes ? "Veszélyjelzés levétele" : "Veszélyesnek jelölöm")
+                </button>
+            </form>
+        }
+
+        @if (kiosztasElott && feladatok.Count == 0)
+        {
+            <form asp-action="KulonlegesKezeles" asp-route-id="@Model.Id" method="post" class="mb-4">
+                <label for="indok" class="form-label">Téves vagy hatáskörön kívüli ügy, a döntés indoka</label>
+                <input id="indok" name="indok" class="form-control mb-2" required maxlength="80" />
+
+                <button type="submit" name="muvelet" value="teves" class="btn btn-outline-secondary">Téves bejelentés</button>
+                <button type="submit" name="muvelet" value="hataskor" class="btn btn-outline-secondary">Hatáskörön kívüli</button>
+            </form>
+
+            <form asp-action="KulonlegesKezeles" asp-route-id="@Model.Id" method="post">
+                <label for="foBejelentesId" class="form-label">Összevonás egy korábbi, azonos kategóriájú ügyhöz</label>
+
+                @if (foUgyek.Count == 0)
+                {
+                    <p class="text-body-secondary">Nincs azonos kategóriájú, ellenőrzött és nyitott ügy, amelyhez össze lehetne vonni.</p>
+                }
+                else
+                {
+                    <select id="foBejelentesId" name="foBejelentesId" class="form-select mb-2" required>
+                        <option value="">Válaszd ki a főügyet</option>
+                        @foreach (var fo in foUgyek)
+                        {
+                            <option value="@fo.Id">
+                                #@fo.Id – @fo.Cim (@fo.Helyszin)@(fo.TavolsagMeter is double tav ? $" – {tav:0} m" : "")
+                            </option>
+                        }
+                    </select>
+
+                    <button type="submit" name="muvelet" value="osszevon" class="btn btn-outline-primary">Összevonás a főüggyel</button>
+                }
+            </form>
+        }
+    </div>
+</div>
+
+@if (naplo.Count > 0)
 {
-    <form asp-action="KulonlegesKezeles" asp-route-id="@Model.Id"
-          method="post" class="mb-3">
-        <button type="submit" name="muvelet"
-                value="@(Model.Veszelyes ? "normal" : "veszelyes")"
-                class="btn btn-outline-danger">
-            @(Model.Veszelyes ? "Veszélyjelzés levétele" : "Veszélyesnek jelölöm")
-        </button>
-    </form>
+    <div class="card mb-4" id="tortenet">
+        <div class="card-header fw-semibold">Státusztörténet</div>
+        <div class="table-responsive">
+            <table class="table table-sm mb-0">
+                <thead>
+                    <tr>
+                        <th>Időpont (UTC)</th>
+                        <th>Művelet</th>
+                        <th>Állapot</th>
+                        <th>Végezte</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var sor in naplo)
+                    {
+                        <tr>
+                            <td>@sor.IdopontUtc.ToString("yyyy.MM.dd. HH:mm")</td>
+                            <td>@sor.Muvelet</td>
+                            <td>
+                                @if (sor.ElozoAllapot.HasValue && sor.ElozoAllapot != sor.UjAllapot)
+                                {
+                                    @Html.DisplayFor(_ => sor.ElozoAllapot!.Value)
+                                    <span>→</span>
+                                }
+                                @Html.DisplayFor(_ => sor.UjAllapot)
+                            </td>
+                            <td>
+                                @(sor.FelhasznaloId is not null && felhasznalok.TryGetValue(sor.FelhasznaloId, out var nev)
+                                    ? nev
+                                    : "Lakos")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 }
 
-@if (kiosztasElott)
-{
-    <form asp-action="KulonlegesKezeles" asp-route-id="@Model.Id"
-          method="post" class="mb-3">
-        <label for="indok" class="form-label">Döntés indoka</label>
-        <input id="indok" name="indok" class="form-control mb-2"
-               required maxlength="80" />
+<partial name="_FotoModal" />
 
-        <button type="submit" name="muvelet" value="teves"
-                class="btn btn-outline-secondary">
-            Téves bejelentés
-        </button>
+@section Scripts {
+    <script>
+        const adatNezet = document.getElementById("adatNezet");
+        const szerkesztesUrlap = document.getElementById("szerkesztesUrlap");
+        const szerkesztesGomb = document.getElementById("szerkesztesGomb");
 
-        <button type="submit" name="muvelet" value="hataskor"
-                class="btn btn-outline-secondary">
-            Hatáskörön kívüli
-        </button>
-    </form>
+        function szerkesztesKapcsolo(be) {
+            adatNezet.classList.toggle("d-none", be);
+            szerkesztesUrlap.classList.toggle("d-none", !be);
+            szerkesztesGomb.classList.toggle("d-none", be);
+        }
 
-    <form asp-action="KulonlegesKezeles" asp-route-id="@Model.Id"
-          method="post" class="mb-3">
-        <label for="foBejelentesId" class="form-label">
-            A már ellenőrzött főügy azonosítója
-        </label>
-        <input id="foBejelentesId" name="foBejelentesId" type="number"
-               min="1" required class="form-control mb-2" />
+        if (szerkesztesGomb) {
+            szerkesztesGomb.addEventListener("click", function () {
+                szerkesztesKapcsolo(true);
+            });
 
-        <button type="submit" name="muvelet" value="osszevon"
-                class="btn btn-outline-primary">
-            Összevonás a főüggyel
-        </button>
-    </form>
+            document.getElementById("szerkesztesMegse").addEventListener("click", function () {
+                szerkesztesUrlap.reset();
+                szerkesztesKapcsolo(false);
+            });
+        }
+
+        document.querySelectorAll("[data-nap]").forEach(function (gomb) {
+            gomb.addEventListener("click", function () {
+                const datum = new Date();
+                datum.setDate(datum.getDate() + Number(gomb.getAttribute("data-nap")));
+
+                const ev = datum.getFullYear();
+                const honap = String(datum.getMonth() + 1).padStart(2, "0");
+                const nap = String(datum.getDate()).padStart(2, "0");
+
+                gomb.closest("form").querySelector("input[type=date]").value = ev + "-" + honap + "-" + nap;
+            });
+        });
+    </script>
 }

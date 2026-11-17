@@ -4,7 +4,11 @@
 @{
     ViewData["Title"] = "Ügykövetés";
     var ujKod = TempData["Kovetokod"]?.ToString();
-    var mezoErtek = Model?.Kovetokod.ToString() ?? ujKod ?? "";
+    var mezoErtek = Csoportos(Model?.Kovetokod ?? ujKod);
+    string Csoportos(string? kod) => kod is { Length: 6 } ? kod[..3] + " " + kod[3..] : kod ?? "";
+    var kovetesLink = string.IsNullOrEmpty(ujKod)
+        ? null
+        : Url.Action("Kovetes", "Bejelentesek", new { kovetokod = ujKod }, Context.Request.Scheme);
 }
 
 <h1>Ügykövetés</h1>
@@ -12,10 +16,23 @@
 @if (!string.IsNullOrEmpty(ujKod))
 {
     <div class="alert alert-success" role="status">
-        A bejelentést mentettük. Tedd el a követőkódot:
-        <strong class="text-break">@ujKod</strong>
+        <p class="mb-2"><strong>A bejelentést mentettük.</strong> Ezzel a linkkel később megnézheted, mi történt vele. Mentsd el, vagy küldd el magadnak:</p>
+        <div class="input-group mb-2">
+            <input id="kovetesLink" class="form-control" readonly value="@kovetesLink" aria-label="Követési link" />
+            <button type="button" id="linkMasolas" class="btn btn-outline-secondary">Másolás</button>
+        </div>
+        <a href="@kovetesLink" class="btn btn-success">Ügyem követése</a>
+        <p class="mt-3 mb-1">Vagy jegyezd meg a <strong>követőkódot</strong>, és írd be az Ügykövetés oldalon:</p>
+        <p class="display-5 fw-bold mb-1">@Csoportos(ujKod)</p>
+        <p class="small mb-0">Ezen a készüléken a böngésző is megjegyzi a bejelentésedet.</p>
     </div>
 }
+
+<div id="korabbiBejelentesek" class="mb-4" hidden>
+    <h2 class="h5">Korábbi bejelentéseim ezen a készüléken</h2>
+    <ul id="korabbiLista" class="list-group mb-2"></ul>
+    <button type="button" id="korabbiTorles" class="btn btn-link btn-sm p-0">Lista törlése</button>
+</div>
 
 <form asp-action="Kovetes" method="post" class="mb-4">
     <div asp-validation-summary="All" class="text-danger" role="alert"></div>
@@ -23,10 +40,12 @@
     <div class="mb-3">
         <label for="kovetokod" class="form-label">Követőkód</label>
         <input id="kovetokod" name="kovetokod" value="@mezoErtek"
-               class="form-control" maxlength="36" required />
+               class="form-control form-control-lg" maxlength="8" inputmode="numeric"
+               autocomplete="off" placeholder="123 456" required />
+        <div class="form-text">A követőkód 6 számjegy, a bejelentés beküldése után kapod meg.</div>
     </div>
 
-    <button type="submit" class="btn btn-primary">Állapot lekérése</button>
+    <button type="submit" class="btn btn-primary btn-lg">Állapot lekérése</button>
 </form>
 
 @if (Model is not null)
@@ -73,4 +92,89 @@
             <button type="submit" class="btn btn-primary">Értékelés mentése</button>
         </form>
     }
+}
+
+@section Scripts {
+    <script>
+        const kulcs = "sajatBejelentesek";
+        const ujKod = "@ujKod";
+        const mostaniKod = "@(Model?.Kovetokod.ToString())";
+
+        function beolvas() {
+            try {
+                return JSON.parse(localStorage.getItem(kulcs)) || [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function ment(lista) {
+            try {
+                localStorage.setItem(kulcs, JSON.stringify(lista));
+            } catch (e) {
+            }
+        }
+
+        function felvesz(kod, azonosito) {
+            if (!kod) {
+                return;
+            }
+
+            const lista = beolvas();
+            const letezo = lista.find(elem => elem.kod === kod);
+
+            if (!letezo) {
+                lista.unshift({ kod: kod, ido: new Date().toISOString(), azonosito: azonosito || null });
+                ment(lista.slice(0, 20));
+            } else if (!letezo.azonosito && azonosito) {
+                letezo.azonosito = azonosito;
+                ment(lista);
+            }
+        }
+
+        felvesz(ujKod, null);
+        felvesz(mostaniKod, @(Model?.Id.ToString() ?? "null"));
+
+        const lista = beolvas();
+        const doboz = document.getElementById("korabbiBejelentesek");
+
+        if (lista.length > 0) {
+            const ul = document.getElementById("korabbiLista");
+
+            for (const elem of lista) {
+                const li = document.createElement("li");
+                li.className = "list-group-item";
+                const a = document.createElement("a");
+                a.href = "@Url.Action("Kovetes", "Bejelentesek")?kovetokod=" + encodeURIComponent(elem.kod);
+                const datum = new Date(elem.ido).toLocaleDateString("hu-HU");
+                a.textContent = (elem.azonosito ? "Bejelentés #" + elem.azonosito : "Bejelentés") + " – " + datum;
+                li.appendChild(a);
+                ul.appendChild(li);
+            }
+
+            doboz.hidden = false;
+        }
+
+        document.getElementById("korabbiTorles").addEventListener("click", function () {
+            ment([]);
+            doboz.hidden = true;
+        });
+
+        const masolas = document.getElementById("linkMasolas");
+
+        if (masolas) {
+            masolas.addEventListener("click", function () {
+                const mezo = document.getElementById("kovetesLink");
+                mezo.select();
+
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(mezo.value);
+                } else {
+                    document.execCommand("copy");
+                }
+
+                masolas.textContent = "Kimásolva";
+            });
+        }
+    </script>
 }

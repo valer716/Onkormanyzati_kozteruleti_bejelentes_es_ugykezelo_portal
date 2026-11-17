@@ -50,6 +50,15 @@ Az automatikus tesztek helye a tervezett `OnkormanyzatiPortal.Tests` projekt (fu
 | T25 | Vezetoi_Export_NemTartalmazSzemelyesAdatot | Export tartalma | Csak kategória, állapot, darabszám | kézi | Nincs futtatva |
 | T26 | Vezetoi_Terkep_CsakKoordinatasUgyetMutat | Hiányzó koordináta kezelése | Koordináta nélküli ügy nem kerül a térképre | kézi | Nincs futtatva |
 
+## Ügyintézői lista és követés
+
+| Azonosító | Teszt neve | Mit ellenőriz | Elvárt eredmény | Típus | Eredmény |
+|---|---|---|---|---|---|
+| T29 | Kovetes_HatjegyuKoddalMukodik | A követőkód 6 számjegy, szóközzel is beírható | Az ügy állapota és a státusz-idővonal megjelenik, rövid vagy ismeretlen kódnál érthető hibaüzenet | automata | Nincs futtatva |
+| T30 | Lista_TobbAllapotraEsKategoriaraSzurhetoEsRendezheto | Jelölőnégyzetes szűrők és oszlopfejléces rendezés | Csak a kijelölt állapotú és kategóriájú ügyek látszanak, a rendezés a lapozásnál is megmarad | automata | Nincs futtatva |
+| T31 | Pontosit_MentiAzAdatokatEsNaploz | Az ügyintéző javítja a címet, leírást, helyszínt és kategóriát | Az új adatok mentődnek, a státusztörténetben megjelenik a művelet | automata | Nincs futtatva |
+| T32 | Letrehozas_HelyszinNelkulIsElmenthetoTerkepiPonttal | Az utca megadása nem kötelező | A helyszín a térképi pont koordinátája lesz, térképi pont nélkül hibaüzenet | automata | Nincs futtatva |
+
 ## Reszponzivitás
 
 | Azonosító | Teszt neve | Mit ellenőriz | Elvárt eredmény | Típus | Eredmény |

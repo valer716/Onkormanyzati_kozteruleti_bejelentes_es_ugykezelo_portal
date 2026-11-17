@@ -60,7 +60,7 @@
 
             <div class="col-6 col-md-4 col-lg-3">
                 <figure class="m-0">
-                    <a asp-action="Foto" asp-route-id="@foto.Id" target="_blank">
+                    <a href="@Url.Action("Foto", new { id = foto.Id })" data-foto-url="@Url.Action("Foto", new { id = foto.Id })" data-foto-cim="@cimke">
                         <img src="@Url.Action("Foto", new { id = foto.Id })" alt="@cimke"
                              class="img-fluid rounded border" loading="lazy" />
                     </a>
@@ -136,3 +136,5 @@ else
         </tbody>
     </table>
 </div>
+
+<partial name="_FotoModal" />

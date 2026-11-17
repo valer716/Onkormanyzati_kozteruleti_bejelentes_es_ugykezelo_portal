@@ -6,6 +6,9 @@
     ViewData["Title"] = "Vezetői kimutatás";
     ViewData["Teljes"] = true;
 
+    DateTime? tol = ViewBag.Tol;
+    DateTime? ig = ViewBag.Ig;
+
     var kategoriaNevek = Html.GetEnumSelectList<BejelentesKategoria>().ToDictionary(x => x.Value, x => x.Text);
     var allapotNevek = Html.GetEnumSelectList<BejelentesAllapot>().ToDictionary(x => x.Value, x => x.Text);
 
@@ -14,6 +17,7 @@
 
     var lejart = Model.NyitottUgyek.Count(u => u.Lejart);
     var legtobb = Model.Teruletek.Count == 0 ? 1 : Model.Teruletek.Max(t => t.Osszes);
+    var ma = DateTime.Today;
 
     var terkepAdat = Model.NyitottUgyek
         .Where(u => u.Szelesseg.HasValue && u.Hosszusag.HasValue)
@@ -26,16 +30,17 @@
             lejart = u.Lejart,
             lat = u.Szelesseg,
             lon = u.Hosszusag,
-            nap = u.NyitvaNap,
-            url = Url.Action("Reszletek", new { id = u.Id })
+            nap = u.NyitvaNap
         })
         .ToList();
 
     var grafikonAdat = new
     {
-        kategoriaCimkek = Model.Kategoriak.Select(k => KategoriaNev(k.Key)),
-        kategoriaAdat = Model.Kategoriak.Select(k => k.Value),
-        allapotCimkek = Model.Allapotok.Select(a => AllapotNev(a.Key)),
+        kategoriaCimkek = Model.Kategoriak.Select(k => KategoriaNev(k.Kategoria)),
+        kategoriaNyitott = Model.Kategoriak.Select(k => k.Nyitott),
+        kategoriaLezart = Model.Kategoriak.Select(k => k.Lezart),
+        kategoriaEgyeb = Model.Kategoriak.Select(k => k.Egyeb),
+        allapotCimkek = Model.Allapotok.Select(a => AllapotNev(a.Key) + " (" + a.Value + ")"),
         allapotAdat = Model.Allapotok.Select(a => a.Value),
         haviCimkek = Model.Havi.Select(h => h.Honap),
         haviAdat = Model.Havi.Select(h => h.Darab)
@@ -48,11 +53,40 @@
         BejelentesAllapot.Folyamatban,
         BejelentesAllapot.LezarasraVar
     };
+
+    string IdoszakHivatkozas(int napok) =>
+        Url.Action("Index", new { tol = ma.AddDays(-napok).ToString("yyyy-MM-dd"), ig = ma.ToString("yyyy-MM-dd") })!;
 }
 
 <h1>Vezetői kimutatás</h1>
 
+<form asp-action="Index" method="get" class="card mb-3">
+    <div class="card-body d-flex flex-wrap gap-3 align-items-end">
+        <div>
+            <label for="tol" class="form-label mb-1">Beérkezett ettől</label>
+            <input id="tol" name="tol" type="date" class="form-control" value="@tol?.ToString("yyyy-MM-dd")" />
+        </div>
+        <div>
+            <label for="ig" class="form-label mb-1">eddig</label>
+            <input id="ig" name="ig" type="date" class="form-control" value="@ig?.ToString("yyyy-MM-dd")" />
+        </div>
+        <button type="submit" class="btn btn-primary">Szűrés</button>
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-outline-secondary btn-sm" href="@IdoszakHivatkozas(7)">Elmúlt 7 nap</a>
+            <a class="btn btn-outline-secondary btn-sm" href="@IdoszakHivatkozas(30)">Elmúlt 30 nap</a>
+            <a class="btn btn-outline-secondary btn-sm" href="@IdoszakHivatkozas(365)">Elmúlt év</a>
+            <a class="btn btn-outline-secondary btn-sm" asp-action="Index">Összes</a>
+        </div>
+    </div>
+</form>
+
 <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="card h-100"><div class="card-body">
+            <div class="text-body-secondary">Beérkezett bejelentések</div>
+            <div class="display-6">@Model.OsszesUgy</div>
+        </div></div>
+    </div>
     <div class="col-6 col-lg-3">
         <div class="card h-100"><div class="card-body">
             <div class="text-body-secondary">Nyitott ügyek</div>
@@ -67,92 +101,88 @@
     </div>
     <div class="col-6 col-lg-3">
         <div class="card h-100"><div class="card-body">
-            <div class="text-body-secondary">Átlagos megoldási idő</div>
-            <div class="display-6">@(Model.AtlagosMegoldasiNap is double nap ? $"{nap:0} nap" : "Nincs adat")</div>
-        </div></div>
-    </div>
-    <div class="col-6 col-lg-3">
-        <div class="card h-100"><div class="card-body">
-            <div class="text-body-secondary">Lezárt ügyek</div>
-            <div class="display-6">@Model.LezartUgy <span class="fs-6 text-body-secondary">/ @Model.OsszesUgy</span></div>
+            <div class="text-body-secondary">Lezárt ügyek, átlagos megoldási idő</div>
+            <div class="display-6">@Model.LezartUgy <span class="fs-6 text-body-secondary">@(Model.AtlagosMegoldasiNap is double nap ? $"átlag {nap:0} nap" : "")</span></div>
         </div></div>
     </div>
 </div>
 
 <div class="row g-3 mb-4">
-    <div class="col-lg-5">
-        <div class="card h-100"><div class="card-body">
-            <h2 class="h6">Bejelentések kategóriánként</h2>
-            <div style="position: relative; height: 300px"><canvas id="kategoriaGrafikon"></canvas></div>
+    <div class="col-xl-5">
+        <div class="card mb-3"><div class="card-body">
+            <h2 class="h6">Kategóriák: nyitott, lezárt, egyéb</h2>
+            <div style="position: relative; height: 340px"><canvas id="kategoriaGrafikon"></canvas></div>
         </div></div>
-    </div>
-    <div class="col-lg-3">
-        <div class="card h-100"><div class="card-body">
-            <h2 class="h6">Állapotok</h2>
+        <div class="card mb-3"><div class="card-body">
+            <h2 class="h6">Állapotok (darabszám)</h2>
             <div style="position: relative; height: 300px"><canvas id="allapotGrafikon"></canvas></div>
         </div></div>
-    </div>
-    <div class="col-lg-4">
-        <div class="card h-100"><div class="card-body">
+        <div class="card"><div class="card-body">
             <h2 class="h6">Érkezett bejelentések az elmúlt 12 hónapban</h2>
-            <div style="position: relative; height: 300px"><canvas id="haviGrafikon"></canvas></div>
+            <div style="position: relative; height: 260px"><canvas id="haviGrafikon"></canvas></div>
         </div></div>
     </div>
-</div>
 
-<h2>Nyitott ügyek</h2>
+    <div class="col-xl-7">
+        <div class="sticky-xl-top" style="top: 1rem; z-index: 1">
+            <div class="card"><div class="card-body">
+                <h2 class="h5">Nyitott ügyek</h2>
 
-<div class="row g-2 mb-3">
-    <div class="col-sm-6 col-lg-3">
-        <label for="szuroKategoria" class="form-label">Kategória</label>
-        <select id="szuroKategoria" class="form-select">
-            <option value="">Minden kategória</option>
-            @foreach (var kategoria in Model.Kategoriak.Keys.OrderBy(k => KategoriaNev(k)))
-            {
-                <option value="@((int)kategoria)">@KategoriaNev(kategoria)</option>
-            }
-        </select>
-    </div>
-    <div class="col-sm-6 col-lg-3">
-        <label for="szuroAllapot" class="form-label">Állapot</label>
-        <select id="szuroAllapot" class="form-select">
-            <option value="">Minden nyitott állapot</option>
-            @foreach (var allapot in nyitottAllapotok)
-            {
-                <option value="@((int)allapot)">@AllapotNev(allapot)</option>
-            }
-        </select>
-    </div>
-    <div class="col-sm-6 col-lg-3">
-        <label for="szuroKereses" class="form-label">Keresés címre vagy helyszínre</label>
-        <input id="szuroKereses" class="form-control" />
-    </div>
-    <div class="col-sm-6 col-lg-3 align-self-end">
-        <div class="form-check">
-            <input id="szuroLejart" type="checkbox" class="form-check-input" />
-            <label for="szuroLejart" class="form-check-label">Csak a határidőn túli ügyek</label>
+                <div class="row g-2 mb-3">
+                    <div class="col-sm-6">
+                        <label for="szuroKategoria" class="form-label mb-1">Kategória</label>
+                        <select id="szuroKategoria" class="form-select form-select-sm">
+                            <option value="">Minden kategória</option>
+                            @foreach (var kategoria in Model.Kategoriak.OrderBy(k => KategoriaNev(k.Kategoria)))
+                            {
+                                <option value="@((int)kategoria.Kategoria)">@KategoriaNev(kategoria.Kategoria)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="szuroAllapot" class="form-label mb-1">Állapot</label>
+                        <select id="szuroAllapot" class="form-select form-select-sm">
+                            <option value="">Minden nyitott állapot</option>
+                            @foreach (var allapot in nyitottAllapotok)
+                            {
+                                <option value="@((int)allapot)">@AllapotNev(allapot)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="szuroKereses" class="form-label mb-1">Keresés címre vagy helyszínre</label>
+                        <input id="szuroKereses" class="form-control form-control-sm" />
+                    </div>
+                    <div class="col-sm-6 align-self-end">
+                        <div class="form-check">
+                            <input id="szuroLejart" type="checkbox" class="form-check-input" />
+                            <label for="szuroLejart" class="form-check-label">Csak a határidőn túli ügyek</label>
+                        </div>
+                        <div class="text-body-secondary small" id="szuroDarab"></div>
+                    </div>
+                </div>
+
+                @if (terkepAdat.Count == 0)
+                {
+                    <p class="mb-0">Jelenleg nincs nyitott ügy térképi koordinátával.</p>
+                }
+                else
+                {
+                    <link rel="stylesheet" href="https://unpkg.com/leaflet@@1.9.4/dist/leaflet.css" />
+                    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@@1.5.3/dist/MarkerCluster.css" />
+                    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@@1.5.3/dist/MarkerCluster.Default.css" />
+
+                    <div id="vezetoiTerkep" class="border rounded" style="height: 55vh; min-height: 360px;"
+                         aria-label="Nyitott ügyek térképe"></div>
+                    <p class="text-body-secondary small mt-2 mb-0">
+                        A számmal jelölt körök közeli ügyeket fognak össze. Piros pont: határidőn túli ügy, kék pont: határidőn belüli.
+                        A nagyításhoz előbb kattints a térképre.
+                    </p>
+                }
+            </div></div>
         </div>
-        <div class="text-body-secondary small" id="szuroDarab"></div>
     </div>
 </div>
-
-@if (terkepAdat.Count == 0)
-{
-    <p>Jelenleg nincs nyitott ügy térképi koordinátával.</p>
-}
-else
-{
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@@1.5.3/dist/MarkerCluster.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@@1.5.3/dist/MarkerCluster.Default.css" />
-
-    <p class="text-body-secondary">
-        A számmal jelölt körök több közeli ügyet fognak össze, kattintásra vagy nagyításra szétnyílnak.
-        A piros pont határidőn túli, a kék pont határidőn belüli ügyet jelöl.
-    </p>
-    <div id="vezetoiTerkep" class="mb-4 border rounded" style="height: 60vh; min-height: 380px;"
-         aria-label="Nyitott ügyek térképe"></div>
-}
 
 @if (Model.NyitottUgyek.Count == 0)
 {
@@ -180,7 +210,13 @@ else
                 {
                     <tr data-id="@ugy.Id" data-kat="@((int)ugy.Kategoria)" data-all="@((int)ugy.Allapot)"
                         data-lejart="@(ugy.Lejart ? "1" : "0")"
-                        data-szoveg="@((ugy.Cim + " " + ugy.Helyszin).ToLowerInvariant())">
+                        data-szoveg="@((ugy.Cim + " " + ugy.Helyszin).ToLowerInvariant())"
+                        data-cim="@ugy.Cim" data-helyszin="@ugy.Helyszin"
+                        data-kategoria="@KategoriaNev(ugy.Kategoria)" data-allapot="@AllapotNev(ugy.Allapot)"
+                        data-beerkezett="@ugy.LetrehozvaUtc.ToString("yyyy.MM.dd.")" data-nap="@ugy.NyitvaNap"
+                        data-hatarido="@(ugy.Hatarido?.ToString("yyyy.MM.dd.") ?? "Nincs megadva")"
+                        data-foto="@(ugy.FotoId is int fotoId ? Url.Action("Foto", new { id = fotoId }) : "")"
+                        data-url="@Url.Action("Reszletek", new { id = ugy.Id })">
                         <td>#@ugy.Id</td>
                         <td>@ugy.Cim</td>
                         <td>@ugy.Helyszin</td>
@@ -195,7 +231,7 @@ else
                                 <span class="badge text-bg-danger">Lejárt</span>
                             }
                         </td>
-                        <td><a asp-action="Reszletek" asp-route-id="@ugy.Id" class="btn btn-outline-primary btn-sm">Részletek</a></td>
+                        <td><button type="button" class="btn btn-outline-primary btn-sm" data-ugy-elonezet="@ugy.Id">Előnézet</button></td>
                     </tr>
                 }
             </tbody>
@@ -203,7 +239,39 @@ else
     </div>
 }
 
+<h2>Kategóriák</h2>
+
+<div class="table-responsive mb-4">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Kategória</th>
+                <th>Összes</th>
+                <th>Nyitott</th>
+                <th>Lezárt (megoldott)</th>
+                <th>Egyéb (téves, hatáskörön kívüli, összevont)</th>
+                <th>Átlagos megoldási idő</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var kategoria in Model.Kategoriak)
+            {
+                <tr>
+                    <td>@KategoriaNev(kategoria.Kategoria)</td>
+                    <td>@kategoria.Osszes</td>
+                    <td>@kategoria.Nyitott</td>
+                    <td>@kategoria.Lezart</td>
+                    <td>@kategoria.Egyeb</td>
+                    <td>@(kategoria.AtlagosMegoldasiNap is double kNap ? $"{kNap:0} nap" : "–")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
 <h2>Bejelentések irányítószám szerint</h2>
+
+<p class="text-body-secondary">Az „Ismeretlen" sor azokat a bejelentéseket jelöli, amelyek helyszín szövegében nincs irányítószám. Ezek érvényes bejelentések, a térképen is megvannak.</p>
 
 <div class="table-responsive mb-4">
     <table class="table align-middle">
@@ -237,6 +305,38 @@ else
 
 <p class="small"><a asp-action="Export">Összesítő adatok exportja (JSON)</a></p>
 
+<div class="modal fade" id="ugyModal" tabindex="-1" aria-labelledby="ugyModalCim" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title h5" id="ugyModalCim"></h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Bezárás"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-md-5" id="ugyModalKepOszlop">
+                        <img id="ugyModalKep" src="" alt="Bejelentői fotó" class="img-fluid rounded border" />
+                    </div>
+                    <div class="col-md" id="ugyModalAdatok">
+                        <dl class="row mb-0">
+                            <dt class="col-5">Kategória</dt><dd class="col-7" id="ugyModalKategoria"></dd>
+                            <dt class="col-5">Állapot</dt><dd class="col-7" id="ugyModalAllapot"></dd>
+                            <dt class="col-5">Helyszín</dt><dd class="col-7" id="ugyModalHelyszin"></dd>
+                            <dt class="col-5">Beérkezett</dt><dd class="col-7" id="ugyModalBeerkezett"></dd>
+                            <dt class="col-5">Napja nyitott</dt><dd class="col-7" id="ugyModalNap"></dd>
+                            <dt class="col-5">Határidő</dt><dd class="col-7" id="ugyModalHatarido"></dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a id="ugyModalMegnyitas" class="btn btn-primary" href="#" target="_blank" rel="noopener">Megnyitás új lapon</a>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Bezárás</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script type="application/json" id="terkepAdat">@Html.Raw(JsonSerializer.Serialize(terkepAdat))</script>
 <script type="application/json" id="grafikonAdat">@Html.Raw(JsonSerializer.Serialize(grafikonAdat))</script>
 
@@ -249,14 +349,25 @@ else
 
         if (window.Chart) {
             Chart.defaults.color = getComputedStyle(document.body).color;
+            Chart.defaults.borderColor = "rgba(128, 128, 128, 0.35)";
+            Chart.defaults.font.size = 13;
 
             new Chart(document.getElementById("kategoriaGrafikon"), {
                 type: "bar",
                 data: {
                     labels: grafikonAdat.kategoriaCimkek,
-                    datasets: [{ data: grafikonAdat.kategoriaAdat, backgroundColor: "#0d6efd" }]
+                    datasets: [
+                        { label: "Nyitott", data: grafikonAdat.kategoriaNyitott, backgroundColor: "#0d6efd" },
+                        { label: "Lezárt", data: grafikonAdat.kategoriaLezart, backgroundColor: "#198754" },
+                        { label: "Egyéb", data: grafikonAdat.kategoriaEgyeb, backgroundColor: "#6c757d" }
+                    ]
                 },
-                options: { indexAxis: "y", maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                options: {
+                    indexAxis: "y",
+                    maintainAspectRatio: false,
+                    scales: { x: { stacked: true }, y: { stacked: true } },
+                    plugins: { legend: { position: "bottom" } }
+                }
             });
 
             new Chart(document.getElementById("allapotGrafikon"), {
@@ -265,10 +376,12 @@ else
                     labels: grafikonAdat.allapotCimkek,
                     datasets: [{
                         data: grafikonAdat.allapotAdat,
-                        backgroundColor: ["#6c757d", "#0dcaf0", "#0d6efd", "#ffc107", "#198754", "#adb5bd", "#fd7e14", "#6f42c1"]
+                        backgroundColor: ["#6c757d", "#0dcaf0", "#0d6efd", "#ffc107", "#198754", "#dc3545", "#fd7e14", "#6f42c1"],
+                        borderColor: getComputedStyle(document.body).backgroundColor,
+                        borderWidth: 2
                     }]
                 },
-                options: { maintainAspectRatio: false, plugins: { legend: { position: "bottom" } } }
+                options: { maintainAspectRatio: false, plugins: { legend: { position: "right" } } }
             });
 
             new Chart(document.getElementById("haviGrafikon"), {
@@ -280,6 +393,10 @@ else
                 options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
         }
+
+        new MutationObserver(function () {
+            location.reload();
+        }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-bs-theme"] });
 
         const terkepAdat = JSON.parse(document.getElementById("terkepAdat").textContent);
         const terkepElem = document.getElementById("vezetoiTerkep");
@@ -321,7 +438,7 @@ else
                     "<strong>#" + ugy.id + " " + szoveg(ugy.cim) + "</strong><br>" +
                     szoveg(ugy.kategoria) + " – " + szoveg(ugy.allapot) + "<br>" +
                     ugy.nap + " napja nyitott" + (ugy.lejart ? ", határidőn túli" : "") + "<br>" +
-                    "<a href=\"" + ugy.url + "\">Részletek</a>"
+                    "<button type=\"button\" class=\"btn btn-sm btn-primary mt-2\" data-ugy-elonezet=\"" + ugy.id + "\">Előnézet</button>"
                 );
 
                 jelolok.addLayer(jelolo);
@@ -351,7 +468,7 @@ else
         }
 
         if (terkepElem && window.L && L.markerClusterGroup) {
-            terkep = L.map(terkepElem, { scrollWheelZoom: true });
+            terkep = L.map(terkepElem, { scrollWheelZoom: false });
 
             L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
                 maxZoom: 19,
@@ -362,6 +479,14 @@ else
             terkep.addLayer(jelolok);
 
             terkep.fitBounds(terkepAdat.map(u => [u.lat, u.lon]), { padding: [25, 25], maxZoom: 14 });
+
+            terkep.on("click", function () {
+                terkep.scrollWheelZoom.enable();
+            });
+
+            terkepElem.addEventListener("mouseleave", function () {
+                terkep.scrollWheelZoom.disable();
+            });
         } else if (terkepElem) {
             terkepElem.textContent = "A térkép nem töltődött be. Az ügyek a táblázatban láthatók.";
         }
@@ -369,6 +494,35 @@ else
         for (const elem of [szuroKategoria, szuroAllapot, szuroKereses, szuroLejart]) {
             elem.addEventListener("input", szures);
         }
+
+        document.addEventListener("click", function (esemeny) {
+            const gomb = esemeny.target.closest("[data-ugy-elonezet]");
+
+            if (!gomb) {
+                return;
+            }
+
+            const sor = document.querySelector("#ugyTabla tbody tr[data-id=\"" + gomb.dataset.ugyElonezet + "\"]");
+
+            if (!sor) {
+                return;
+            }
+
+            document.getElementById("ugyModalCim").textContent = "#" + sor.dataset.id + " – " + sor.dataset.cim;
+            document.getElementById("ugyModalKategoria").textContent = sor.dataset.kategoria;
+            document.getElementById("ugyModalAllapot").textContent = sor.dataset.allapot;
+            document.getElementById("ugyModalHelyszin").textContent = sor.dataset.helyszin;
+            document.getElementById("ugyModalBeerkezett").textContent = sor.dataset.beerkezett;
+            document.getElementById("ugyModalNap").textContent = sor.dataset.nap;
+            document.getElementById("ugyModalHatarido").textContent = sor.dataset.hatarido;
+            document.getElementById("ugyModalMegnyitas").href = sor.dataset.url;
+
+            const kep = document.getElementById("ugyModalKep");
+            document.getElementById("ugyModalKepOszlop").hidden = !sor.dataset.foto;
+            kep.src = sor.dataset.foto || "";
+
+            bootstrap.Modal.getOrCreateInstance(document.getElementById("ugyModal")).show();
+        });
 
         szures();
     </script>

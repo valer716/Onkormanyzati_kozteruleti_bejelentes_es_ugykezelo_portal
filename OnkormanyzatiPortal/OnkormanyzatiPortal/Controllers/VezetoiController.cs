@@ -12,9 +12,9 @@ namespace OnkormanyzatiPortal.Controllers;
 public class VezetoiController(ApplicationDbContext db) : Controller
 {
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(DateTime? tol, DateTime? ig)
     {
-        var adatok = await db.Bejelentesek.AsNoTracking()
+        var mind = await db.Bejelentesek.AsNoTracking()
             .Select(b => new
             {
                 b.Id,
@@ -29,6 +29,17 @@ public class VezetoiController(ApplicationDbContext db) : Controller
                 b.LezarvaUtc
             })
             .ToListAsync();
+
+        var adatok = mind
+            .Where(b => (tol is null || b.LetrehozvaUtc.Date >= tol.Value.Date)
+                && (ig is null || b.LetrehozvaUtc.Date <= ig.Value.Date))
+            .ToList();
+
+        var fotok = await db.BejelentesFotok.AsNoTracking()
+            .Where(f => f.Tipus == BejelentesFotoTipus.Bejelentes)
+            .GroupBy(f => f.BejelentesId)
+            .Select(g => new { BejelentesId = g.Key, FotoId = g.Min(f => f.Id) })
+            .ToDictionaryAsync(g => g.BejelentesId, g => g.FotoId);
 
         var ma = DateTime.Today;
 
@@ -46,7 +57,8 @@ public class VezetoiController(ApplicationDbContext db) : Controller
                 b.Id, b.Cim, b.Helyszin, b.Kategoria, b.Allapot, b.LetrehozvaUtc, b.Hatarido,
                 b.Hatarido.HasValue && b.Hatarido.Value.Date < ma,
                 (int)(DateTime.UtcNow - b.LetrehozvaUtc).TotalDays,
-                b.Szelesseg, b.Hosszusag))
+                b.Szelesseg, b.Hosszusag,
+                fotok.TryGetValue(b.Id, out var fotoId) ? fotoId : null))
             .OrderByDescending(u => u.Lejart)
             .ThenBy(u => u.Hatarido ?? DateTime.MaxValue)
             .ThenBy(u => u.LetrehozvaUtc)
@@ -60,8 +72,18 @@ public class VezetoiController(ApplicationDbContext db) : Controller
 
         var kategoriak = adatok
             .GroupBy(b => b.Kategoria)
-            .OrderByDescending(g => g.Count())
-            .ToDictionary(g => g.Key, g => g.Count());
+            .Select(g => new VezetoiKategoriaSor(
+                g.Key,
+                g.Count(),
+                g.Count(b => nyitottAllapotok.Contains(b.Allapot)),
+                g.Count(b => b.Allapot == BejelentesAllapot.Lezart),
+                g.Count(b => b.Allapot is BejelentesAllapot.Teves
+                    or BejelentesAllapot.HataskoronKivuli or BejelentesAllapot.Osszevont),
+                g.Where(b => b.Allapot == BejelentesAllapot.Lezart && b.LezarvaUtc.HasValue)
+                    .Select(b => (double?)(b.LezarvaUtc!.Value - b.LetrehozvaUtc).TotalDays)
+                    .Average()))
+            .OrderByDescending(k => k.Osszes)
+            .ToList();
 
         var allapotok = adatok
             .GroupBy(b => b.Allapot)
@@ -88,6 +110,9 @@ public class VezetoiController(ApplicationDbContext db) : Controller
                     && b.Hatarido.HasValue && b.Hatarido.Value.Date < ma)))
             .OrderByDescending(t => t.Osszes)
             .ToList();
+
+        ViewBag.Tol = tol;
+        ViewBag.Ig = ig;
 
         return View(new VezetoiKimutatasNezet(
             nyitott,

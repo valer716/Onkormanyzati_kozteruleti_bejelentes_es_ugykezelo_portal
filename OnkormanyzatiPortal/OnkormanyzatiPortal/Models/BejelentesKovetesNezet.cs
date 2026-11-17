@@ -4,7 +4,7 @@ public record KovetesEsemeny(DateTime IdopontUtc, BejelentesAllapot Allapot);
 
 public record BejelentesKovetesNezet(
     int Id,
-    Guid Kovetokod,
+    string Kovetokod,
     BejelentesAllapot Allapot,
     DateTime? Hatarido,
     int? Ertekeles,

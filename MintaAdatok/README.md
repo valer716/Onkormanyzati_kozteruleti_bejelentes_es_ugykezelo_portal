@@ -12,7 +12,7 @@ Mintabejelentések a bemutatóhoz és a kipróbáláshoz.
 
 A 538 bejelentés a járokelo.hu nyilvános, győri bejelentéseiből készült 2021-től, tanulási célra. Átvettük a címet, a leírást, a helyszínt, a koordinátát, a kategóriát, az állapotot, a beküldés napját és a bejelentés első fotóját. A bejelentő neve, a hivatali válaszok és a hozzászólások nem kerültek át.
 
-Az ellenőrzés napja az első hivatali válasz napja, a lezárás napja a megoldottnak jelölés napja, ahol az oldalon volt ilyen adat. Kitalált, a portál szabályainak megfelelő adat: ahol ilyen nem volt, ott ez a két nap, továbbá a határidő, az értékelés, a részfeladatok, a naplóbejegyzések időpontja és az, hogy melyik demó-felhasználó végezte őket. A járókelős állapotok leképezése: megoldott → Lezart, megoldatlan → Teves (külső szolgáltatónál HataskoronKivuli), megoldásra vár → Folyamatban, a többi → Uj.
+Az ellenőrzés napja az első hivatali válasz napja, a lezárás napja a megoldottnak jelölés napja, ahol az oldalon volt ilyen adat. Kitalált, a portál szabályainak megfelelő adat: ahol ilyen nem volt, ott ez a két nap, továbbá a határidő, az értékelés, a részfeladatok, a naplóbejegyzések időpontja és az, hogy melyik demó-felhasználó végezte őket. A járókelős állapotok leképezése: megoldott → Lezart, megoldatlan → Teves (külső szolgáltatónál HataskoronKivuli), megoldásra vár → Folyamatban, a többi → Uj. Szervezetenként néhány friss lezárt ügy demó célból folyamatban van, hogy minden végrehajtónak legyen nyitott feladata.
 
 ## Betöltés a portálba
 
@@ -33,7 +33,7 @@ A szerver csak a saját gépről érhető el, és a fájlokat közvetlenül a `M
 ```json
 {
   "azonosito": "bj-0001",
-  "kovetokod": "329572c7-5c8b-4730-b69b-15375fb25d80",
+  "kovetokod": "329572",
   "cim": "Betört aknafedél",
   "leiras": "Az aknafedél eltört, balesetveszélyes az úttesten.",
   "helyszin": "Kossuth utca 12., Budapest",

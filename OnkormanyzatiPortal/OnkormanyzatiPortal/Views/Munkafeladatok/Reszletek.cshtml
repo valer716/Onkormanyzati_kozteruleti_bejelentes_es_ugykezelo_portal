@@ -57,7 +57,7 @@
 
             <div class="col-6 col-md-4 col-lg-3">
                 <figure class="m-0">
-                    <a asp-action="Foto" asp-route-id="@foto.Id" target="_blank">
+                    <a href="@Url.Action("Foto", new { id = foto.Id })" data-foto-url="@Url.Action("Foto", new { id = foto.Id })" data-foto-cim="@cimke">
                         <img src="@Url.Action("Foto", new { id = foto.Id })" alt="@cimke"
                              class="img-fluid rounded border" loading="lazy" />
                     </a>
@@ -101,3 +101,5 @@ else if (!string.IsNullOrEmpty(Model.Megjegyzes))
     <h2 class="h5">Helyszíni megjegyzés</h2>
     <p style="white-space: pre-wrap">@Model.Megjegyzes</p>
 }
+
+<partial name="_FotoModal" />

@@ -10,70 +10,77 @@
 <link rel="stylesheet"
       href="https://unpkg.com/leaflet@@1.9.4/dist/leaflet.css" />
 
-<form asp-action="Letrehozas" method="post" enctype="multipart/form-data">
+<form asp-action="Letrehozas" method="post" enctype="multipart/form-data" data-piszkozat="uj-bejelentes">
     <div asp-validation-summary="All" class="text-danger" role="alert"></div>
 
-    <div class="mb-3">
-        <label asp-for="Cim" class="form-label">Rövid cím</label>
-        <input asp-for="Cim" class="form-control" required maxlength="120" />
-    </div>
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="mb-3">
+                <label asp-for="Cim" class="form-label">Bejelentés címe</label>
+                <input asp-for="Cim" class="form-control" required maxlength="120" />
+            </div>
 
-    <div class="mb-3">
-        <label asp-for="Leiras" class="form-label">Leírás</label>
-        <textarea asp-for="Leiras" class="form-control" rows="4"
-                  required maxlength="2000"></textarea>
-    </div>
+            <div class="mb-3">
+                <label asp-for="Leiras" class="form-label">Leírás</label>
+                <textarea asp-for="Leiras" class="form-control" rows="5"
+                          required maxlength="2000"></textarea>
+            </div>
 
-    <div class="mb-3">
-        <label asp-for="Helyszin" class="form-label">Helyszín</label>
-        <input asp-for="Helyszin" class="form-control" required maxlength="200" />
-    </div>
+            <div class="mb-3">
+                <label asp-for="Kategoria" class="form-label">Kategória</label>
+                <select asp-for="Kategoria"
+                        asp-items="Html.GetEnumSelectList<BejelentesKategoria>()"
+                        class="form-select"></select>
+                <div class="form-text">Ha nem vagy biztos benne, hagyd Egyéb értéken, az ügyintéző besorolja.</div>
+            </div>
 
-    <div class="mb-3">
-        <label asp-for="Kategoria" class="form-label">Kategória</label>
-        <select asp-for="Kategoria"
-                asp-items="Html.GetEnumSelectList<BejelentesKategoria>()"
-                class="form-select"></select>
-    </div>
+            <div class="mb-3">
+                <label asp-for="Helyszin" class="form-label">Utca, házszám (nem kötelező)</label>
+                <input asp-for="Helyszin" class="form-control" maxlength="200" />
+                <div class="form-text">Ha üresen hagyod, a térképen megjelölt pontot használjuk.</div>
+            </div>
 
-    <p>Kattints a térképen a hiba helyére, vagy add meg kézzel a koordinátákat.</p>
-
-    <div id="terkep" class="mb-3" style="height: 300px;"
-         aria-label="Helyszín kiválasztása a térképen"></div>
-
-    <div class="row g-2 mb-3">
-        <div class="col-sm">
-            <label for="szelesseg" class="form-label">Szélesség</label>
-            @Html.TextBox("szelesseg", null, new
-            {
-                @class = "form-control",
-                inputmode = "decimal",
-                maxlength = 32,
-                required = "required"
-            })
+            <div class="mb-3">
+                <label for="foto" class="form-label">Fénykép (nem kötelező, legfeljebb 5 MB)</label>
+                <input id="foto" name="foto" type="file"
+                       accept="image/jpeg,image/png" class="form-control" />
+            </div>
         </div>
-        <div class="col-sm">
-            <label for="hosszusag" class="form-label">Hosszúság</label>
-            @Html.TextBox("hosszusag", null, new
-            {
-                @class = "form-control",
-                inputmode = "decimal",
-                maxlength = 32,
-                required = "required"
-            })
+
+        <div class="col-lg-6">
+            <p class="mb-2">Kattints a térképen a hiba helyére.</p>
+
+            <div id="terkep" class="mb-3 border rounded" style="aspect-ratio: 1 / 1; max-height: 520px; width: 100%;"
+                 aria-label="Helyszín kiválasztása a térképen"></div>
+
+            <div class="row g-2 mb-3">
+                <div class="col-sm">
+                    <label for="szelesseg" class="form-label">Szélesség</label>
+                    @Html.TextBox("szelesseg", null, new
+                    {
+                        @class = "form-control",
+                        inputmode = "decimal",
+                        maxlength = 32,
+                        required = "required"
+                    })
+                </div>
+                <div class="col-sm">
+                    <label for="hosszusag" class="form-label">Hosszúság</label>
+                    @Html.TextBox("hosszusag", null, new
+                    {
+                        @class = "form-control",
+                        inputmode = "decimal",
+                        maxlength = 32,
+                        required = "required"
+                    })
+                </div>
+            </div>
+            <div class="form-text mb-3">A koordináták a térképre kattintva kitöltődnek, kézzel is átírhatók.</div>
         </div>
     </div>
 
-    <div class="mb-3">
-        <label for="foto" class="form-label">Fénykép (opcionális, max. 5 MB)</label>
-        <input id="foto" name="foto" type="file"
-               accept="image/jpeg,image/png" class="form-control" />
-    </div>
-
-    <button type="submit" class="btn btn-primary">Beküldés</button>
+    <button type="submit" class="btn btn-primary btn-lg">Beküldés</button>
 </form>
-
-<p class="mt-3"><a asp-action="Kovetes">Meglévő bejelentés követése</a></p>
 
 @section Scripts {
     <script src="https://unpkg.com/leaflet@@1.9.4/dist/leaflet.js"></script>
@@ -113,10 +120,13 @@
                 szelesseg.value = pont.lat.toFixed(6);
                 hosszusag.value = pont.lng.toFixed(6);
                 jeloles(pont.lat, pont.lng);
+                szelesseg.dispatchEvent(new Event("input", { bubbles: true }));
+                hosszusag.dispatchEvent(new Event("input", { bubbles: true }));
             });
 
             szelesseg.addEventListener("change", jelolesMezokbol);
             hosszusag.addEventListener("change", jelolesMezokbol);
+            document.addEventListener("piszkozat-visszaallitva", jelolesMezokbol);
             jelolesMezokbol();
         } else {
             document.getElementById("terkep").textContent =

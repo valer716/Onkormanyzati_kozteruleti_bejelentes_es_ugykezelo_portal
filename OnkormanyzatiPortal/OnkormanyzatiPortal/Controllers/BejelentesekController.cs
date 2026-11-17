@@ -3,6 +3,11 @@ using OnkormanyzatiPortal.Data;
 using OnkormanyzatiPortal.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using System.Globalization;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Security.Cryptography;
 using System.Security.Claims;
 namespace OnkormanyzatiPortal.Controllers;
 
@@ -43,6 +48,15 @@ public class BejelentesekController : Controller
                 ModelState.AddModelError("hosszusag", "A hosszúság −180 és 180 közé essen.");
         }
 
+        var koordinataHiba = ModelState["szelesseg"]?.Errors.Count > 0
+            || ModelState["hosszusag"]?.Errors.Count > 0;
+
+        if (string.IsNullOrWhiteSpace(bejelentes.Helyszin) && !koordinataHiba)
+        {
+            bejelentes.Helyszin = FormattableString.Invariant($"Térképi pont: {lat:0.00000}, {lon:0.00000}");
+            ModelState.Remove(nameof(Bejelentes.Helyszin));
+        }
+
         if (!ModelState.IsValid)
         {
             return View(bejelentes);
@@ -62,7 +76,7 @@ public class BejelentesekController : Controller
         bejelentes.LetrehozvaUtc = DateTime.UtcNow;
         bejelentes.Allapot = BejelentesAllapot.Uj;
 
-        var kod = Guid.NewGuid();
+        var kod = await UjKovetokodAsync();
         bejelentes.Kovetokod = kod;
         bejelentes.Szelesseg = lat;
         bejelentes.Hosszusag = lon;
@@ -84,9 +98,48 @@ public class BejelentesekController : Controller
         });
         await _db.SaveChangesAsync();
 
-        TempData["Kovetokod"] = kod.ToString();
+        TempData["Kovetokod"] = kod;
         return RedirectToAction(nameof(Kovetes));
     }
+    private async Task<string> UjKovetokodAsync()
+    {
+        while (true)
+        {
+            var kod = RandomNumberGenerator.GetInt32(100000, 1000000).ToString(CultureInfo.InvariantCulture);
+
+            if (!await _db.Bejelentesek.AnyAsync(b => b.Kovetokod == kod))
+                return kod;
+        }
+    }
+
+    private static string? KovetokodNormalizalas(string? bemenet)
+    {
+        var szamok = new string((bemenet ?? string.Empty).Where(char.IsDigit).ToArray());
+        return szamok.Length == 6 ? szamok : null;
+    }
+
+    private static Expression<Func<Bejelentes, int>> KategoriaSorrend()
+    {
+        var kulturak = new CultureInfo("hu-HU");
+
+        var sorrend = Enum.GetValues<BejelentesKategoria>()
+            .OrderBy(k => k.GetType().GetField(k.ToString())!.GetCustomAttribute<DisplayAttribute>()!.Name, StringComparer.Create(kulturak, true))
+            .ToList();
+
+        var bejelentes = Expression.Parameter(typeof(Bejelentes), "b");
+        Expression kifejezes = Expression.Constant(0);
+
+        for (var i = sorrend.Count - 1; i >= 0; i--)
+        {
+            kifejezes = Expression.Condition(
+                Expression.Equal(Expression.Property(bejelentes, nameof(Bejelentes.Kategoria)), Expression.Constant(sorrend[i])),
+                Expression.Constant(i),
+                kifejezes);
+        }
+
+        return Expression.Lambda<Func<Bejelentes, int>>(kifejezes, bejelentes);
+    }
+
     private static bool KoordinataErvenyes(string? szoveg, double hatar, out double ertek)
     {
         return double.TryParse(
@@ -102,8 +155,10 @@ public class BejelentesekController : Controller
     [Authorize(Roles = "Ugyintezo")]
     public async Task<IActionResult> Index(
         string? kereses,
-        BejelentesKategoria? kategoria,
-        BejelentesAllapot? allapot,
+        BejelentesKategoria[]? kategoria,
+        BejelentesAllapot[]? allapot,
+        string? rendez,
+        string? irany,
         int oldal = 1)
     {
         const int oldalMeret = 50;
@@ -116,19 +171,32 @@ public class BejelentesekController : Controller
                 b.Cim.Contains(szo) || b.Helyszin.Contains(szo));
         }
 
-        if (kategoria.HasValue)
-            lekerdezes = lekerdezes.Where(b => b.Kategoria == kategoria.Value);
+        if (kategoria is { Length: > 0 })
+            lekerdezes = lekerdezes.Where(b => kategoria.Contains(b.Kategoria));
 
-        if (allapot.HasValue)
-            lekerdezes = lekerdezes.Where(b => b.Allapot == allapot.Value);
+        if (allapot is { Length: > 0 })
+            lekerdezes = lekerdezes.Where(b => allapot.Contains(b.Allapot));
+
+        var csokkeno = irany == "csokkeno";
 
         var darab = await lekerdezes.CountAsync();
         var oldalSzam = Math.Max(1, (int)Math.Ceiling(darab / (double)oldalMeret));
         oldal = Math.Clamp(oldal, 1, oldalSzam);
 
-        var lista = await lekerdezes
-            .OrderByDescending(b => b.Veszelyes)
-            .ThenByDescending(b => b.LetrehozvaUtc)
+        var rendezett = rendez switch
+        {
+            "azonosito" => csokkeno ? lekerdezes.OrderByDescending(b => b.Id) : lekerdezes.OrderBy(b => b.Id),
+            "cim" => csokkeno ? lekerdezes.OrderByDescending(b => b.Cim) : lekerdezes.OrderBy(b => b.Cim),
+            "helyszin" => csokkeno ? lekerdezes.OrderByDescending(b => b.Helyszin) : lekerdezes.OrderBy(b => b.Helyszin),
+            "kategoria" => csokkeno
+                ? lekerdezes.OrderByDescending(KategoriaSorrend()).ThenBy(b => b.Id)
+                : lekerdezes.OrderBy(KategoriaSorrend()).ThenBy(b => b.Id),
+            "allapot" => csokkeno ? lekerdezes.OrderByDescending(b => b.Allapot) : lekerdezes.OrderBy(b => b.Allapot),
+            "beerkezes" => csokkeno ? lekerdezes.OrderByDescending(b => b.LetrehozvaUtc) : lekerdezes.OrderBy(b => b.LetrehozvaUtc),
+            _ => lekerdezes.OrderByDescending(b => b.Veszelyes).ThenByDescending(b => b.LetrehozvaUtc)
+        };
+
+        var lista = await rendezett
             .Skip((oldal - 1) * oldalMeret)
             .Take(oldalMeret)
             .ToListAsync();
@@ -165,8 +233,7 @@ public class BejelentesekController : Controller
     [HttpPost]
     [Authorize(Roles = "Ugyintezo")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Ellenoriz(
-        int id, string? cim, string? leiras, string? helyszin, DateTime? hatarido)
+    public async Task<IActionResult> Ellenoriz(int id, DateTime? hatarido)
     {
         var bejelentes = await _db.Bejelentesek.FindAsync(id);
 
@@ -176,34 +243,18 @@ public class BejelentesekController : Controller
         if (bejelentes.Allapot is not
             (BejelentesAllapot.Uj or BejelentesAllapot.Ellenorizve))
         {
-            return BadRequest("Ebben az állapotban az ügy már nem pontosítható.");
+            return BadRequest("Ebben az állapotban az ügy már nem ellenőrizhető.");
         }
 
-        cim = cim?.Trim();
-        leiras = leiras?.Trim();
-        helyszin = helyszin?.Trim();
-
-        if (string.IsNullOrEmpty(cim) || cim.Length > 120)
-            ModelState.AddModelError("Cim", "Adj meg címet, legfeljebb 120 karakterben.");
-
-        if (string.IsNullOrEmpty(leiras) || leiras.Length > 2000)
-            ModelState.AddModelError("Leiras", "Adj meg leírást, legfeljebb 2000 karakterben.");
-
-        if (string.IsNullOrEmpty(helyszin) || helyszin.Length > 200)
-            ModelState.AddModelError("Helyszin", "Adj meg helyszínt, legfeljebb 200 karakterben.");
-
         if (hatarido is null || hatarido.Value.Date < DateTime.Today)
-            ModelState.AddModelError("Hatarido", "A határidő ma vagy később legyen.");
-
-        if (!ModelState.IsValid)
-            return await ReszletekNezet(bejelentes);
+        {
+            TempData["Hiba"] = "A határidő ma vagy később legyen.";
+            return RedirectToAction(nameof(Reszletek), "Bejelentesek", new { id }, "kovetkezo");
+        }
 
         var elozoAllapot = bejelentes.Allapot;
 
-        bejelentes.Cim = cim!;
-        bejelentes.Leiras = leiras!;
-        bejelentes.Helyszin = helyszin!;
-        bejelentes.Hatarido = hatarido!.Value.Date;
+        bejelentes.Hatarido = hatarido.Value.Date;
         bejelentes.Allapot = BejelentesAllapot.Ellenorizve;
 
         _db.BejelentesNaplok.Add(new BejelentesNaplo
@@ -211,7 +262,7 @@ public class BejelentesekController : Controller
             BejelentesId = bejelentes.Id,
             Muvelet = elozoAllapot == BejelentesAllapot.Uj
                 ? "Ellenőrzés és határidő beállítása"
-                : "Ügyadatok és határidő pontosítása",
+                : "Határidő módosítása",
             ElozoAllapot = elozoAllapot,
             UjAllapot = bejelentes.Allapot,
             Hatarido = bejelentes.Hatarido,
@@ -229,9 +280,110 @@ public class BejelentesekController : Controller
             TempData["Hiba"] = "Az ügy közben megváltozott. Nézd át, majd próbáld újra.";
             return RedirectToAction(nameof(Reszletek), new { id });
         }
-        TempData["Siker"] = "Az ellenőrzött ügy adatait mentettük.";
+
+        TempData["Siker"] = "Az ügyet ellenőrzöttnek jelöltük.";
         return RedirectToAction(nameof(Reszletek), new { id });
     }
+
+    [HttpPost]
+    [Authorize(Roles = "Ugyintezo")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Pontosit(
+        int id, string? cim, string? leiras, string? helyszin, BejelentesKategoria kategoria)
+    {
+        var bejelentes = await _db.Bejelentesek.FindAsync(id);
+
+        if (bejelentes is null)
+            return NotFound();
+
+        if (bejelentes.Allapot is not (BejelentesAllapot.Uj or BejelentesAllapot.Ellenorizve
+            or BejelentesAllapot.Folyamatban or BejelentesAllapot.LezarasraVar))
+        {
+            return BadRequest("Ebben az állapotban az ügy adatai már nem módosíthatók.");
+        }
+
+        cim = cim?.Trim();
+        leiras = leiras?.Trim();
+        helyszin = helyszin?.Trim();
+
+        if (string.IsNullOrEmpty(cim) || cim.Length > 120
+            || string.IsNullOrEmpty(leiras) || leiras.Length > 2000
+            || string.IsNullOrEmpty(helyszin) || helyszin.Length > 200
+            || !Enum.IsDefined(kategoria))
+        {
+            TempData["Hiba"] = "Adj meg címet (legfeljebb 120), leírást (legfeljebb 2000) és helyszínt (legfeljebb 200 karakter).";
+            return RedirectToAction(nameof(Reszletek), "Bejelentesek", new { id }, "adatok");
+        }
+
+        bejelentes.Cim = cim;
+        bejelentes.Leiras = leiras;
+        bejelentes.Helyszin = helyszin;
+        bejelentes.Kategoria = kategoria;
+        bejelentes.Verzio = Guid.NewGuid();
+
+        _db.BejelentesNaplok.Add(new BejelentesNaplo
+        {
+            BejelentesId = bejelentes.Id,
+            Muvelet = "Ügyadatok pontosítva",
+            ElozoAllapot = bejelentes.Allapot,
+            UjAllapot = bejelentes.Allapot,
+            Hatarido = bejelentes.Hatarido,
+            FelhasznaloId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+        });
+
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            TempData["Hiba"] = "Az ügy közben megváltozott. Nézd át, majd próbáld újra.";
+            return RedirectToAction(nameof(Reszletek), "Bejelentesek", new { id }, "adatok");
+        }
+
+        TempData["Siker"] = "Az ügy adatait mentettük.";
+        return RedirectToAction(nameof(Reszletek), "Bejelentesek", new { id }, "adatok");
+    }
+
+    private async Task<List<FoUgyJelolt>> FoUgyJeloltek(Bejelentes bejelentes)
+    {
+        var jeloltek = await _db.Bejelentesek
+            .AsNoTracking()
+            .Where(b => b.Id != bejelentes.Id
+                && b.Kategoria == bejelentes.Kategoria
+                && (b.Allapot == BejelentesAllapot.Ellenorizve
+                    || b.Allapot == BejelentesAllapot.Folyamatban
+                    || b.Allapot == BejelentesAllapot.LezarasraVar))
+            .OrderByDescending(b => b.LetrehozvaUtc)
+            .Take(200)
+            .Select(b => new FoUgyJelolt(b.Id, b.Cim, b.Helyszin, b.Szelesseg, b.Hosszusag, null))
+            .ToListAsync();
+
+        if (bejelentes.Szelesseg is double lat && bejelentes.Hosszusag is double lon)
+        {
+            jeloltek = jeloltek
+                .Select(j => j with { TavolsagMeter = j.Szelesseg is double jLat && j.Hosszusag is double jLon
+                    ? Tavolsag(lat, lon, jLat, jLon)
+                    : null })
+                .OrderBy(j => j.TavolsagMeter ?? double.MaxValue)
+                .ToList();
+        }
+
+        return jeloltek.Take(15).ToList();
+    }
+
+    private static double Tavolsag(double lat1, double lon1, double lat2, double lon2)
+    {
+        const double fold = 6371000;
+        var fok = Math.PI / 180;
+        var dLat = (lat2 - lat1) * fok;
+        var dLon = (lon2 - lon1) * fok;
+        var a = Math.Pow(Math.Sin(dLat / 2), 2)
+            + Math.Cos(lat1 * fok) * Math.Cos(lat2 * fok) * Math.Pow(Math.Sin(dLon / 2), 2);
+
+        return fold * 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+    }
+
     private async Task<IActionResult> ReszletekNezet(Bejelentes bejelentes)
     {
         ViewBag.Reszfeladatok = await _db.Reszfeladatok
@@ -262,6 +414,8 @@ public class BejelentesekController : Controller
         ViewBag.Felhasznalok = await _db.Users
             .AsNoTracking()
             .ToDictionaryAsync(u => u.Id, u => u.UserName ?? string.Empty);
+
+        ViewBag.FoUgyek = await FoUgyJeloltek(bejelentes);
 
         ViewBag.JelzesekSzama = 1 + await _db.Bejelentesek
             .CountAsync(b => b.FoBejelentesId == bejelentes.Id);
@@ -295,7 +449,7 @@ public class BejelentesekController : Controller
             || feladatHatarido is null
             || feladatHatarido.Value.Date < DateTime.Today
             || feladatHatarido.Value.Date > bejelentes.Hatarido.Value.Date
-            || !await _db.Szervezetek.AnyAsync(s => s.Id == szervezetId))
+            || await _db.Szervezetek.FindAsync(szervezetId) is null)
         {
             TempData["Hiba"] = "Adj meg feladatcímet, szervezetet és érvényes határidőt. "
                 + "A feladat határideje nem lehet múltbeli vagy későbbi az ügy határidejénél.";
@@ -319,7 +473,7 @@ public class BejelentesekController : Controller
         _db.BejelentesNaplok.Add(new BejelentesNaplo
         {
             BejelentesId = id,
-            Muvelet = $"Feladat kiosztva: szervezet #{szervezetId}, határidő {hatarido:yyyy-MM-dd}",
+            Muvelet = $"Feladat kiosztva: {(await _db.Szervezetek.FindAsync(szervezetId))!.Nev}, határidő {hatarido:yyyy-MM-dd}",
             ElozoAllapot = elozoAllapot,
             UjAllapot = bejelentes.Allapot,
             Hatarido = bejelentes.Hatarido,
@@ -395,24 +549,28 @@ public class BejelentesekController : Controller
     [HttpGet]
     [AllowAnonymous]
     [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-    public IActionResult Kovetes()
+    public async Task<IActionResult> Kovetes(string? kovetokod)
     {
-        return View();
+        if (string.IsNullOrWhiteSpace(kovetokod))
+            return View();
+
+        return await KovetesKeres(kovetokod);
     }
 
     [HttpPost]
     [AllowAnonymous]
     [ValidateAntiForgeryToken]
     [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-    public async Task<IActionResult> Kovetes(Guid? kovetokod)
+    [ActionName("Kovetes")]
+    public async Task<IActionResult> KovetesKeres(string? kovetokod)
     {
-        if (!ModelState.IsValid || kovetokod is null || kovetokod == Guid.Empty)
+        var kod = KovetokodNormalizalas(kovetokod);
+
+        if (!ModelState.IsValid || kod is null)
         {
-            ModelState.AddModelError("", "Adj meg érvényes követőkódot.");
+            ModelState.AddModelError("", "Adj meg érvényes, 6 számjegyű követőkódot.");
             return View();
         }
-
-        var kod = kovetokod.Value;
 
         var eredmeny = await _db.Bejelentesek
             .AsNoTracking()
@@ -446,15 +604,15 @@ public class BejelentesekController : Controller
     [AllowAnonymous]
     [ValidateAntiForgeryToken]
     [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-    public async Task<IActionResult> Ertekel(Guid? kovetokod, int pont)
+    public async Task<IActionResult> Ertekel(string? kovetokod, int pont)
     {
-        if (!ModelState.IsValid || kovetokod is null
-            || kovetokod == Guid.Empty || pont is < 1 or > 5)
+        var kod = KovetokodNormalizalas(kovetokod);
+
+        if (!ModelState.IsValid || kod is null || pont is < 1 or > 5)
         {
             return BadRequest("Érvényes követőkód és 1–5 közötti pontszám szükséges.");
         }
 
-        var kod = kovetokod.Value;
         var bejelentes = await _db.Bejelentesek.Include(b => b.FoBejelentes)
             .SingleOrDefaultAsync(b => b.Kovetokod == kod);
 
@@ -603,12 +761,12 @@ public class BejelentesekController : Controller
         }
 
         TempData["Siker"] = "A módosítást mentettük.";
-        return RedirectToAction(nameof(Reszletek), new { id });
+        return RedirectToAction(nameof(Reszletek), "Bejelentesek", new { id }, "kulonleges");
 
         IActionResult Hiba(string uzenet)
         {
             TempData["Hiba"] = uzenet;
-            return RedirectToAction(nameof(Reszletek), new { id });
+            return RedirectToAction(nameof(Reszletek), "Bejelentesek", new { id }, "kulonleges");
         }
 
         void Naploz(Bejelentes bejelentes, BejelentesAllapot elozoAllapot, string szoveg)
