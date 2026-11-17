@@ -23,8 +23,8 @@
                         aria-expanded="false" aria-label="Menü megnyitása">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="navbar-collapse collapse align-items-sm-center">
+                    <ul class="navbar-nav">
                         <li class="nav-item">
                             <a class="nav-link" asp-area=""
                                asp-controller="Home" asp-action="Index">Kezdőlap</a>
@@ -37,7 +37,9 @@
                             <a class="nav-link" asp-area=""
                                asp-controller="Bejelentesek" asp-action="Kovetes">Ügykövetés</a>
                         </li>
+                    </ul>
 
+                    <ul class="navbar-nav ms-sm-auto align-items-sm-center">
                         @if (User.IsInRole("Ugyintezo"))
                         {
                             <li class="nav-item">
@@ -62,7 +64,7 @@
                             </li>
                         }
                     </ul>
-                    <div class="dropdown me-2 my-1">
+                    <div class="dropdown nav-elvalaszto my-1">
                         <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
                                 data-bs-toggle="dropdown" aria-expanded="false">Megjelenés</button>
                         <ul class="dropdown-menu dropdown-menu-end">
